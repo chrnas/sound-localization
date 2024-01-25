@@ -54,3 +54,8 @@ git checkout main
 ```
 git merge develop
 ```
+
+## Git flow commandon och mer info
+
+Git flow kommandon och mer info:
+[Atlassian Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
