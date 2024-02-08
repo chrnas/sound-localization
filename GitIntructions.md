@@ -15,6 +15,8 @@ Alla feautres ska ha namn konventionen *feature/feature_name* för att hålla st
 Skapa ny branch under *branches->New Branch*.
 ![GitHub, new branch](src/Newbranch.png)
 
+Tänk på att välja ifrån source ifrån develop om du vill starta med kod ifrån den branchen!
+
 ### Via terminalen
 ```
 git branch feature/feature_name
@@ -43,6 +45,13 @@ git checkout develop
 ```
 git merge feature/feature_name
 ```
+Pusha sedan mergen till remote repository
+```
+git add -A
+```
+```
+git commit -m "message"
+```
 
 ## Merge develop branch to main
 
@@ -53,6 +62,13 @@ git checkout main
 ```
 ```
 git merge develop
+```
+Pusha sedan mergen till remote repository
+```
+git add -A
+```
+```
+git commit -m "message"
 ```
 
 ## Git flow commandon och mer info
