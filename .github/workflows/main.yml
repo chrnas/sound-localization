@@ -1,0 +1,32 @@
+name: PyTorch Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'  # Replace 'x' with the version of Python you're using
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch torchvision torchaudio
+      - name: Run tests
+        run: |
+          python -m unittest discover tests/  # Assuming you have unit tests in a 'tests' directory
