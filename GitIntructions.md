@@ -52,6 +52,9 @@ git add -A
 ```
 git commit -m "message"
 ```
+```
+git push
+```
 
 ## Merge develop branch to main
 
@@ -69,6 +72,9 @@ git add -A
 ```
 ```
 git commit -m "message"
+```
+```
+git push
 ```
 
 ## Git flow commandon och mer info
