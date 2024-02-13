@@ -1,3 +1,9 @@
+"""
+This module provides various tools for testing. It is only a demonstration file and not meant to be used.
+
+Functions:
+    * TestAddFunciton(numbers): Calculates the average of a list of numbers.
+"""
 import unittest
 from my_module import add 
 
