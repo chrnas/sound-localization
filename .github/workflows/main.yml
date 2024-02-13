@@ -33,13 +33,24 @@ jobs:
         run: |
           python -m unittest discover tests/
           pylint **/*.py
-      - name: Create Pylint Issue
+    
+      - name: Check if workflow failed
+        id: check-failed
+        run: echo "::set-output name=failed::${{ failure() }}"
+      - name: Create issue
+        if: steps.check-failed.outputs.failed == 'true'
         uses: actions/github-script@v5
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            await  github.getOctokit(TDDD96_GITHUB_TOKEN).issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Pylint Issues Detected',
-              body: 'Pylint found issues in the code.',
+            const title = "Workflow Failed: ${{ github.workflow }}";
+            const body = "The workflow encountered an error. Please investigate and fix it.";
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue = await github.issues.create({
+              owner,
+              repo,
+              title,
+              body,
             });
+            console.log(`Created issue: ${issue.data.html_url}`);
