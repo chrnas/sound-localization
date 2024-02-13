@@ -6,16 +6,7 @@ Functions:
 """
 import unittest
 from my_module import add 
-   """
-    Adds two numbers together.
 
-    Args:
-        a (int): The first number.
-        b (int): The second number.
-
-    Returns:
-        int: The sum of the two numbers.
-    """
 class TestAddFunction(unittest.TestCase):
     def test_add_positive_numbers(self):
         """
