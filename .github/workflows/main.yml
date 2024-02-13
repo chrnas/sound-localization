@@ -33,26 +33,23 @@ jobs:
         run: |
           python -m unittest discover tests/
           pylint **/*.py
-    needs:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check if Pylint failed
-          id: check-pylint-failed
-          run: echo "::set-output name=failed::${{ failure() }}"
-        - name: Create issue if Pylint failed
-          if: steps.check-pylint-failed.outputs.failed == 'true'
-          uses: actions/github-script@v5
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-              const title = "Pylint Error in Workflow: ${{ github.workflow }}";
-              const body = "Pylint detected an error in the code. Please investigate and fix it.";
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
-              const issue = await github.issues.create({
-                owner,
-                repo,
-                title,
-                body,
-              });
-              console.log(`Created issue: ${issue.data.html_url}`);
+      - name: Check if Pylint failed
+        id: check-pylint-failed
+        run: echo "::set-output name=failed::${{ failure() }}"
+      - name: Create issue if Pylint failed
+        if: steps.check-pylint-failed.outputs.failed == 'true'
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = "Pylint Error in Workflow: ${{ github.workflow }}";
+            const body = "Pylint detected an error in the code. Please investigate and fix it.";
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue = await github.issues.create({
+              owner,
+              repo,
+              title,
+              body,
+            });
+            console.log(`Created issue: ${issue.data.html_url}`);
