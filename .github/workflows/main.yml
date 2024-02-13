@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -U pytest
+          pip install --upgrade autopep8
           pip install pylint
       
 
