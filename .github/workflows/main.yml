@@ -33,11 +33,6 @@ jobs:
         run: |
           python -m unittest discover tests/
           pylint **/*.py
-    
-      - name: Check if workflow failed
-        id: check-failed
-        run: echo "::set-output name=failed::${{ failure() }}"
-    
     needs:
       runs-on: ubuntu-latest
       steps:
