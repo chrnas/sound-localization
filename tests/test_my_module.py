@@ -9,9 +9,9 @@ import unittest
 from my_module import add
 
 class TestAddFunction(unittest.TestCase):
-"""Tests the basic addition functionality of the 'add' function."""
+    """Tests the basic addition functionality of the 'add' function."""
     def test_add_positive_numbers(self):
-      """
-      Test that the `add` function correctly adds positive numbers.
-      """
-      self.assertEqual(add(2, 3), 5)
+        """
+        Test that the `add` function correctly adds positive numbers.
+        """
+        self.assertEqual(add(2, 3), 5)
