@@ -37,7 +37,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/github-script@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.TDDD96_GITHUB_TOKEN }}
           script: |
             const title = "Pylint Error in Workflow: ${{ github.workflow }}";
             const body = "Pylint detected an error in the code. Please investigate and fix it.";
