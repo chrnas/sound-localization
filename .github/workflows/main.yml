@@ -33,11 +33,8 @@ jobs:
         run: |
           python -m unittest discover tests/
           pylint **/*.py
-      - name: Check if Pylint failed
-        id: check-pylint-failed
-        run: echo "::set-output name=failed::${{ failure() }}"
-      - name: Create issue if Pylint failed
-        if: steps.check-pylint-failed.outputs.failed == 'true'
+      - name: Create issue on Pylint failure
+        if: ${{ failure() }}
         uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
