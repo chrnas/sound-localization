@@ -33,3 +33,13 @@ jobs:
         run: |
           python -m unittest discover tests/
           pylint **/*.py
+      - name: Create Pylint Issue
+        uses: actions/github-script@v5
+        with:
+          script: |
+            await  github.getOctokit(TDDD96_GITHUB_TOKEN).issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Pylint Issues Detected',
+              body: 'Pylint found issues in the code.',
+            });
