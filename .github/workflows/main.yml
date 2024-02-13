@@ -34,6 +34,7 @@ jobs:
           pylint **/*.py
       - name: Create issue on Pylint failure
         uses: actions/github-script@v7
+        id: create-issue
         if: ${{ failure() }}
         with:
           github-token: ${{ secrets.TDDD96_GITHUB_TOKEN }}
