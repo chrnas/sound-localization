@@ -5,11 +5,13 @@ on:
     branches:
       - main
       - develop
+      - feature/test
  
   pull_request:
     branches:
       - main
       - develop
+      - feature/test
 
 jobs:
   linting:
