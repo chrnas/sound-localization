@@ -3,7 +3,13 @@ name: Python Linting
 on:
   push:
     branches:
-      - 'test'
+      - main
+      - develop
+   
+ pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
   linting:
