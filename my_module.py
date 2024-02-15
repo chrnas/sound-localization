@@ -1,3 +1,10 @@
+"""
+This module provides various tools for summation.
+
+Functions:
+    * add(a,b): Perform summation.
+"""
+
 def add(a, b):
     """
     Adds two numbers together.
@@ -10,3 +17,7 @@ def add(a, b):
         int: The sum of the two numbers.
     """
     return a + b
+
+
+
+
