@@ -3,16 +3,7 @@
 
 name: Python application
 
-on:
-  push:
-    branches:
-      - main
-      - develop
-      
-  pull_request:
-    branches:
-      - main
-      - develop
+on: [push,pull_request]
 
 permissions:
   contents: read
