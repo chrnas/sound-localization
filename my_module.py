@@ -6,7 +6,7 @@ Functions:
 """
 
 
-def add(a, b):.
+def add(a, b):
     """
     Adds two numbers together.
 
@@ -18,4 +18,7 @@ def add(a, b):.
         int: The sum of the two numbers.
     """
 
+
+
+   
     return a + b
