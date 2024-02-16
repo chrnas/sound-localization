@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Sharing and Visualization</title>
+    <style>
+        body, html {
+            min-height: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+        }
+    
+        #content {
+            font-family: Arial, sans-serif;
+            display: center;
+            align-items: justify;
+            margin: 20px;
+        }
+    
+        #controls {
+            margin-bottom: 20px;
+        }
+    
+        #connectBtn {
+            margin-right: 10px;
+        }
+    
+        /* Style for the main waveform canvas */
+        #waveform {
+            border: 1px solid #ccc;
+            width: 100%; /* Control the width of the canvas */
+            height: 200px; /* Fixed height for consistency */
+            margin-top: 10px;
+        }
+    
+        /* Style for the dynamically created canvases within canvasContainer */
+        .audio-canvas {
+            border: 1px solid #ccc;
+            width: 100%; /* Match the width of the main canvas */
+            height: 200px; /* Match the height of the main canvas */
+            margin-top: 10px;
+
+        }
+    
+        .audio-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+    
+</head>
+<body>
+
+<div id="content">
+    <div id="controls">
+        <button id="connectBtn">Connect</button>
+        <input type="text" id="nameInput" placeholder="Enter your name">
+    </div>
+
+    <canvas id="waveform"></canvas>
+    <div id="canvasContainer"></div> <!-- Container for new canvases -->
+</div>
+
+<script src="/socket.io/socket.io.js"></script> <!-- Include the Socket.IO client library -->
+<script src="script.js"></script> <!-- External JavaScript file -->
+
+</body>
+</html>
