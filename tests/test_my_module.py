@@ -1,17 +1,11 @@
-"""
-This module provides various tools for testing. 
-It is only a demonstration file and not meant to be used.
+import pytest
+from my_module import add_numbers
 
-Functions:
-    * TestAddFunciton(numbers): Calculates the average of a list of numbers.
-"""
-import unittest
-from my_module import add
+def test_add_numbers():
+    assert add_numbers(1, 2) == 3
+    assert add_numbers(0, 0) == 0
+    assert add_numbers(-1, 1) == 0
+    assert add_numbers(-1, -1) == -2
 
-class TestAddFunction(unittest.TestCase):
-    """Tests the basic addition functionality of the 'add' function."""
-    def test_add_positive_numbers(self):
-        """
-        Test that the `add` function correctly adds positive numbers.
-        """
-        self.assertEqual(add(2, 3), 5)
+if __name__ == "__main__":
+    pytest.main()
