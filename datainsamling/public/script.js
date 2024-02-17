@@ -6,8 +6,8 @@ const canvasCtx = canvas.getContext('2d');
 
 document.getElementById('connectBtn').addEventListener('click', function () {
     let name = document.getElementById('nameInput').value;
-    let xCoordinate = document.getElementById('xInput').value; // Get the X coordinate from the input field
-    let yCoordinate = document.getElementById('yInput').value; // Get the Y coordinate from the input field
+    let xCoordinate = document.getElementById('xInput').value; 
+    let yCoordinate = document.getElementById('yInput').value;
 
     if (!name) {
         alert('Please enter your name.');
@@ -74,13 +74,6 @@ document.getElementById('connectBtn').addEventListener('click', function () {
         });
 });
 
-socket.on('incomingAudioData', (payload) => {
-    const { id, data, name } = payload;
-    if (id !== socket.id) {
-        drawIncomingWaveform(data, id, name);
-    }
-});
-
 function drawIncomingWaveform(dataArray, id, name) {
     let canvasId = 'canvas-' + id;
     let newCanvas = document.getElementById(canvasId);
@@ -107,13 +100,13 @@ function drawIncomingWaveform(dataArray, id, name) {
     newCanvasCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
     newCanvasCtx.lineWidth = 1;
     newCanvasCtx.strokeStyle = 'rgb(255, 0, 0)';
-    const sliceWidth = newCanvas.width * 1.0 / dataArray.length;
+    const sliceWidth = newCanvas.width / dataArray.length;
     let x = 0;
 
     newCanvasCtx.beginPath();
     for (let i = 0; i < dataArray.length; i++) {
         const v = dataArray[i] / 128.0;
-        let y = v * newCanvas.height / 2 + newCanvas.height / 2;
+        let y = v * 10000 + 50;
         if (i === 0) {
             newCanvasCtx.moveTo(x, y);
         } else {
@@ -123,3 +116,10 @@ function drawIncomingWaveform(dataArray, id, name) {
     }
     newCanvasCtx.stroke();
 }
+
+socket.on('incomingAudioData', (payload) => {
+    const { id, data, name } = payload;
+    if (id !== socket.id) {
+        drawIncomingWaveform(data, id, name);
+    }
+});
