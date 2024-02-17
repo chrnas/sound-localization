@@ -1,5 +1,4 @@
 // Establish a connection to the WebSocket server
-
 const socket = io();
 
 const canvas = document.getElementById('waveform');
@@ -7,13 +6,16 @@ const canvasCtx = canvas.getContext('2d');
 
 document.getElementById('connectBtn').addEventListener('click', function () {
     let name = document.getElementById('nameInput').value;
+    let xCoordinate = document.getElementById('xInput').value; // Get the X coordinate from the input field
+    let yCoordinate = document.getElementById('yInput').value; // Get the Y coordinate from the input field
+
     if (!name) {
         alert('Please enter your name.');
         return;
     }
 
-    // Inform the server of the new user
-    socket.emit('newUser', name);
+    // Inform the server of the new user and their coordinates
+    socket.emit('newUser', { name, xCoordinate, yCoordinate });
 
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
         .then(stream => {
@@ -35,12 +37,12 @@ document.getElementById('connectBtn').addEventListener('click', function () {
                 canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
                 canvasCtx.beginPath();
 
-                let sliceWidth = canvas.width / bufferLength;
+                let sliceWidth = canvas.width * 1.0 / bufferLength;
                 let x = 0;
 
                 for (let i = 0; i < bufferLength; i++) {
                     let v = dataArray[i] / 128.0;
-                    let y = v * canvas.height/2;
+                    let y = v * canvas.height / 2;
                     if (i === 0) {
                         canvasCtx.moveTo(x, y);
                     } else {
@@ -49,7 +51,7 @@ document.getElementById('connectBtn').addEventListener('click', function () {
                     x += sliceWidth;
                 }
 
-                canvasCtx.lineTo(canvas.width, canvas.height/2);
+                canvasCtx.lineTo(canvas.width, canvas.height / 2);
                 canvasCtx.stroke();
             }
 
@@ -62,60 +64,62 @@ document.getElementById('connectBtn').addEventListener('click', function () {
             processor.onaudioprocess = function (e) {
                 const input = e.inputBuffer.getChannelData(0);
                 const inputArray = Array.from(input);
-                socket.emit('audioData', { name: name, data: inputArray });
+                const timestamp = new Date().toISOString();
+                socket.emit('audioData', { name: name, data: inputArray, timestamp: timestamp });
             };
+
         })
         .catch(err => {
             console.error('Error accessing the microphone', err);
         });
+});
 
-    function drawIncomingWaveform(dataArray, id, name) {
-        let canvasId = 'canvas-' + id;
-        let newCanvas = document.getElementById(canvasId);
+socket.on('incomingAudioData', (payload) => {
+    const { id, data, name } = payload;
+    if (id !== socket.id) {
+        drawIncomingWaveform(data, id, name);
+    }
+});
 
-        if (!newCanvas) {
-            let container = document.createElement('div');
-            container.className = 'audio-container';
+function drawIncomingWaveform(dataArray, id, name) {
+    let canvasId = 'canvas-' + id;
+    let newCanvas = document.getElementById(canvasId);
 
-            newCanvas = document.createElement('canvas');
-            newCanvas.id = canvasId;
-            newCanvas.className = 'audio-canvas';
-            newCanvas.width = canvas.width;
-            newCanvas.height = 100;
+    if (!newCanvas) {
+        let container = document.createElement('div');
+        container.className = 'audio-container';
 
-            let nameTag = document.createElement('div');
-            nameTag.textContent = name;
+        newCanvas = document.createElement('canvas');
+        newCanvas.id = canvasId;
+        newCanvas.className = 'audio-canvas';
+        newCanvas.width = canvas.width;
+        newCanvas.height = 100;
 
-            container.appendChild(nameTag);
-            container.appendChild(newCanvas);
-            document.getElementById('canvasContainer').appendChild(container);
-        }
+        let nameTag = document.createElement('div');
+        nameTag.textContent = name;
 
-        let newCanvasCtx = newCanvas.getContext('2d');
-        newCanvasCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
-        newCanvasCtx.lineWidth = 1;
-        newCanvasCtx.strokeStyle = 'rgb(255, 0, 0)';
-        const sliceWidth = newCanvas.width / dataArray.length;
-        let x = 0;
-
-        newCanvasCtx.beginPath();
-        for (let i = 0; i < dataArray.length; i++) {
-            const v = dataArray[i] / 128.0;
-            let y = v * 10000 + 50;
-            if (i === 0) {
-                newCanvasCtx.moveTo(x, y);
-            } else {
-                newCanvasCtx.lineTo(x, y);
-            }
-            x += sliceWidth;
-        }
-        newCanvasCtx.stroke();
+        container.appendChild(nameTag);
+        container.appendChild(newCanvas);
+        document.getElementById('canvasContainer').appendChild(container);
     }
 
-    socket.on('incomingAudioData', (payload) => {
-        const { id, data, name } = payload;
-        if (id !== socket.id) {
-            drawIncomingWaveform(data, id, name);
+    let newCanvasCtx = newCanvas.getContext('2d');
+    newCanvasCtx.clearRect(0, 0, newCanvas.width, newCanvas.height);
+    newCanvasCtx.lineWidth = 1;
+    newCanvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+    const sliceWidth = newCanvas.width * 1.0 / dataArray.length;
+    let x = 0;
+
+    newCanvasCtx.beginPath();
+    for (let i = 0; i < dataArray.length; i++) {
+        const v = dataArray[i] / 128.0;
+        let y = v * newCanvas.height / 2 + newCanvas.height / 2;
+        if (i === 0) {
+            newCanvasCtx.moveTo(x, y);
+        } else {
+            newCanvasCtx.lineTo(x, y);
         }
-    });
-});
+        x += sliceWidth;
+    }
+    newCanvasCtx.stroke();
+}

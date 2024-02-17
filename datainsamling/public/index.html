@@ -26,21 +26,18 @@
             margin-right: 10px;
         }
     
-        /* Style for the main waveform canvas */
         #waveform {
             border: 1px solid #ccc;
-            width: 100%; /* Control the width of the canvas */
-            height: 200px; /* Fixed height for consistency */
+            width: 100%; 
+            height: 200px;
             margin-top: 10px;
         }
     
-        /* Style for the dynamically created canvases within canvasContainer */
         .audio-canvas {
             border: 1px solid #ccc;
-            width: 100%; /* Match the width of the main canvas */
-            height: 200px; /* Match the height of the main canvas */
+            width: 100%; 
+            height: 200px; 
             margin-top: 10px;
-
         }
     
         .audio-container {
@@ -49,18 +46,19 @@
             margin-top: 10px;
         }
     </style>
-    
 </head>
 <body>
 
 <div id="content">
     <div id="controls">
-        <button id="connectBtn">Connect</button>
         <input type="text" id="nameInput" placeholder="Enter your name">
+        <input type="text" id="xInput" placeholder="Enter X coordinate">
+        <input type="text" id="yInput" placeholder="Enter Y coordinate">
+        <button id="connectBtn">Connect</button>
     </div>
 
     <canvas id="waveform"></canvas>
-    <div id="canvasContainer"></div> <!-- Container for new canvases -->
+    <div id="canvasContainer"></div>
 </div>
 
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
