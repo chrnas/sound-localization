@@ -1,4 +1,5 @@
 // Establish a connection to the WebSocket server
+
 const socket = io();
 
 const canvas = document.getElementById('waveform');
