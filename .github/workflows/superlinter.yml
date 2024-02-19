@@ -19,7 +19,19 @@ jobs:
       statuses: write
 
     steps:
-      - uses: actions/checkout@v4.1.1
+      - name: Chekout Code
+        uses: actions/checkout@v4.1.1
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
+      - name: Set up Python 3.12.2
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.2"  
+      - name: Install-dependencies
+        run: |
+          pip install pytest
 
       - name: Super-linter
         uses: super-linter/super-linter@v6.1.1  # x-release-please-version
