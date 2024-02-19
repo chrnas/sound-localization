@@ -4,9 +4,9 @@ const socket = io();
 const canvas = document.getElementById('waveform');
 const canvasCtx = canvas.getContext('2d');
 
-document.getElementById('connectBtn').addEventListener('click', function () {
+document.getElementById('connectBtn').addEventListener('click', async function () { // Made the function async
     let name = document.getElementById('nameInput').value;
-    let xCoordinate = document.getElementById('xInput').value; 
+    let xCoordinate = document.getElementById('xInput').value;
     let yCoordinate = document.getElementById('yInput').value;
 
     if (!name) {
@@ -17,61 +17,66 @@ document.getElementById('connectBtn').addEventListener('click', function () {
     // Inform the server of the new user and their coordinates
     socket.emit('newUser', { name, xCoordinate, yCoordinate });
 
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-        .then(stream => {
-            const audioContext = new AudioContext();
-            const source = audioContext.createMediaStreamSource(stream);
-            const analyser = audioContext.createAnalyser();
-            source.connect(analyser);
-            analyser.fftSize = 2048;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const audioContext = new AudioContext();
 
-            function drawLocalWaveform() {
-                requestAnimationFrame(drawLocalWaveform);
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                analyser.getByteTimeDomainData(dataArray);
+        // Check if the AudioContext is in a suspended state (this is particularly important for Safari on iOS)
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
 
-                canvasCtx.fillStyle = 'rgb(200, 200, 200)';
-                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-                canvasCtx.lineWidth = 1;
-                canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-                canvasCtx.beginPath();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        source.connect(analyser);
+        analyser.fftSize = 2048;
 
-                let sliceWidth = canvas.width * 1.0 / bufferLength;
-                let x = 0;
+        function drawLocalWaveform() {
+            requestAnimationFrame(drawLocalWaveform);
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteTimeDomainData(dataArray);
 
-                for (let i = 0; i < bufferLength; i++) {
-                    let v = dataArray[i] / 128.0;
-                    let y = v * canvas.height / 2;
-                    if (i === 0) {
-                        canvasCtx.moveTo(x, y);
-                    } else {
-                        canvasCtx.lineTo(x, y);
-                    }
-                    x += sliceWidth;
+            canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.lineWidth = 1;
+            canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+            canvasCtx.beginPath();
+
+            let sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                let v = dataArray[i] / 128.0;
+                let y = v * canvas.height / 2;
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
                 }
-
-                canvasCtx.lineTo(canvas.width, canvas.height / 2);
-                canvasCtx.stroke();
+                x += sliceWidth;
             }
 
-            drawLocalWaveform();
+            canvasCtx.lineTo(canvas.width, canvas.height / 2);
+            canvasCtx.stroke();
+        }
 
-            const processor = audioContext.createScriptProcessor(2048, 1, 1);
-            source.connect(processor);
-            processor.connect(audioContext.destination);
+        drawLocalWaveform();
 
-            processor.onaudioprocess = function (e) {
-                const input = e.inputBuffer.getChannelData(0);
-                const inputArray = Array.from(input);
-                const timestamp = new Date().toISOString();
-                socket.emit('audioData', { name: name, data: inputArray, timestamp: timestamp });
-            };
+        const processor = audioContext.createScriptProcessor(2048, 1, 1);
+        source.connect(processor);
+        processor.connect(audioContext.destination);
 
-        })
-        .catch(err => {
-            console.error('Error accessing the microphone', err);
-        });
+        processor.onaudioprocess = function (e) {
+            const input = e.inputBuffer.getChannelData(0);
+            const inputArray = Array.from(input);
+            const timestamp = new Date().toISOString();
+            socket.emit('audioData', { name: name, data: inputArray, timestamp: timestamp });
+        };
+
+    } catch (err) {
+        console.error('Error accessing the microphone', err);
+    }
 });
 
 function drawIncomingWaveform(dataArray, id, name) {
@@ -106,7 +111,7 @@ function drawIncomingWaveform(dataArray, id, name) {
     newCanvasCtx.beginPath();
     for (let i = 0; i < dataArray.length; i++) {
         const v = dataArray[i] / 128.0;
-        let y = v * 10000 + 50;
+        let y = v * 10000 + 50; // Adjusted for visibility
         if (i === 0) {
             newCanvasCtx.moveTo(x, y);
         } else {
