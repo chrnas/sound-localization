@@ -5,7 +5,6 @@ Functions:
     * test_add: Performs test on the function add.
 """
 
-
 import pytest
 from my_module import add
 
