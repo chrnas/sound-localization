@@ -1,0 +1,34 @@
+name: Super Linter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install-dependencies
+        run: |
+          pip install pytest
+
+      - name: Super-linter
+        uses: super-linter/super-linter@v6.1.1  # x-release-please-version
+        env:
+          VALIDATE_CHECKOV: false
+          GITHUB_TOKEN: ${{ secrets.TDDD96_GITHUB_TOKEN }}
