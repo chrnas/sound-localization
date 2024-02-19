@@ -13,7 +13,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
         alert('Please enter your name.');
         return;
     }
-
+    
     // Inform the server of the new user and their coordinates
     socket.emit('newUser', { name, xCoordinate, yCoordinate });
 
@@ -79,6 +79,45 @@ document.getElementById('connectBtn').addEventListener('click', async function (
     }
 });
 
+function drawGrid() {
+    const gridSize = 10; // Adjust grid size as needed
+    const numLinesX = gridnet.width / gridSize;
+    const numLinesY = gridnet.height / gridSize;
+
+    gridCtx.strokeStyle = '#e0e0e0'; // Light grey lines for the grid
+
+    // Draw vertical lines
+    for (let i = 0; i <= numLinesX; i++) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(i * gridSize, 0);
+        gridCtx.lineTo(i * gridSize, gridnet.height);
+        gridCtx.stroke();
+    }
+
+    // Draw horizontal lines
+    for (let i = 0; i <= numLinesY; i++) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, i * gridSize);
+        gridCtx.lineTo(gridnet.width, i * gridSize);
+        gridCtx.stroke();
+    }
+
+    // Draw origin lines
+    gridCtx.strokeStyle = '#000000'; // Black lines for the axes
+    // X-axis
+    gridCtx.beginPath();
+    gridCtx.moveTo(0, gridnet.height / 2);
+    gridCtx.lineTo(gridnet.width, gridnet.height / 2);
+    gridCtx.stroke();
+    // Y-axis
+    gridCtx.beginPath();
+    gridCtx.moveTo(gridnet.width / 2, 0);
+    gridCtx.lineTo(gridnet.width / 2, gridnet.height);
+    gridCtx.stroke();
+}
+
+
+
 function drawIncomingWaveform(dataArray, id, name) {
     let canvasId = 'canvas-' + id;
     let newCanvas = document.getElementById(canvasId);
@@ -122,9 +161,57 @@ function drawIncomingWaveform(dataArray, id, name) {
     newCanvasCtx.stroke();
 }
 
+function plotPoint(x, y) {
+    const pointSize = 5; // Size of the point
+    gridCtx.fillStyle = '#ff0000'; // Red color for the points
+
+    // Translate coordinates so (0, 0) is at the center of the gridnet
+    const centerX = gridnetCanvas.width / 2;
+    const centerY = gridnetCanvas.height / 2;
+    const translatedX = centerX + x;
+    const translatedY = centerY - y; // Subtract y because canvas y-coordinates increase downwards
+
+    gridCtx.beginPath();
+    gridCtx.arc(translatedX, translatedY, pointSize, 0, 2 * Math.PI);
+    gridCtx.fill();
+}
+
 socket.on('incomingAudioData', (payload) => {
     const { id, data, name } = payload;
     if (id !== socket.id) {
         drawIncomingWaveform(data, id, name);
     }
+});
+
+const gridnetCanvas = document.getElementById('gridnet'); // Ensure this canvas element exists in your HTML
+const gridCtx = gridnetCanvas.getContext('2d');
+
+// Function to plot a point on the grid with the origin in the middle
+function plotPoint(x, y) {
+    const pointSize = 5; // Size of the point
+    gridCtx.fillStyle = '#ff0000'; // Red color for the points
+
+    // Translate coordinates so (0, 0) is at the center of the gridnet
+    const centerX = gridnetCanvas.width / 2;
+    const centerY = gridnetCanvas.height / 2;
+    const translatedX = centerX + x;
+    const translatedY = centerY - y; // Subtract y because canvas y-coordinates increase downwards
+
+    gridCtx.beginPath();
+    gridCtx.arc(translatedX, translatedY, pointSize, 0, 2 * Math.PI);
+    gridCtx.fill();
+}
+
+// Listen for 'updatePositions' event from the server
+socket.on('updatePositions', (users) => {
+    // Clear the grid before redrawing
+    gridCtx.clearRect(0, 0, gridnetCanvas.width, gridnetCanvas.height);
+
+    drawGrid();
+    // Optionally redraw the grid here if needed
+
+    // Plot each user's position on the grid
+    users.forEach((user) => {
+        plotPoint(user.xCoordinate * 10, user.yCoordinate * 10); // Adjust scaling factor as needed
+    });
 });
