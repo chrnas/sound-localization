@@ -5,5 +5,5 @@
 numpy==1.26.0
 
 # Development dependencies
-pytest==8.0.2
+pytest==8.0.1
 flake8==7.0.0
