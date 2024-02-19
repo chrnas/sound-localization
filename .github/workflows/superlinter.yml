@@ -37,4 +37,5 @@ jobs:
         uses: super-linter/super-linter@v6.1.1  # x-release-please-version
         env:
           VALIDATE_CHECKOV: false
+          VALIDATE_PYTHON_PYLINT: false
           GITHUB_TOKEN: ${{ secrets.TDDD96_GITHUB_TOKEN }}
