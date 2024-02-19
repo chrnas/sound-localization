@@ -1,4 +1,9 @@
-# Save this code in a file named test_example.py
+"""
+This module provides various functions for testing.
+
+Functions:
+    * test_add_numbers: Performs test on the function add.
+"""
 
 import pytest
 from my_module import add_numbers
@@ -16,4 +21,3 @@ def test_add_numbers():
 
 if __name__ == "__main__":
     pytest.main()
-    
