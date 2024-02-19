@@ -1,0 +1,9 @@
+# This is a requirements.txt file
+# It lists the Python dependencies required by the project
+
+# Core dependencies
+numpy==1.26.0
+
+# Development dependencies
+pytest==8.0.1
+flake8==7.0.0
