@@ -1,14 +1,6 @@
 import json
-<<<<<<< HEAD
-=======
-import CLI as cli
 
-startupfile = open("launchSettings.json", "r")
-startupSettings = json.loads(startupfile.read())
-
->>>>>>> 825c2ade8287bf8be20857c4a90f9c4244ec5f69
 import Positioning.PositioningHandler as Pos
-
 
 startup_file = open("launchSettings.json", "r")
 startup_settings = json.loads(startup_file.read())

@@ -1,2 +1,2 @@
-from .PositioningHandler import PositioningData
-from .TestMethod import methodMain
+from PositioningHandler import PosMethodData
+from TestMethod import method_main
