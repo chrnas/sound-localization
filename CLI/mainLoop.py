@@ -1,20 +1,23 @@
 import CLI.commands
 
-def printStartup():
+
+def print_startup():
     print("Startup complete")
     print("Welcome to the program")
 
-def getCommandInput():
+
+def get_command_input():
     print("Write a command:")
-    commandString = input()
+    command_string = input()
 
-    commandData = commandString.split(" ")
+    command_data = command_string.split(" ")
 
-    return commandData
+    return command_data
 
-def handleCommand(commandData):
-    command = commandData[0]
-    args = commandData[1:]
+
+def handle_command(command_data):
+    command = command_data[0]
+    args = command_data[1:]
 
     if command == "test":
         print("Args are:")
@@ -48,14 +51,15 @@ def handleCommand(commandData):
     elif command == "exit":
         exit(0)
     else:
-        print("Unkown command")
+        print("Unknown command")
 
-printStartup()
 
-def runCLI(positioningData, ecoData):
+print_startup()
+
+
+def run_cli(positioning_data, eco_data):
     running = True
     while running:
-        command = getCommandInput()
+        command = get_command_input()
 
-        handleCommand(command)
-        
+        handle_command(command)

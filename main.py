@@ -1,15 +1,16 @@
 import json
 
-startupfile = open("launchSettings.json", "r")
-startupSettings = json.loads(startupfile.read())
-
 import Positioning.PositioningHandler as Pos
 import EcoHandling.EcoHandler as eco
 
-if startupSettings["UIMode"] == "CLI":
+startup_file = open("launchSettings.json", "r")
+startup_settings = json.loads(startup_file.read())
+
+if startup_settings["UIMode"] == "CLI":
     import CLI.mainLoop as UI
-    UI.runCLI(Pos.pos_methods_data, eco.eco_methods_data)
-elif startupSettings["UIMode"] == "GUI":
+
+    UI.run_cli(Pos.pos_methods_data, 1)
+elif startup_settings["UIMode"] == "GUI":
     pass
 else:
     print("Launch setting for \"UIMode\" is incorrect. Shutting down")

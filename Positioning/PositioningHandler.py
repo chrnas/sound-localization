@@ -1,13 +1,18 @@
 import json
 
+from Positioning.TestMethod import method_main
+
 methods_file = open("Positioning/Methods.json", "r")
 methods_data = json.loads(methods_file.read())
+
+
 class PosMethodData:
     def __init__(self, file, method, active, weight) -> None:
         self.file = file
         self.method = method
         self.active = active
         self.weight = weight
+
 
 pos_methods_data = {}
 

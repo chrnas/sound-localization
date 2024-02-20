@@ -1,29 +1,38 @@
-def ECOList(ecoData):
+def eco_list(eco_data):
     pass
 
-def ECOSet(ecoData):
+
+def eco_set(eco_data):
     pass
 
-def PosList(posData):
+
+def pos_list(pos_data):
     pass
 
-def PosActivate(posData):
+
+def pos_activate(pos_data):
     pass
 
-def PosDeactivate(posData):
+
+def pos_deactivate(pos_data):
     pass
 
-def PosWeight(posData):
+
+def pos_weight(pos_data):
     pass
 
-def RunOnce(posData):
+
+def run_once(pos_data):
     pass
 
-def RunCont(posData):
+
+def run_cont(pos_data):
     pass
 
-def MicList(micData):
+
+def mic_list(mic_data):
     pass
 
-def MicRemove(micData):
+
+def mic_remove(mic_data):
     pass
