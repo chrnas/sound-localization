@@ -18,7 +18,8 @@ CHUNK = 2048  # Match JavaScript buffer size
 def connect():
     print("Connected to the server.")
     # Sending a 'newUser' event to the server with example user data
-    sio.emit('newUser', {'name': 'PythonClient', 'xCoordinate': 1, 'yCoordinate': 2})
+    name = input("Enter microphone name")
+    sio.emit('newUser', {'name': name, 'xCoordinate': 1, 'yCoordinate': 2})
 
 # Handle server disconnect
 @sio.event
