@@ -1,5 +1,4 @@
 # save this code in a file named test_example.py
-
 import pytest
 from my_module import add_numbers
 
