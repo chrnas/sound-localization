@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request
 from flask_socketio import SocketIO, emit
 import os
 import math
+from datetime import datetime
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 
@@ -106,6 +107,14 @@ def handle_audio_data(data):
 
     # Send the audio data to all other connected users, only for testing purposes, remove later when processing the audio data
     # emit('incomingAudioData', {'id': request.sid, 'name': microphones[request.sid].name, 'data': data['data']}, broadcast=True, include_self=False)
+
+@socketio.on('syncTime')
+def handle_sync_time(data):
+    client_timestamp = data['timestamp']  # Client's timestamp when the request was sent
+    server_timestamp = datetime.now().isoformat()  # Server's current timestamp
+    print(f'Clock synchronization request received from client at {client_timestamp}')
+    emit('syncResponse', {'clientTimestamp': client_timestamp, 'serverTimestamp': server_timestamp})
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
