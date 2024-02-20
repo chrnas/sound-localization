@@ -90,7 +90,11 @@ def handle_audio_data(data):
     new_data = AudioData(data=data['data'], timestamp=data.get('timestamp'))
 
     # Each packet arrives with 30ms intervals, smaller packets or assemle the signal on serverside
-    print(f'Audio data received from {microphones[request.sid].name} at {new_data.timestamp}') 
+    for microphone in microphones.values():
+        print(f'Audio data received from {microphone.name} at {microphone.get_last_audio_data_timestamp()}') 
+    
+    print("------")
+        
     if request.sid in microphones:
         microphones[request.sid].add_audio_data(new_data)
 
@@ -101,7 +105,7 @@ def handle_audio_data(data):
             print(f'Loud sound detected at {new_data.timestamp} from {microphones[request.sid].name}')
 
     # Send the audio data to all other connected users, only for testing purposes, remove later when processing the audio data
-    emit('incomingAudioData', {'id': request.sid, 'name': microphones[request.sid].name, 'data': data['data']}, broadcast=True, include_self=False)
+    # emit('incomingAudioData', {'id': request.sid, 'name': microphones[request.sid].name, 'data': data['data']}, broadcast=True, include_self=False)
 
 @socketio.on('disconnect')
 def handle_disconnect():
