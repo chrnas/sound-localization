@@ -9,7 +9,7 @@ from .commands import run_once
 from .commands import run_cont
 from .commands import mic_list
 from .commands import mic_remove
-from .mainLoop import print_startup
-from .mainLoop import get_command_input
-from .mainLoop import handle_command
-from .mainLoop import run_cli
+from .main_loop import print_startup
+from .main_loop import get_command_input
+from .main_loop import handle_command
+from .main_loop import run_cli

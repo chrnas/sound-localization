@@ -1,4 +1,4 @@
-from PositioningHandler import PosMethodData
-from TestMethod import method_main
+from positioning.positioning_handler import PosMethodData
+from positioning.test_method import method_main
 
 

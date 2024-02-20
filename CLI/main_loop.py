@@ -1,4 +1,4 @@
-import CLI.commands
+import cli.commands
 
 
 def print_startup():
