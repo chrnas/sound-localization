@@ -3,6 +3,8 @@ import json
 methodsFile = open("Positioning/Methods.json", "r")
 methodsData = json.loads(methodsFile.read())
 class PositioningData:
+    names = {}
+    files = {}
     methods = {}
     active = {}
     weights = {}
