@@ -1,1 +1,4 @@
-flask flask-socketio
+Flask
+Flask-SocketIO
+python-socketio[client]
+PyAudio
