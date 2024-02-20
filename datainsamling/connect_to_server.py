@@ -8,10 +8,10 @@ sio = socketio.Client()
 server_url = "http://localhost:3000"  # Adjust as needed
 
 # Audio capture setup
-FORMAT = pyaudio.paInt16
+FORMAT = pyaudio.paFloat32  # Use floating-point format
 CHANNELS = 1
 RATE = 44100
-CHUNK = 1024
+CHUNK = 2048  # Match JavaScript buffer size
 
 # Connect to the server
 @sio.event
@@ -35,10 +35,10 @@ def main():
 
     try:
         while True:
-            data = stream.read(CHUNK)
-            int_data = np.frombuffer(data, dtype=np.int16).tolist()  # Convert audio bytes to int16 list
+            data = stream.read(CHUNK, exception_on_overflow=False)
+            float_data = np.frombuffer(data, dtype=np.float32).tolist()  # Convert audio bytes to float list
             timestamp = datetime.now().isoformat()
-            sio.emit('audioData', {'data': int_data, 'timestamp': timestamp})
+            sio.emit('audioData', {'data': float_data, 'timestamp': timestamp})
     except KeyboardInterrupt:
         pass
     finally:
