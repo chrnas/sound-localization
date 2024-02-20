@@ -1,65 +1,51 @@
-import websocket
-import threading
+import socketio
 import pyaudio
-import json
 import numpy as np
 from datetime import datetime
 
-# Configuration for audio streaming
+# SocketIO client setup
+sio = socketio.Client()
+server_url = "http://localhost:3000"  # Adjust as needed
+
+# Audio capture setup
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
 
-def audio_int16_to_float32(data):
-    return np.frombuffer(data, dtype=np.int16).tolist()
+# Connect to the server
+@sio.event
+def connect():
+    print("Connected to the server.")
+    # Sending a 'newUser' event to the server with example user data
+    sio.emit('newUser', {'name': 'PythonClient', 'xCoordinate': 1, 'yCoordinate': 2})
 
-# Establish a connection to the WebSocket server
-def on_message(ws, message):
-    print(f"Received message: {message}")
+# Handle server disconnect
+@sio.event
+def disconnect():
+    print("Disconnected from the server.")
 
-def on_error(ws, error):
-    print(f"Error: {error}")
+def main():
+    sio.connect(server_url)
 
-def on_close(ws):
-    print("### closed ###")
+    p = pyaudio.PyAudio()
+    stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
-def on_open(ws):
-    def run(*args):
-        name = "Mathias"
-        xCoordinate = 1
-        yCoordinate = 2
+    print("Streaming audio to the server. Press Ctrl+C to stop.")
 
-        # Inform the server of the new user and their coordinates
-        ws.send(json.dumps({'type': 'newUser', 'name': name, 'xCoordinate': xCoordinate, 'yCoordinate': yCoordinate}))
-
-        p = pyaudio.PyAudio()
-        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
-
-        print("Recording...")
-
-        try:
-            while True:
-                data = stream.read(CHUNK, exception_on_overflow=False)
-                int_data = audio_int16_to_float32(data)
-                timestamp = datetime.now().isoformat()
-                ws.send(json.dumps({'type': 'audioData', 'name': name, 'data': int_data, 'timestamp': timestamp}))
-        except KeyboardInterrupt:
-
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
-            ws.close()
-            print("Recording stopped.")
-
-    thread = threading.Thread(target=run)
-    thread.start()
+    try:
+        while True:
+            data = stream.read(CHUNK)
+            int_data = np.frombuffer(data, dtype=np.int16).tolist()  # Convert audio bytes to int16 list
+            timestamp = datetime.now().isoformat()
+            sio.emit('audioData', {'data': int_data, 'timestamp': timestamp})
+    except KeyboardInterrupt:
+        pass
+    finally:
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+        sio.disconnect()
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("localhost:5000",
-                              on_message=on_message,
-                              on_error=on_error,
-                              on_close=on_close)
-    ws.on_open = on_open
-    ws.run_forever()
+    main()
