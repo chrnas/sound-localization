@@ -20,5 +20,5 @@ for methodData in methodsData:
     methodFile = open("Positioning/" + methodData["filename"], "r")
     exec(methodFile.read())
     print(methodData["name"])
-    positioningData.addMethod(methodMain, methodData["name"])
+    #positioningData.addMethod(methodMain, methodData["name"])
     
