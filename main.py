@@ -8,7 +8,7 @@ import Positioning.PositioningHandler as Pos
 
 if startupSettings["UIMode"] == "CLI":
     import CLI.mainLoop as UI
-    UI.runCLI(Pos.positioningData, 1)
+    UI.runCLI(Pos.pos_methods_data, 1)
 elif startupSettings["UIMode"] == "GUI":
     pass
 else:

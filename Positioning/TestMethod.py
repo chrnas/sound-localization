@@ -1,2 +1,2 @@
-def methodMain(microphonedata):
+def method_main(microphonedata):
     return 1
