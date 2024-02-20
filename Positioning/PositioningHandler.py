@@ -1,24 +1,19 @@
 import json
 
-methodsFile = open("Positioning/Methods.json", "r")
-methodsData = json.loads(methodsFile.read())
-class PositioningData:
-    names = {}
-    files = {}
-    methods = {}
-    active = {}
-    weights = {}
+methods_file = open("Positioning/Methods.json", "r")
+methods_data = json.loads(methods_file.read())
+class PosMethodData:
+    def __init__(self, file, method, active, weight) -> None:
+        self.file = file
+        self.method = method
+        self.active = active
+        self.weight = weight
 
-    def addMethod(function, name):
-        methods[name] = function
-        active[name] = False
-        weights[name] = 1.0
+pos_methods_data = {}
 
-positioningData = PositioningData()
-
-for methodData in methodsData:
-    methodFile = open("Positioning/" + methodData["filename"], "r")
-    exec(methodFile.read())
-    print(methodData["name"])
-    #positioningData.addMethod(methodMain, methodData["name"])
+for method_data in methods_data:
+    method_file = open("Positioning/" + method_data["filename"], "r")
+    exec(method_file.read())
+    print(method_data["name"])
+    pos_methods_data[method_data["name"]] = PosMethodData(method_data["filename"], method_main, False, 1)
     
