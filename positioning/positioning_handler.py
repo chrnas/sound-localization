@@ -2,7 +2,7 @@ import json
 
 from positioning.test_method import method_main
 
-methods_file = open("Positioning/Methods.json", "r")
+methods_file = open("positioning/methods.json", "r")
 methods_data = json.loads(methods_file.read())
 
 
@@ -17,7 +17,7 @@ class PosMethodData:
 pos_methods_data = {}
 
 for method_data in methods_data:
-    method_file = open("Positioning/" + method_data["filename"], "r")
+    method_file = open("positioning/" + method_data["filename"], "r")
     exec(method_file.read())
     print(method_data["name"])
     pos_methods_data[method_data["name"]] = PosMethodData(
