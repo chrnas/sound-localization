@@ -1,6 +1,7 @@
-# save this code in a file named test_example.py
 import pytest
 from my_module import add_numbers
+import cli
+
 
 def test_add_numbers():
     assert add_numbers(1, 2) == 3
@@ -8,5 +9,7 @@ def test_add_numbers():
     assert add_numbers(-1, 1) == 0
     assert add_numbers(-1, -1) == -2
 
+
 if __name__ == "__main__":
     pytest.main()
+    cli.pos_weight('data')
