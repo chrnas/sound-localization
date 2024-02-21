@@ -19,7 +19,7 @@ def pos_deactivate(pos_data):
 
 
 def pos_weight(pos_data):
-    pass
+    print('pos_weight_works')
 
 
 def run_once(pos_data):
