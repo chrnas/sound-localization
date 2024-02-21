@@ -2,7 +2,7 @@ import json
 
 from positioning.test_method import method_main
 
-methods_file = open("positioning/Methods.json", "r")
+methods_file = open("positioning/methods.json", "r")
 methods_data = json.loads(methods_file.read())
 
 
