@@ -1,2 +1,1 @@
-from .eco_handling import EcoHandlingMethod
-from .test_method import method_main
+from .eco_handling import eco_methods_data

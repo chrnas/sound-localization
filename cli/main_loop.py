@@ -1,3 +1,5 @@
+import cli.commands as commands
+
 def print_startup():
     print("Startup complete")
     print("Welcome to the program")
@@ -12,7 +14,7 @@ def get_command_input():
     return command_data
 
 
-def handle_command(command_data):
+def handle_command(command_data, pos_data, eco_data):
     command = command_data[0]
     args = command_data[1:]
 
@@ -22,17 +24,17 @@ def handle_command(command_data):
             print(i)
         print("testcommand executed")
     elif command == "ECOList":
-        pass
+        commands.eco_list(eco_data, args)
     elif command == "ECOSet":
-        pass
+        commands.eco_set(eco_data, args)
     elif command == "PosList":
-        pass
+        commands.pos_list(pos_data, args)
     elif command == "PosActivate":
-        pass
+        commands.pos_activate(pos_data, args)
     elif command == "PosDeactivate":
-        pass
+        commands.pos_deactivate(pos_data, args)
     elif command == "PosWeight":
-        pass
+        commands.pos_weight(pos_data, args)
     elif command == "RunOnce":
         pass
     elif command == "RunCont":
@@ -53,10 +55,10 @@ def handle_command(command_data):
 
 print_startup()
 
-
 def run_cli(positioning_data, eco_data):
+
     running = True
     while running:
         command = get_command_input()
 
-        handle_command(command)
+        handle_command(command, positioning_data, eco_data)
