@@ -1,4 +1,3 @@
-
 from .commands import eco_list
 from .commands import eco_set
 from .commands import pos_list
@@ -13,3 +12,4 @@ from .main_loop import print_startup
 from .main_loop import get_command_input
 from .main_loop import handle_command
 from .main_loop import run_cli
+from .test_method import method_main
