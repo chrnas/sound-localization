@@ -1,6 +1,3 @@
-import cli.commands
-
-
 def print_startup():
     print("Startup complete")
     print("Welcome to the program")

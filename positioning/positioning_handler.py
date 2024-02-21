@@ -20,5 +20,5 @@ for method_data in methods_data:
     method_file = open("Positioning/" + method_data["filename"], "r")
     exec(method_file.read())
     print(method_data["name"])
-    pos_methods_data[method_data["name"]] = PosMethodData(method_data["filename"], method_main, False, 1)
-    
+    pos_methods_data[method_data["name"]] = PosMethodData(
+        method_data["filename"], method_main, False, 1)
