@@ -1,4 +1,4 @@
-import cli.commands as commands
+from .commands import *
 
 def print_startup():
     print("Startup complete")
@@ -17,35 +17,41 @@ def get_command_input():
 def handle_command(command_data, pos_data, eco_data):
     command = command_data[0]
     args = command_data[1:]
-
+    print(command)
     if command == "test":
         print("Args are:")
         for i in args:
             print(i)
         print("testcommand executed")
     elif command == "ECOList":
-        commands.eco_list(eco_data, args)
+        eco_list(eco_data, args)
     elif command == "ECOSet":
-        commands.eco_set(eco_data, args)
+        eco_set(eco_data, args)
     elif command == "PosList":
-        commands.pos_list(pos_data, args)
+        pos_list(pos_data, args)
     elif command == "PosActivate":
-        commands.pos_activate(pos_data, args)
+        pos_activate(pos_data, args)
     elif command == "PosDeactivate":
-        commands.pos_deactivate(pos_data, args)
+        pos_deactivate(pos_data, args)
     elif command == "PosWeight":
-        commands.pos_weight(pos_data, args)
+        pos_weight(pos_data, args)
     elif command == "RunOnce":
+        run_once(args[0])
         pass
     elif command == "RunCont":
+        run_cont(args[0])
         pass
     elif command == "Stop":
+        stop()
         pass
     elif command == "MicList":
+        mic_list(args[0])
         pass
     elif command == "MicAdd":
+        mic_add(args[0])
         pass
     elif command == "MicRemove":
+        mic_remove(args[0])
         pass
     elif command == "exit":
         exit(0)
