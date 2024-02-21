@@ -1,21 +1,21 @@
 def eco_list(eco_data):
-    pass
+    print("eco_list: " + eco_data)
 
 
 def eco_set(eco_data):
-    pass
+    print("eco_set: " + eco_data)
 
 
 def pos_list(pos_data):
-    pass
+    print("pos_list: " + pos_data)
 
 
 def pos_activate(pos_data):
-    pass
+    print("pos_activate: " + pos_data)
 
 
 def pos_deactivate(pos_data):
-    pass
+    print("pos_deactivate: " + pos_data)
 
 
 def pos_weight(pos_data):
@@ -23,16 +23,24 @@ def pos_weight(pos_data):
 
 
 def run_once(pos_data):
-    pass
+    print("run_once: " + pos_data)
 
 
 def run_cont(pos_data):
-    pass
+    print("run_cont: " + pos_data)
+
+
+def stop():
+    print("STOP")
 
 
 def mic_list(mic_data):
-    pass
+    print("mic_list: " + mic_data)
+
+
+def mic_add(mic_data):
+    print("mic_add: " + mic_data)
 
 
 def mic_remove(mic_data):
-    pass
+    print("mic_remove: " + mic_data)
