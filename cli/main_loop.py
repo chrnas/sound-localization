@@ -14,7 +14,7 @@ def get_command_input():
     return command_data
 
 
-def handle_command(command_data):
+def handle_command(command_data, pos_data, eco_data):
     command = command_data[0]
     args = command_data[1:]
     print(command)
@@ -24,10 +24,11 @@ def handle_command(command_data):
             print(i)
         print("testcommand executed")
     elif command == "ECOList":
-        eco_list(args[0])
+        eco_list(eco_data, args)
     elif command == "ECOSet":
-        eco_set(args[0])
+        eco_set(eco_data, args)
     elif command == "PosList":
+<<<<<<< HEAD
         pos_list(args[0])
     elif command == "PosActivate":
         pos_activate(args[0])
@@ -35,6 +36,15 @@ def handle_command(command_data):
         pos_deactivate(args[0])
     elif command == "PosWeight":
         pos_weight(args[0])
+=======
+        pos_list(pos_data, args)
+    elif command == "PosActivate":
+        pos_activate(pos_data, args)
+    elif command == "PosDeactivate":
+        pos_deactivate(pos_data, args)
+    elif command == "PosWeight":
+        pos_weight(pos_data, args)
+>>>>>>> b1365c9763ed9c10b95312a55a61379123346bc9
     elif command == "RunOnce":
         run_once(args[0])
     elif command == "RunCont":
@@ -55,10 +65,10 @@ def handle_command(command_data):
 
 print_startup()
 
-
 def run_cli(positioning_data, eco_data):
+
     running = True
     while running:
         command = get_command_input()
 
-        handle_command(command)
+        handle_command(command, positioning_data, eco_data)
