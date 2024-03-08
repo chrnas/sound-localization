@@ -3,12 +3,23 @@ from flask_socketio import SocketIO, emit
 import os
 import math
 from datetime import datetime
+from Multilaterate import Multilateration
+import numpy as np
+import time
+import numpy as np
+from scipy.optimize import least_squares
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 
+perf_counter = time.perf_counter()
+print("preftcounter", perf_counter)
 socketio = SocketIO(app)
 
+
+multilateration = Multilateration(v=343, delta_d=1, max_d=300)  # Example values
+
 class AudioData:
+    
     def __init__(self, data, timestamp):
         self.data = data
         self.timestamp = timestamp
@@ -27,6 +38,10 @@ class User:
         self.yCoordinate = yCoordinate
         self.audio_data = []
         self.distances = {} 
+        self.last_timestamp = None
+
+    def update_last_timestamp(self, timestamp):
+        self.last_timestamp = timestamp
 
     def add_audio_data(self, audio_data):
         if len(self.audio_data) >= 10:
@@ -47,15 +62,17 @@ class User:
         return None
 
     def get_last_audio_data_timestamp(self):
-        last_audio_data = self.get_last_audio_data()
-        if last_audio_data:
-            return last_audio_data.timestamp
-        return None
-
+        return self.last_timestamp
+    
     def __repr__(self):
         return f'User(name={self.name}, xCoordinate={self.xCoordinate}, yCoordinate={self.yCoordinate}, audio_data_count={len(self.audio_data)})'
 
 microphones = {}
+
+def timestamps_to_tdoas(timestamps):
+    reference_timestamp = min(timestamps)  # Use the earliest timestamp as reference
+    tdoas = [timestamp - reference_timestamp for timestamp in timestamps]
+    return tdoas
 
 def broadcast_user_positions():
     users_data = [{'name': user.name, 'xCoordinate': user.xCoordinate, 'yCoordinate': user.yCoordinate} for user in microphones.values()]
@@ -63,7 +80,7 @@ def broadcast_user_positions():
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return app.send_static_file('index_once.html')
 
 @socketio.on('connect')
 def handle_connect():
@@ -85,36 +102,27 @@ def handle_new_user(data):
 
     print(f'New user connected: {new_user}')
     broadcast_user_positions()
+
 @socketio.on('audioData')
 def handle_audio_data(data):
-
-    new_data = AudioData(data=data['data'], timestamp=data.get('timestamp'))
-
-    # Each packet arrives with 30ms intervals, smaller packets or assemle the signal on serverside
-    for microphone in microphones.values():
-        print(f'Audio data received from {microphone.name} at {microphone.get_last_audio_data_timestamp()}') 
     
-    print("------")
-        
+    #print("client", data["timestamp"])
+    #print("server", time.perf_counter() - perf_counter)
+
     if request.sid in microphones:
-        microphones[request.sid].add_audio_data(new_data)
+        timestamp = data.get('timestamp')
+        if timestamp:
+            microphones[request.sid].last_timestamp = data["timestamp"]
 
-        rms = new_data.RMS()
-        loudness_threshold = 0.2  # Set arbitrary threshold for loudness, could be adjusted
-        
-        if rms > loudness_threshold:
-            print(f'Loud sound detected at {new_data.timestamp} from {microphones[request.sid].name}')
 
-    # Send the audio data to all other connected users, only for testing purposes, remove later when processing the audio data
-    # emit('incomingAudioData', {'id': request.sid, 'name': microphones[request.sid].name, 'data': data['data']}, broadcast=True, include_self=False)
+        # Need to perfom check on the timestamps to see if they are in sync, debouncing and problems on client side could cause issues
+        print("Location:" , calculate_sound_source())
 
 @socketio.on('syncTime')
-def handle_sync_time(data):
-    client_timestamp = data['timestamp']  # Client's timestamp when the request was sent
-    server_timestamp = datetime.now().isoformat()  # Server's current timestamp
-    print(f'Clock synchronization request received from client at {client_timestamp}')
-    emit('syncResponse', {'clientTimestamp': client_timestamp, 'serverTimestamp': server_timestamp})
-
+def handle_sync_time():
+    print("Sync requested") 
+    server_timestamp = time.perf_counter() - perf_counter 
+    emit('syncResponse', server_timestamp)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -123,6 +131,38 @@ def handle_disconnect():
         microphones.pop(request.sid, None)
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
+def calculate_sound_source():
+    # Calculate the sound source position using the time differences of arrival
+
+    speed_of_sound = 343  # 
+
+    valid_mics = [mic for mic in microphones.values() if mic.get_last_audio_data_timestamp()]
+    valid_mics.sort(key=lambda mic: mic.get_last_audio_data_timestamp())
+
+    if len(valid_mics) < 2:
+        print("Need at least two microphones to perform calculation")
+        return None
+
+    ref_time = valid_mics[0].get_last_audio_data_timestamp()
+
+    distances = np.array([speed_of_sound * (mic.get_last_audio_data_timestamp() - ref_time) for mic in valid_mics])
+
+    positions = np.array([[mic.xCoordinate, mic.yCoordinate] for mic in valid_mics])
+
+    def equations(guess):
+        x, y = guess
+        return [(np.linalg.norm([x - pos[0], y - pos[1]]) - distance) for pos, distance in zip(positions, distances)]
+
+    initial_guess = [0, 0]
+
+    result = least_squares(equations, initial_guess)
+
+    sound_source_position = np.round(result.x).astype(int)
+
+    return sound_source_position
+
+
+
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 3000)) 
+    port = int(os.getenv('PORT', 5000)) 
     socketio.run(app, host='0.0.0.0', port=port, debug=True)

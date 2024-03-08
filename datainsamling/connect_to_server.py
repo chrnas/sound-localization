@@ -1,50 +1,53 @@
+### CURRENTLY NOT CORRECT FORMATED WITH THE SERVER, USE intex_once.html ###
+
 import socketio
 import pyaudio
 import numpy as np
 from datetime import datetime, timedelta
-
+from time import perf_counter
 # SocketIO client setup
 sio = socketio.Client()
 server_url = "http://localhost:3000"  # Adjust as needed
 
-clock_offset = timedelta(0)  
 
-# Audio capture setup
-FORMAT = pyaudio.paFloat32  # Use floating-point format
+init_perf = perf_counter()
+
+FORMAT = pyaudio.paFloat32  
 CHANNELS = 1
 RATE = 44100
-CHUNK = 2048  # Match JavaScript buffer size
+CHUNK = 32 
+SOUND_THRESHOLD = 0.5
 
-# Connect to the server
+
+
+
+def calculate_rms(audio_data):
+    return np.sqrt(np.mean(np.square(audio_data)))
+
 @sio.event
 def connect():
     print("Connected to the server.")
-    # Sending a 'newUser' event to the server with example user data
     name = "Mathias"
     sio.emit('newUser', {'name': name, 'xCoordinate': 1, 'yCoordinate': 2})
-    sync_time()  # Initiate clock synchronization
+    sync_time()  
 
+
+
+# Ask server for the current time
 @sio.event
 def sync_time():
-    client_send_time = datetime.now()
-    sio.emit('syncTime', {'timestamp': client_send_time.isoformat()})
+    client_time = perf_counter() - init_perf
+    sio.emit('syncTime')
 
 @sio.on('syncResponse')
 def handle_sync_response(data):
-    global clock_offset 
-    client_receive_time = datetime.now()
-    client_send_time = datetime.fromisoformat(data['clientTimestamp'])
-    server_time = datetime.fromisoformat(data['serverTimestamp'])
-    
-    round_trip_time = client_receive_time - client_send_time
-    estimated_server_time = server_time + (round_trip_time / 2)
-    
-    clock_offset = estimated_server_time - client_receive_time
-    print(f"Clock offset: {clock_offset.total_seconds()} seconds. Adjust your clock accordingly.")
+
 
 @sio.event
 def disconnect():
     print("Disconnected from the server.")
+
+from datetime import datetime, timedelta
 
 def main():
     sio.connect(server_url)
@@ -52,15 +55,25 @@ def main():
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
-    print("Streaming audio to the server. Press Ctrl+C to stop.")
+    print("Listening for audio. Press Ctrl+C to stop.")
+    last_triggered_time = None  # Keep track of the last time the event was triggered
+    debounce_interval = timedelta(seconds=0.2)  # Set the debounce interval (e.g., 1 second)
 
     try:
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
-            float_data = np.frombuffer(data, dtype=np.float32).tolist()  
-            adjusted_timestamp = datetime.now() + clock_offset
-            timestamp = adjusted_timestamp.isoformat()
-            sio.emit('audioData', {'data': float_data, 'timestamp': timestamp})
+            float_data = np.frombuffer(data, dtype=np.float32).tolist()
+
+            rms_value = calculate_rms(float_data)
+            current_time = datetime.now()
+            
+            if rms_value > SOUND_THRESHOLD:
+                if last_triggered_time is None or (current_time - last_triggered_time) > debounce_interval:
+                    adjusted_timestamp = current_time + clock_offset
+                    timestamp = adjusted_timestamp.isoformat()
+                    sio.emit('audioData', {'data': float_data, 'timestamp': timestamp})
+                    last_triggered_time = current_time  # Update the last triggered time
+
     except KeyboardInterrupt:
         pass
     finally:
@@ -68,6 +81,7 @@ def main():
         stream.close()
         p.terminate()
         sio.disconnect()
+
 
 if __name__ == "__main__":
     main()
