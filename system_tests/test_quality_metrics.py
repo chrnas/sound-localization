@@ -19,7 +19,7 @@ def test_2d_error():
     Tests: This test collects metrics on the margin of error when locating sounds in two dimensions.
     """
     data = json.loads(open("example_test_data.json"))
-    pass
+    assert len([d for d in data if within_2d_error(d)]) / len(data) >= 0.8
 
 @pytest.mark.skip # Not implemented
 def test_3d_error():
@@ -30,7 +30,7 @@ def test_3d_error():
     Tests: This test collects metrics on the total delay from inputted sounds to outputted position.
     """
     data = json.loads(open("example_test_data.json"))
-    pass
+    assert len([d for d in data if within_3d_error(d)]) / len(data) >= 0.75
 
 @pytest.mark.skip # Not implemented
 def test_delay():
@@ -49,25 +49,31 @@ def distance(source: tuple[float, float, float], guess: tuple[float, float, floa
     """
     Checks distance between a source of a sound and a guess.
     """
-    return sqrt(pow(source[0] - guess[0], 2), 
-                pow(source[1] - guess[1], 2), 
+    return sqrt(pow(source[0] - guess[0], 2) + 
+                pow(source[1] - guess[1], 2) + 
                 pow(source[2] - guess[2], 2))
 
-def within_2d_error(microphone_distance: float, source: tuple[float, float, float], guess: tuple[float, float, float]):
+def within_2d_error(data):
     """
     Quality requirement: 3.5.2
     Verifies that a guessed postion is within the allowed margin of error for the 2d plane.
     """
-    source_no_z = (source[0], source[1], 0) # TODO: assumes (x, y, z)
-    guess_no_z = (guess[0], guess[1], 0) # TODO: assumes (x, y, z)
+    source = data["source"]
+    # TODO: guess = guess_pos(data)
+    guess = (0, 0, 0) # TODO: temp replace with actual guess above.
+    source_no_z = (source[0], source[1], 0)
+    guess_no_z = (guess[0], guess[1], 0)
     return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
 
-def within_3d_error(source: tuple[float, float, float], guess: tuple[float, float, float]):
+def within_3d_error(data):
     """
     Quality requirement: 3.5.4
     Verifies that a guessed postion is within the allowed margin of error for three dimensions.
     """
     # TODO: maybe add check that microphones are within the allowed distance of eachother, return true otherwise
+    source = data["source"]
+    # TODO: guess = guess_pos(data)
+    guess = (0, 0, 0) # TODO: temp replace with actual guess above.
     return distance(source, guess) <= 5
 
 def within_allowed_time(data):
@@ -76,9 +82,9 @@ def within_allowed_time(data):
     Verifies that a answer is given within the allowed time.
     """
     start = datetime.now()
-    # TODO: guess(data) # perform guess
+    # TODO: guess_pos(data) # perform guess
     return datetime.now() - start <= timedelta(seconds=0.5)
 
 if __name__ == "__main__":
     # When collecting metrics this is run instead of the pytest tests.
-    pass
+    data = json.loads(open("example_test_data.json"))
