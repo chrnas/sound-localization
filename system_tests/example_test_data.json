@@ -17,6 +17,6 @@
                 "amplitude": 0.3
             }
         ],
-        "sound_source": [0, 0, 0]
+        "source": [0, 0, 0]
     }
 ]
