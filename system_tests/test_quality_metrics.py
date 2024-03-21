@@ -2,7 +2,7 @@
 This file contains the data collection for quality metrics related to the system.
 """
 
-# TODO: add test id's
+# TODO: add pytest, test id's
 # TODO: This file assumes output is given in meters
 
 import pytest
@@ -13,6 +13,7 @@ import json
 @pytest.mark.skip # Not implemented
 def test_2d_error():
     """
+    Id: 1
     Quality requirement: 3.5.2
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in two dimensions.
@@ -22,6 +23,7 @@ def test_2d_error():
 @pytest.mark.skip # Not implemented
 def test_3d_error():
     """
+    Id: 2
     Quality requirement: 3.5.4
     Dependencies: This test requires that atleast one method for locating sounds has been implemented. It also requires the system pipeline is implemented in order to correctly measure the delay between data input to data output.
     Tests: This test collects metrics on the total delay from inputted sounds to outputted position.
@@ -32,6 +34,7 @@ def test_3d_error():
 @pytest.mark.skip # Not implemented
 def test_delay():
     """
+    Id: 3
     Quality requirement: 3.5.3
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in three dimensions. This in relation to a horizontal x and y plane, as well as a vertical axis z.
