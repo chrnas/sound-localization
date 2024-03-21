@@ -7,6 +7,7 @@ This file contains the data collection for quality metrics related to the system
 
 import pytest
 from math import sqrt, pow
+from datetime import datetime, timedelta
 import json
 
 @pytest.mark.skip # Not implemented
@@ -58,8 +59,21 @@ def within_2d_error(microphone_distance: float, source: tuple[float, float, floa
 
 def within_3d_error(source: tuple[float, float, float], guess: tuple[float, float, float]):
     """
-    Quality requirement: 3.5.3
+    Quality requirement: 3.5.4
     Verifies that a guessed postion is within the allowed margin of error for three dimensions.
     """
     # TODO: maybe add check that microphones are within the allowed distance of eachother, return true otherwise
     return distance(source, guess) <= 5
+
+def within_allowed_time(data):
+    """
+    Quality requirement: 3.5.3
+    Verifies that a answer is given within the allowed time.
+    """
+    start = datetime.now()
+    # TODO: guess(data) # perform guess
+    return datetime.now() - start <= timedelta(seconds=0.5)
+
+if __name__ == "__main__":
+    # When collecting metrics this is run instead of the pytest tests.
+    pass
