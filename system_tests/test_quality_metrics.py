@@ -3,9 +3,11 @@ This file contains the data collection for quality metrics related to the system
 """
 
 # TODO: add test id's
+# TODO: This file assumes output is given in meters
 
 import pytest
 from math import sqrt, pow
+import json
 
 @pytest.mark.skip # Not implemented
 def test_2d_error():
@@ -44,3 +46,20 @@ def distance(source: tuple[float, float, float], guess: tuple[float, float, floa
     return sqrt(pow(source[0] - guess[0], 2), 
                 pow(source[1] - guess[1], 2), 
                 pow(source[2] - guess[2], 2))
+
+def within_2d_error(microphone_distance: float, source: tuple[float, float, float], guess: tuple[float, float, float]):
+    """
+    Quality requirement: 3.5.2
+    Verifies that a guessed postion is within the allowed margin of error for the 2d plane.
+    """
+    source_no_z = (source[0], source[1], 0) # TODO: assumes (x, y, z)
+    guess_no_z = (guess[0], guess[1], 0) # TODO: assumes (x, y, z)
+    return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
+
+def within_3d_error(source: tuple[float, float, float], guess: tuple[float, float, float]):
+    """
+    Quality requirement: 3.5.3
+    Verifies that a guessed postion is within the allowed margin of error for three dimensions.
+    """
+    # TODO: maybe add check that microphones are within the allowed distance of eachother, return true otherwise
+    return distance(source, guess) <= 5
