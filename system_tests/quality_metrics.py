@@ -1,4 +1,9 @@
+"""
+This file contains the data collection for quality metrics related to the system.
+"""
+
 # TODO: add test id's
+
 
 def test_2d_error():
     """
@@ -14,6 +19,7 @@ def test_3d_error():
     Dependencies: This test requires that atleast one method for locating sounds has been implemented. It also requires the system pipeline is implemented in order to correctly measure the delay between data input to data output.
     Tests: This test collects metrics on the total delay from inputted sounds to outputted position.
     """
+    print("hello world")
     pass
 
 def test_delay():
