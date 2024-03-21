@@ -1,6 +1,6 @@
 [
     {
-        "microphones": [
+        "events": [
             {
                 "location": [0, 0, 0],
                 "timestamp": "2024-03-21 16:19:32.984620",
