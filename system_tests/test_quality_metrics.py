@@ -18,6 +18,7 @@ def test_2d_error():
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in two dimensions.
     """
+    data = json.loads(open("example_test_data.json"))
     pass
 
 @pytest.mark.skip # Not implemented
@@ -28,7 +29,7 @@ def test_3d_error():
     Dependencies: This test requires that atleast one method for locating sounds has been implemented. It also requires the system pipeline is implemented in order to correctly measure the delay between data input to data output.
     Tests: This test collects metrics on the total delay from inputted sounds to outputted position.
     """
-    print("hello world")
+    data = json.loads(open("example_test_data.json"))
     pass
 
 @pytest.mark.skip # Not implemented
@@ -39,7 +40,8 @@ def test_delay():
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in three dimensions. This in relation to a horizontal x and y plane, as well as a vertical axis z.
     """
-    pass
+    data = json.loads(open("example_test_data.json"))
+    assert len([d for d in data if within_allowed_time(d)]) / len(data) >= 0.8
 
 # Helper functions
 
