@@ -5,6 +5,7 @@ This file contains the data collection for quality metrics related to the system
 # TODO: add test id's
 
 import pytest
+from math import sqrt, pow
 
 @pytest.mark.skip # Not implemented
 def test_2d_error():
@@ -36,8 +37,10 @@ def test_delay():
 
 # Helper functions
 
-def distance(source: tuple[float, float, float], prediction: tuple[float, float, float]):
+def distance(source: tuple[float, float, float], guess: tuple[float, float, float]):
     """
-    
+    Checks distance between a source of a sound and a guess.
     """
-    pass
+    return sqrt(pow(source[0] - guess[0], 2), 
+                pow(source[1] - guess[1], 2), 
+                pow(source[2] - guess[2], 2))
