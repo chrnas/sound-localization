@@ -39,7 +39,7 @@ def test_error_margin():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    assert re.match(r"Margin of error: \d+\.\d+", p.stdout.decode()) is not None
+    assert re.match(r"Margin of error: \d+\.\d+ meters", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_choose_method():
@@ -48,7 +48,9 @@ def test_choose_method():
     CLI requirement: 3.3.4
     Tests: That the user can choose between using different types of positioning methods.
     """
-    pass
+    args = [] # TODO: provide run arguments
+    p = subprocess.run(args, capture_output=True)
+    assert re.match(r"Now using (TDOA|AD) to locate sounds", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_add_method():
@@ -57,7 +59,10 @@ def test_add_method():
     CLI requirement: 3.3.5
     Tests: That a user can add new postioning methods without access to the source code.
     """
-    pass
+    args = [] # TODO: provide run arguments
+    p = subprocess.run(args, capture_output=True)
+    # TODO: maybe add second test which checks only methods with names without space can be added.
+    assert re.match(r"Added method \S+ for locating sounds", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_configure_microphones():
