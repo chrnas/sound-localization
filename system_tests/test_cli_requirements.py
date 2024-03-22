@@ -2,6 +2,11 @@
 This file contains tests related to the requirements on the CLI.
 """
 
+# TODO: Try to use this to capture stdout from subprocesses: https://stackoverflow.com/a/77233620
+
+import pytest
+
+@pytest.mark.skip # Not implemented
 def test_developed_cli():
     """
     Id: 4
@@ -10,6 +15,7 @@ def test_developed_cli():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_gives_coordinate():
     """
     Id: 5
@@ -18,6 +24,7 @@ def test_gives_coordinate():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_error_margin():
     """
     Id: 6
@@ -26,6 +33,7 @@ def test_error_margin():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_choose_method():
     """
     Id: 7
@@ -34,6 +42,7 @@ def test_choose_method():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_add_method():
     """
     Id: 8
@@ -42,6 +51,7 @@ def test_add_method():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_configure_microphones():
     """
     Id: 9
@@ -50,6 +60,7 @@ def test_configure_microphones():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_choose_ecohandling():
     """
     Id: 10
@@ -58,6 +69,7 @@ def test_choose_ecohandling():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_add_ecohandling():
     """
     Id: 11
@@ -66,6 +78,7 @@ def test_add_ecohandling():
     """
     pass
 
+@pytest.mark.skip # Not implemented
 def test_combine_methods():
     """
     Id: 12
