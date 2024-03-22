@@ -2,8 +2,6 @@
 This file contains tests related to the requirements on the CLI.
 """
 
-# TODO: Try to use this to capture stdout from subprocesses: https://stackoverflow.com/a/77233620
-
 import subprocess
 import pytest
 import re
