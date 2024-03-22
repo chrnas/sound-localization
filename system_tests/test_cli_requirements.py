@@ -4,7 +4,9 @@ This file contains tests related to the requirements on the CLI.
 
 # TODO: Try to use this to capture stdout from subprocesses: https://stackoverflow.com/a/77233620
 
+import subprocess
 import pytest
+import re
 
 @pytest.mark.skip # Not implemented
 def test_developed_cli():
@@ -13,7 +15,9 @@ def test_developed_cli():
     CLI requirement: 3.3.1
     Tests: That a CLI has been implemented to some level.
     """
-    pass
+    args = [] # TODO: provide run arguments
+    p = subprocess.run(args)
+    assert p.returncode == 0
 
 @pytest.mark.skip # Not implemented
 def test_gives_coordinate():
@@ -22,7 +26,9 @@ def test_gives_coordinate():
     CLI requirement: 3.3.2
     Tests: That the CLI gives coordinate for a located sound in the form of longitude and latitude.
     """
-    pass
+    args = [] # TODO: provide run arguments
+    p = subprocess.run(args, capture_output=True)
+    assert re.match(r"Possible location -?\d+\.\d+, -?\d+\.\d+", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_error_margin():
@@ -31,7 +37,9 @@ def test_error_margin():
     CLI requirement: 3.3.3
     Tests: That the CLI gives a margin of error after together with the location of the sound.
     """
-    pass
+    args = [] # TODO: provide run arguments
+    p = subprocess.run(args, capture_output=True)
+    assert re.match(r"Margin of error: \d+\.\d+", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_choose_method():
