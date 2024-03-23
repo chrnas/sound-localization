@@ -5,6 +5,7 @@ This file contains tests related to the requirements on the CLI.
 # TODO: replace ... is not None with bool(...)
 # TODO: add command arguments as test input instead to make more dynamic
 # TODO: add checks for error handling
+# TODO: add test dependencies
 
 import subprocess
 import pytest
