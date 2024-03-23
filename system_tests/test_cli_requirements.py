@@ -82,7 +82,7 @@ def test_add_method():
 @pytest.mark.skip # Not implemented
 def test_add_microphones():
     """
-    Id: 9.1
+    Id: 9
     CLI requirement: 3.3.6
     Tests: That the user can configure which microphones are used.
     """
@@ -96,7 +96,7 @@ def test_add_microphones():
 @pytest.mark.skip # Not implemented
 def test_remove_microphones():
     """
-    Id: 9.2
+    Id: 10
     CLI requirement: 3.3.6
     Tests: That the user can configure which microphones are used.
     """
@@ -110,7 +110,7 @@ def test_remove_microphones():
 @pytest.mark.skip # Not implemented
 def test_choose_echohandling():
     """
-    Id: 10
+    Id: 11
     CLI requirement: 3.3.7
     Tests: That the user can choose between different methods for handling of echo.
     """
@@ -123,7 +123,7 @@ def test_choose_echohandling():
 @pytest.mark.skip # Not implemented
 def test_add_echohandling():
     """
-    Id: 11
+    Id: 12
     CLI requirement: 3.3.8
     Tests: That the user can add methods for handling of echo without access to the source code.
     """
@@ -136,7 +136,7 @@ def test_add_echohandling():
 @pytest.mark.skip # Not implemented
 def test_combine_methods():
     """
-    Id: 12.1
+    Id: 13
     CLI requirement: 3.3.9
     Tests: That the user can choose to use multiple methods for positioning to get a weighted average.
     """
@@ -153,7 +153,7 @@ def test_combine_methods():
 @pytest.mark.skip # Not implemented
 def test_weigh_methods():
     """
-    Id: 12.1
+    Id: 14
     CLI requirement: 3.3.9
     Tests: That the user can set the weight of a method when using multiple methods together.
     """
