@@ -2,6 +2,10 @@
 This file contains tests related to the requirements on the CLI.
 """
 
+# TODO: replace ... is not None with bool(...)
+# TODO: add command arguments as test input instead to make more dynamic
+# TODO: add checks for error handling
+
 import subprocess
 import pytest
 import re
@@ -11,7 +15,7 @@ def test_developed_cli():
     """
     Id: 4
     CLI requirement: 3.3.1
-    Tests: That a CLI has been implemented to some level.
+    Tests: That a CLI has been implemented to some level (it has atleast one command).
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args)
@@ -26,7 +30,10 @@ def test_gives_coordinate():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    assert re.match(r"Possible location -?\d+\.\d+, -?\d+\.\d+", p.stdout.decode()) is not None
+    # Example pass: Possible location -777.777, 888.0
+    # Example fail: Possible location -777.777 888.0
+    # Example fail: Possible location -777., 888.0
+    assert re.fullmatch(r"Possible location -?\d+\.\d+, -?\d+\.\d+", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_error_margin():
@@ -37,7 +44,11 @@ def test_error_margin():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    assert re.match(r"Margin of error: \d+\.\d+ meters", p.stdout.decode()) is not None
+    # Example pass: Margin of error: 123.123 meters
+    # Example pass: Margin of error: 1.0 meter
+    # Example fail: Margin of error: 123.123 meter
+    # Example fail: Margin of error: 1.0 meters
+    assert re.fullmatch(r"Margin of error: (1\.0+ meter|(?!1\.0+)\d+\.\d+ meters)", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_choose_method():
@@ -48,7 +59,11 @@ def test_choose_method():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    assert re.match(r"Now using method (TDOA|AD) to locate sounds", p.stdout.decode()) is not None
+    # Assuming no other methods for locating sounds has been added.
+    # Example pass: Now using method TDOA to locate sounds
+    # Example pass: Now using method AD to locate sounds
+    # Example fail: Now using 
+    assert re.fullmatch(r"Now using method (TDOA|AD) to locate sounds", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_add_method():
@@ -59,8 +74,9 @@ def test_add_method():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Added method \S+ for locating sounds", p.stdout.decode()) is not None
+    # Example pass: Added method AAA for locating sounds
+    # Example fail: Added method A A for locating sounds
+    assert re.fullmatch(r"Added method \S+ for locating sounds", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_add_microphones():
@@ -71,8 +87,10 @@ def test_add_microphones():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Added microphone \S+ at -?\d+\.\d+, -?\d+\.\d+(, -?\d+\.\d+)?", p.stdout.decode()) is not None
+    # Example pass: Added microphone AAA at -888.0, 777.777, 555.0
+    # Example pass: Added microphone BBB at -888.0, 777.777
+    # Example fail: Added microphone CCC at -888.0, 777.777 555.0
+    assert re.fullmatch(r"Added microphone \S+ at -?\d+\.\d+, -?\d+\.\d+(, -?\d+\.\d+)?", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_remove_microphones():
@@ -81,10 +99,12 @@ def test_remove_microphones():
     CLI requirement: 3.3.6
     Tests: That the user can configure which microphones are used.
     """
+    # TODO: maybe have to add microphone before.
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Removed microphone \S+", p.stdout.decode()) is not None
+    # Example pass: Removed microphone AAA
+    # Example fail: Removed microphone B B
+    assert re.fullmatch(r"Removed microphone \S+", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_choose_echohandling():
@@ -95,8 +115,9 @@ def test_choose_echohandling():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Now using \S+ to handle echos", p.stdout.decode()) is not None
+    # Example pass: Now using AAA to handle echos
+    # Example fail: Now using AAA to handle ecos
+    assert re.fullmatch(r"Now using \S+ to handle echos", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_add_echohandling():
@@ -107,8 +128,9 @@ def test_add_echohandling():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Added method \S+ for handling echos", p.stdout.decode()) is not None
+    # Example pass: Added method AAA for handling echos
+    # Example fail: Added method AAA for handling ecos
+    assert re.fullmatch(r"Added method \S+ for handling echos", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_combine_methods():
@@ -119,8 +141,13 @@ def test_combine_methods():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Now using methods? \S+((, \S+)? and \S+ together)? to locate sounds", p.stdout.decode()) is not None
+    # NOTE: missing s after method not caught
+    # Example pass: Now using method AAA to locate sounds
+    # Example pass: Now using method AAA and BBB together to locate sounds
+    # Example pass: Now using methods AAA, BBB and CCC together to locate sounds
+    # Example fail: Now using methods AAA, and BBB together to locate sounds
+    # Example fail: Now using method AAA together to locate sounds
+    assert re.fullmatch(r"Now using methods? \S+((, \S+)? and \S+ together)? to locate sounds", p.stdout.decode()) is not None
 
 @pytest.mark.skip # Not implemented
 def test_weigh_methods():
@@ -131,5 +158,8 @@ def test_weigh_methods():
     """
     args = [] # TODO: provide run arguments
     p = subprocess.run(args, capture_output=True)
-    # TODO: maybe add second test which checks only methods with names without space can be added.
-    assert re.match(r"Set method \S+([sS]'|[^sS]'s) weight to \d+\.\d+", p.stdout.decode()) is not None
+    # Example pass: Set method AAA's weight to 1.1
+    # Example pass: Set method SSS' weight to 2.2
+    # Example fail: Set method AAA' weight to 1.1
+    # Example fail: Set method SSS's weight to 2.2
+    assert re.fullmatch(r"Set method \S+([sS]'|[^sS]'s) weight to \d+\.\d+", p.stdout.decode()) is not None
