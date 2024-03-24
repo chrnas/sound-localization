@@ -4,43 +4,58 @@ This file contains the data collection for quality metrics related to the system
 
 # TODO: add pytest, test id's
 # TODO: This file assumes output is given in meters
+# TODO: update when data structure is known
 
 import pytest
 from math import sqrt, pow
 from datetime import datetime, timedelta
 import json
 
+# TODO: Add actual data collection files
+shared_params = [
+    pytest.param("example_test_data.json", id="quality_data_1"),
+]
+
 @pytest.mark.skip # Not implemented
-def test_2d_error():
+@pytest.mark.parametrize("data_path", [
+    shared_params
+])
+def test_2d_error(data_path):
     """
     Id: 1
     Quality requirement: 3.5.2
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in two dimensions.
     """
-    data = json.loads(open("example_test_data.json").read())
+    data = json.loads(open(data_path).read())
     assert len([d for d in data if within_2d_error(d)]) / len(data) >= 0.8
 
 @pytest.mark.skip # Not implemented
-def test_3d_error():
+@pytest.mark.parametrize("data_path", [
+    shared_params
+])
+def test_3d_error(data_path):
     """
     Id: 2
     Quality requirement: 3.5.4
     Dependencies: This test requires that atleast one method for locating sounds has been implemented. It also requires the system pipeline is implemented in order to correctly measure the delay between data input to data output.
     Tests: This test collects metrics on the total delay from inputted sounds to outputted position.
     """
-    data = json.loads(open("example_test_data.json").read())
+    data = json.loads(open(data_path).read())
     assert len([d for d in data if within_3d_error(d)]) / len(data) >= 0.75
 
 @pytest.mark.skip # Not implemented
-def test_delay():
+@pytest.mark.parametrize("data_path", [
+    shared_params
+])
+def test_delay(data_path):
     """
     Id: 3
     Quality requirement: 3.5.3
     Dependencies: This test requires that atleast one method for locating sounds has been implemented.
     Tests: This test collects metrics on the margin of error when locating sounds in three dimensions. This in relation to a horizontal x and y plane, as well as a vertical axis z.
     """
-    data = json.loads(open("example_test_data.json").read())
+    data = json.loads(open(data_path).read())
     assert len([d for d in data if within_allowed_time(d)]) / len(data) >= 0.8
 
 # Helper functions
