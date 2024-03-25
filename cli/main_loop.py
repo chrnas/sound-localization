@@ -28,7 +28,6 @@ def handle_command(command_data, pos_data, eco_data):
     elif command == "ECOSet":
         eco_set(eco_data, args)
     elif command == "PosList":
-<<<<<<< HEAD
         pos_list(args[0])
     elif command == "PosActivate":
         pos_activate(args[0])
@@ -36,15 +35,12 @@ def handle_command(command_data, pos_data, eco_data):
         pos_deactivate(args[0])
     elif command == "PosWeight":
         pos_weight(args[0])
-=======
-        pos_list(pos_data, args)
     elif command == "PosActivate":
         pos_activate(pos_data, args)
     elif command == "PosDeactivate":
         pos_deactivate(pos_data, args)
     elif command == "PosWeight":
         pos_weight(pos_data, args)
->>>>>>> b1365c9763ed9c10b95312a55a61379123346bc9
     elif command == "RunOnce":
         run_once(args[0])
     elif command == "RunCont":
