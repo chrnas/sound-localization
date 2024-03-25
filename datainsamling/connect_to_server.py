@@ -11,7 +11,7 @@ init_perf = time.perf_counter()  # Use perf_counter for higher resolution timing
 FORMAT = pyaudio.paFloat32  
 CHANNELS = 1
 RATE = 44100
-CHUNK = 2048  # Adjusted to match JavaScript's processor buffer size
+CHUNK = 1024  # Adjusted to match JavaScript's processor buffer size
 SOUND_THRESHOLD = 0.15  # Adjusted to match JavaScript's sound detection threshold
 
 # SocketIO event handlers
@@ -19,8 +19,8 @@ SOUND_THRESHOLD = 0.15  # Adjusted to match JavaScript's sound detection thresho
 def connect():
     print("Connected to the server.")
     name = "Mathias"
-    xCoordinate = 1
-    yCoordinate = 1
+    xCoordinate = 10
+    yCoordinate = 0
     sio.emit('newUser', {'name': name, 'xCoordinate': xCoordinate, 'yCoordinate': yCoordinate})
     sync_time()
 
@@ -64,7 +64,8 @@ def main():
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
             float_data = np.frombuffer(data, dtype=np.float32)
-            rms_value = calculate_rms(float_data)
+            
+            #rms_value = calculate_rms(float_data)
 
             current_time = time.perf_counter() - init_perf  # Use perf_counter here
             #if rms_value > SOUND_THRESHOLD:

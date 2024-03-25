@@ -8,8 +8,8 @@ import numpy as np
 import time
 import numpy as np
 from scipy.optimize import least_squares
-
 from tidsuträkning.TidsförskjutningBeräkning import Wav_file, calc_offset, create_wav_object
+import matplotlib.pyplot as plt  # Corrected import
 
 app = Flask(__name__, static_folder='public', static_url_path='')
 
@@ -42,12 +42,17 @@ class User:
         self.audio_data = []
         self.distances = {} 
         self.last_timestamp = None
+        self.triggered = False
+        self.extra_samples = 0
+        
+        
+        self.lock = False  # Initialize the lock attribute for each user (microphone)
 
     def update_last_timestamp(self, timestamp):
         self.last_timestamp = timestamp
 
     def add_audio_data(self, audio_data):
-        if len(self.audio_data) >= 100: # How many audio data points to store
+        if len(self.audio_data) >= 150: # How many audio data points to store
             self.audio_data.pop(0)
         self.audio_data.append(audio_data.data)
 
@@ -107,37 +112,77 @@ def handle_new_user(data):
     print(f'New user connected: {new_user}')
     broadcast_user_positions()
 
+import wave
+
+def save_audio_data_as_wav(user, audio_data_flat, filename):
+    with wave.open(filename, 'wb') as wav_file:  # Ensure 'wb' mode for binary write
+        wav_file.setnchannels(1)  # Mono audio
+        wav_file.setsampwidth(2)  # 16-bit samples
+        wav_file.setframerate(user.sample_rate)
+        wav_file.writeframes(np.array(audio_data_flat, dtype=np.int16).tobytes())  # Ensure data is in int16 format
+
 @socketio.on('audioData')
 def handle_audio_data(data):
-    # Function to handle audio data from the client
-    # TODO triangulation is called everytime a new audio data is received, this is not optimal,
-    # and should be called when three or more audio data is received and the timestamps are in sync-ish 
-
-    #print(data["timestamp"])
-
-    print("client", data["timestamp"])
-    print("server", time.perf_counter() - perf_counter) 
     audio_data = AudioData(data['data'], data['timestamp'])
-    return
+    
     if request.sid in microphones:
-        microphones[request.sid].add_audio_data(audio_data)
-        microphones[request.sid].update_last_timestamp(data["timestamp"])
-        #print(f'Audio data received from {microphones[request.sid].name} with RMS: {audio_data.RMS()}')
+        user = microphones[request.sid]
+        user.add_audio_data(audio_data)
+        user.update_last_timestamp(data["timestamp"])
         
-        if audio_data.RMS() > 0.1:
+        if audio_data.RMS() > 0.3 and not user.triggered and len(user.audio_data) == 150:
+            print("Triggered")
+            user.triggered = True
+            return
 
-            # beräkna TDOA
+        if user.triggered and user.extra_samples < 50:
+            user.extra_samples += 1
+            return
+        
+        if user.triggered and user.extra_samples == 50:
+            user.triggered = False
+            user.extra_samples = 0
 
-            wavsfiles = []
+            wav_files = []
             for id in microphones:
-                wavsfiles.append(create_wav_object(microphones[id].audio_data, microphones[id].sample_rate))
+                listconcated = [item for sublist in microphones[id].audio_data for item in sublist]
+                wav_file = create_wav_object(listconcated, microphones[id].sample_rate)
+                #wav_file.save(f'{microphones[id].name}_audio_data.wav')
+                wav_files.append(wav_file)
 
-            timestamps = [microphones[id].last_timestamp for id in microphones]
-            print("lasttimestamp", timestamps)
-            print('Size of vectors: ' + str(wavsfiles[0].audio_data_size())+ ', ' + str(wavsfiles[1].audio_data_size()))
+            tdoa = calc_offset(wav_files[0], wav_files[1])
 
-            tdoa = calc_offset(wavsfiles[0], wavsfiles[1])
-            print("TDOA", tdoa)
+            plt.figure(figsize=(10, 5))
+            print("Plotting")
+            # Save and plot for the current microphone
+            current_user = user  # The current microphone/user
+
+            current_user_audio_flat = [item for sublist in current_user.audio_data for item in sublist]            
+            plt.subplot(2, 1, 1)  # First subplot
+            plt.plot(current_user_audio_flat, label=f'Microphone {current_user.name}')
+            plt.xlabel('Sample')
+            plt.ylabel('Amplitude')
+            plt.title(f'Waveform - Microphone {current_user.name}')
+            plt.legend()
+
+            # Save and plot for the other microphone
+            other_microphone_id = next((id for id in microphones if id != request.sid), None)
+            if other_microphone_id is not None:
+                other_user = microphones[other_microphone_id]
+                other_user_audio_flat = [item for sublist in other_user.audio_data for item in sublist]
+                plt.subplot(2, 1, 2)  # Second subplot
+                plt.plot(other_user_audio_flat, label=f'Microphone {other_user.name}')
+                plt.xlabel('Sample')
+                plt.ylabel('Amplitude')
+                plt.title(f'Waveform - Microphone {other_user.name} {tdoa} ')
+                plt.legend()
+
+            plt.tight_layout()
+            plt.savefig(f'waveforms_{current_user.name}_{other_user.name}.png')
+            plt.close()
+
+
+
             #wavsfiles = [create_wav_object(user.audiodata, user.sample_rate ) for user in microphones if user]
 
             #print(wavsfiles[0].audioVectorData)

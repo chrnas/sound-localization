@@ -34,6 +34,10 @@ class Wav_file:
     def audio_data_size(self) -> int:
         return len(self.audioVectorData)
 
+    # Function to save the object's audio data and sampling rate to a new WAV file
+    def save(self, output_filename: str) -> None:
+        audio_array = np.array(self.audioVectorData, dtype=np.float32)  # or np.float32 depending on your audio data format
+        wavfile.write(output_filename, self.sampling_rate, audio_array)
 
 def create_wav_object(audio_data: list[float], sample_rate: int) -> Wav_file:
     wav_file = Wav_file('')
@@ -93,8 +97,6 @@ def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_f
         wav2.resample_wav(highest_sampling_rate)
    
     return wav1, wav2 
-
-
 
 #----------------------------------------------------------------- 
 # Running code
