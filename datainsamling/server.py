@@ -112,14 +112,6 @@ def handle_new_user(data):
     print(f'New user connected: {new_user}')
     broadcast_user_positions()
 
-import wave
-
-def save_audio_data_as_wav(user, audio_data_flat, filename):
-    with wave.open(filename, 'wb') as wav_file:  # Ensure 'wb' mode for binary write
-        wav_file.setnchannels(1)  # Mono audio
-        wav_file.setsampwidth(2)  # 16-bit samples
-        wav_file.setframerate(user.sample_rate)
-        wav_file.writeframes(np.array(audio_data_flat, dtype=np.int16).tobytes())  # Ensure data is in int16 format
 
 @socketio.on('audioData')
 def handle_audio_data(data):
@@ -150,7 +142,9 @@ def handle_audio_data(data):
                 #wav_file.save(f'{microphones[id].name}_audio_data.wav')
                 wav_files.append(wav_file)
 
-            tdoa = calc_offset(wav_files[0], wav_files[1])
+            tdoa_0_1 = calc_offset(wav_files[0], wav_files[1])
+            
+            print("TDOA 0 1", tdoa_0_1)
 
             plt.figure(figsize=(10, 5))
             print("Plotting")
@@ -166,7 +160,7 @@ def handle_audio_data(data):
             plt.legend()
 
             # Save and plot for the other microphone
-            other_microphone_id = next((id for id in microphones if id != request.sid), None)
+            other_microphone_id =  next((id for id in microphones if id != request.sid), None)
             if other_microphone_id is not None:
                 other_user = microphones[other_microphone_id]
                 other_user_audio_flat = [item for sublist in other_user.audio_data for item in sublist]
@@ -174,8 +168,11 @@ def handle_audio_data(data):
                 plt.plot(other_user_audio_flat, label=f'Microphone {other_user.name}')
                 plt.xlabel('Sample')
                 plt.ylabel('Amplitude')
-                plt.title(f'Waveform - Microphone {other_user.name} {tdoa} ')
+                plt.title(f'Waveform - Microphone {other_user.name} {tdoa_0_1} ')
                 plt.legend()
+
+        
+
 
             plt.tight_layout()
             plt.savefig(f'waveforms_{current_user.name}_{other_user.name}.png')
