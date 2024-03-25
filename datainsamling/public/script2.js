@@ -11,12 +11,13 @@ document.getElementById('connectBtn').addEventListener('click', async function (
     let name = document.getElementById('nameInput').value;
     let xCoordinate = document.getElementById('xInput').value;
     let yCoordinate = document.getElementById('yInput').value;
+
     if (!name) {
         alert('Please enter your name.');
         return;
     }
     
-    // Inform the server of the new user and their coordinates
+    // Inform the server of the new user and their coordinates and send the time synchronization request
     socket.emit('newUser', { name, xCoordinate, yCoordinate });
     syncTime();
 
@@ -35,6 +36,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
         analyser.fftSize = 2048;
 
         function drawLocalWaveform() {
+            // Draws the local waveform of the audio input, turn off if not needed
             requestAnimationFrame(drawLocalWaveform);
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
@@ -71,9 +73,11 @@ document.getElementById('connectBtn').addEventListener('click', async function (
         processor.connect(audioContext.destination);
 
         let lastTriggeredTime = null;
-        const debounceInterval = 300; // Debounce interval in milliseconds
-        const soundThreshold = 0.15; // RMS threshold for sound detection
+        const debounceInterval = 300; // Debounce interval in milliseconds, This is very bad practice, but it is a quick fix for the issue. Can cause timestamps to become unaligned. 
+        const soundThreshold = 0.15; // RMS threshold for sound detection, need to be tuned
 
+
+        // Maybe just use a threshhold value for amplitude instead of the RMS value since RMS will be delayed
         function calculateRMS(buffer) {
             let sum = 0;
             for (let i = 0; i < buffer.length; i++) {
@@ -83,6 +87,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
         }
 
         processor.onaudioprocess = function (e) {
+            // Send audio data to the server when a sound is detected
             const inputBuffer = e.inputBuffer.getChannelData(0);
             const rms = calculateRMS(inputBuffer);
             now = performance.now()
@@ -123,13 +128,10 @@ socket.on('syncResponse', (serverTimestamp) => {
     clockOffset = estimatedServerTime - clientTime;
     console.log(`Clock offset: ${clockOffset} milliseconds. Adjust your clock accordingly.`);
 });
-// Function to get the current time with clock offset applied
-
-
-
-
 
 function drawGrid() {
+    // Draws the grid.
+
     const gridSize = 10; // Adjust grid size as needed
     const numLinesX = gridnet.width / gridSize;
     const numLinesY = gridnet.height / gridSize;
@@ -169,6 +171,7 @@ function drawGrid() {
 
 
 function drawIncomingWaveform(dataArray, id, name) {
+    // Draws the incoming waveform from other users. Currently turned off for performance reasons in the server
     let canvasId = 'canvas-' + id;
     let newCanvas = document.getElementById(canvasId);
 
@@ -212,6 +215,8 @@ function drawIncomingWaveform(dataArray, id, name) {
 }
 
 function plotPoint(x, y) {
+    // Function to plot a point on the grid with the origin in the middle
+
     const pointSize = 5; // Size of the point
     gridCtx.fillStyle = '#ff0000'; // Red color for the points
 
@@ -227,6 +232,7 @@ function plotPoint(x, y) {
 }
 
 socket.on('incomingAudioData', (payload) => {
+    // Handle incoming audio data from other users
     const { id, data, name } = payload;
     if (id !== socket.id) {
         drawIncomingWaveform(data, id, name);
@@ -252,9 +258,9 @@ function plotPoint(x, y) {
     gridCtx.fill();
 }
 
-// Listen for 'updatePositions' event from the server
 socket.on('updatePositions', (users) => {
-    // Clear the grid before redrawing
+    // Listen for 'updatePositions' event from the server, TODO implement drawing of where sound is detected
+
     gridCtx.clearRect(0, 0, gridnetCanvas.width, gridnetCanvas.height);
 
     drawGrid();

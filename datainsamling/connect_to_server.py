@@ -1,15 +1,17 @@
-### CURRENTLY NOT CORRECT FORMATED WITH THE SERVER, USE intex_once.html ###
+### CURRENTLY NOT CORRECT FORMATED WITH THE SERVER, USE intex_once.html ### 
+
+## NEED TO BE RE WRITTEN IN ACCORDANCE TO THE SERVER ## SEE SCRIPT2.JS for the correct format.
 
 import socketio
 import pyaudio
 import numpy as np
 from datetime import datetime, timedelta
 from time import perf_counter
+
+
 # SocketIO client setup
 sio = socketio.Client()
 server_url = "http://localhost:3000"  # Adjust as needed
-
-
 init_perf = perf_counter()
 
 FORMAT = pyaudio.paFloat32  
@@ -20,7 +22,7 @@ SOUND_THRESHOLD = 0.5
 
 
 
-
+# Root mean square calculation
 def calculate_rms(audio_data):
     return np.sqrt(np.mean(np.square(audio_data)))
 
@@ -31,17 +33,16 @@ def connect():
     sio.emit('newUser', {'name': name, 'xCoordinate': 1, 'yCoordinate': 2})
     sync_time()  
 
-
-
-# Ask server for the current time
+# TODO FIX THIS FUNCTION
 @sio.event
 def sync_time():
     client_time = perf_counter() - init_perf
     sio.emit('syncTime')
 
+#TODO FIX THIS FUNCTION
 @sio.on('syncResponse')
 def handle_sync_response(data):
-
+    pass
 
 @sio.event
 def disconnect():
@@ -49,6 +50,8 @@ def disconnect():
 
 from datetime import datetime, timedelta
 
+
+# TODO FIX THIS FUNCTION
 def main():
     sio.connect(server_url)
 

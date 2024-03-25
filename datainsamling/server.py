@@ -13,6 +13,7 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 
 perf_counter = time.perf_counter()
 print("preftcounter", perf_counter)
+microphones = {}
 socketio = SocketIO(app)
 
 
@@ -67,7 +68,6 @@ class User:
     def __repr__(self):
         return f'User(name={self.name}, xCoordinate={self.xCoordinate}, yCoordinate={self.yCoordinate}, audio_data_count={len(self.audio_data)})'
 
-microphones = {}
 
 def timestamps_to_tdoas(timestamps):
     reference_timestamp = min(timestamps)  # Use the earliest timestamp as reference
@@ -82,13 +82,16 @@ def broadcast_user_positions():
 def index():
     return app.send_static_file('index_once.html')
 
-@socketio.on('connect')
-def handle_connect():
-    print(f'A user connected with ID: {request.sid}')
-    emit('userConnected', {'id': request.sid}, broadcast=True, include_self=False)
+#@socketio.on('connect')
+#def handle_connect():
+#    # Function to handle new user connection
+#    print(f'A user connected with ID: {request.sid}')
+#    emit('userConnected', {'id': request.sid}, broadcast=True, include_self=False)
 
 @socketio.on('newUser')
 def handle_new_user(data):
+    # Function to handle new user connection
+
     name = data.get('name')
     xCoordinate = float(data.get('xCoordinate'))  
     yCoordinate = float(data.get('yCoordinate'))
@@ -105,9 +108,13 @@ def handle_new_user(data):
 
 @socketio.on('audioData')
 def handle_audio_data(data):
-    
-    #print("client", data["timestamp"])
-    #print("server", time.perf_counter() - perf_counter)
+    # Function to handle audio data from the client
+    # TODO triangulation is called everytime a new audio data is received, this is not optimal,
+    # and should be called when three or more audio data is received and the timestamps are in sync-ish 
+
+
+    print("client", data["timestamp"])
+    print("server", time.perf_counter() - perf_counter) # Remember slight delay here since trip time to server is not accounted for
 
     if request.sid in microphones:
         timestamp = data.get('timestamp')
@@ -120,19 +127,21 @@ def handle_audio_data(data):
 
 @socketio.on('syncTime')
 def handle_sync_time():
+    # Function to handle sync time request from the client
     print("Sync requested") 
     server_timestamp = time.perf_counter() - perf_counter 
     emit('syncResponse', server_timestamp)
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    # Clean up when a user disconnects
     if request.sid in microphones:
         print(f'User {microphones[request.sid].name} disconnected')
         microphones.pop(request.sid, None)
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
 def calculate_sound_source():
-    # Calculate the sound source position using the time differences of arrival
+    #TODO verify this code. 
 
     speed_of_sound = 343  # 
 
