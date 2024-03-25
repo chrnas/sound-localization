@@ -75,8 +75,6 @@ document.getElementById('connectBtn').addEventListener('click', async function (
         let lastTriggeredTime = null;
         const debounceInterval = 300; // Debounce interval in milliseconds, This is very bad practice, but it is a quick fix for the issue. Can cause timestamps to become unaligned. 
         const soundThreshold = 0.15; // RMS threshold for sound detection, need to be tuned
-
-
         // Maybe just use a threshhold value for amplitude instead of the RMS value since RMS will be delayed
         function calculateRMS(buffer) {
             let sum = 0;
@@ -88,15 +86,19 @@ document.getElementById('connectBtn').addEventListener('click', async function (
 
         processor.onaudioprocess = function (e) {
             // Send audio data to the server when a sound is detected
+            
             const inputBuffer = e.inputBuffer.getChannelData(0);
+            const dataToSend = Array.from(inputBuffer);
             const rms = calculateRMS(inputBuffer);
             now = performance.now()
-            if (rms > soundThreshold) {
-                if (!lastTriggeredTime || now - lastTriggeredTime > debounceInterval) {
-                    const timestamp = performance.now() / 1000 - perf_counter + clockOffset;
-                    socket.emit('audioData', { name: name, timestamp: timestamp }); 
-                    lastTriggeredTime = now;
-                }
+            
+            if (rms > 0) {
+                //if (!lastTriggeredTime || now - lastTriggeredTime > debounceInterval) {
+                console.log(inputBuffer)
+                const timestamp = performance.now() / 1000 - perf_counter + clockOffset;
+                socket.emit('audioData', { name: name, timestamp: timestamp, data: dataToSend }); 
+                lastTriggeredTime = now;
+                //}
             }
         };
 

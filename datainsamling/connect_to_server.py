@@ -1,57 +1,55 @@
-### CURRENTLY NOT CORRECT FORMATED WITH THE SERVER, USE intex_once.html ### 
-
-## NEED TO BE RE WRITTEN IN ACCORDANCE TO THE SERVER ## SEE SCRIPT2.JS for the correct format.
-
 import socketio
 import pyaudio
 import numpy as np
-from datetime import datetime, timedelta
-from time import perf_counter
-
+import time
 
 # SocketIO client setup
 sio = socketio.Client()
-server_url = "http://localhost:3000"  # Adjust as needed
-init_perf = perf_counter()
+server_url = "http://localhost:5000"  # Adjust as needed
+init_perf = time.perf_counter()  # Use perf_counter for higher resolution timing
 
 FORMAT = pyaudio.paFloat32  
 CHANNELS = 1
 RATE = 44100
-CHUNK = 32 
-SOUND_THRESHOLD = 0.5
+CHUNK = 2048  # Adjusted to match JavaScript's processor buffer size
+SOUND_THRESHOLD = 0.15  # Adjusted to match JavaScript's sound detection threshold
 
-
-
-# Root mean square calculation
-def calculate_rms(audio_data):
-    return np.sqrt(np.mean(np.square(audio_data)))
-
+# SocketIO event handlers
 @sio.event
 def connect():
     print("Connected to the server.")
     name = "Mathias"
-    sio.emit('newUser', {'name': name, 'xCoordinate': 1, 'yCoordinate': 2})
-    sync_time()  
-
-# TODO FIX THIS FUNCTION
-@sio.event
-def sync_time():
-    client_time = perf_counter() - init_perf
-    sio.emit('syncTime')
-
-#TODO FIX THIS FUNCTION
-@sio.on('syncResponse')
-def handle_sync_response(data):
-    pass
+    xCoordinate = 1
+    yCoordinate = 1
+    sio.emit('newUser', {'name': name, 'xCoordinate': xCoordinate, 'yCoordinate': yCoordinate})
+    sync_time()
 
 @sio.event
 def disconnect():
     print("Disconnected from the server.")
 
-from datetime import datetime, timedelta
+client_send_time = None  # Initialize client_send_time
 
+def sync_time():
+    global client_send_time
+    client_send_time = time.perf_counter() - init_perf  # Use perf_counter here
+    sio.emit('syncTime')
 
-# TODO FIX THIS FUNCTION
+@sio.on('syncResponse')
+def handle_sync_response(server_time):
+    global clock_offset, client_send_time
+    client_receive_time = time.perf_counter() - init_perf  # Use perf_counter here
+
+    round_trip_time = client_receive_time - client_send_time
+    estimated_server_time_at_client_receive = server_time + round_trip_time / 2
+    clock_offset = estimated_server_time_at_client_receive - client_receive_time
+
+    print(f"Clock offset adjusted: {clock_offset} seconds.")
+
+# Audio processing functions
+def calculate_rms(buffer):
+    return np.sqrt(np.mean(np.square(buffer)))
+
 def main():
     sio.connect(server_url)
 
@@ -59,23 +57,21 @@ def main():
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
 
     print("Listening for audio. Press Ctrl+C to stop.")
-    last_triggered_time = None  # Keep track of the last time the event was triggered
-    debounce_interval = timedelta(seconds=0.2)  # Set the debounce interval (e.g., 1 second)
+    last_triggered_time = None
+    debounce_interval = 0.3
 
     try:
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
-            float_data = np.frombuffer(data, dtype=np.float32).tolist()
-
+            float_data = np.frombuffer(data, dtype=np.float32)
             rms_value = calculate_rms(float_data)
-            current_time = datetime.now()
-            
-            if rms_value > SOUND_THRESHOLD:
-                if last_triggered_time is None or (current_time - last_triggered_time) > debounce_interval:
-                    adjusted_timestamp = current_time + clock_offset
-                    timestamp = adjusted_timestamp.isoformat()
-                    sio.emit('audioData', {'data': float_data, 'timestamp': timestamp})
-                    last_triggered_time = current_time  # Update the last triggered time
+
+            current_time = time.perf_counter() - init_perf  # Use perf_counter here
+            #if rms_value > SOUND_THRESHOLD:
+            #   if last_triggered_time is None or (current_time - last_triggered_time) > debounce_interval:
+            timestamp = current_time + clock_offset
+            sio.emit('audioData', {'data': float_data.tolist(), 'timestamp': timestamp})
+            last_triggered_time = current_time
 
     except KeyboardInterrupt:
         pass
@@ -85,6 +81,6 @@ def main():
         p.terminate()
         sio.disconnect()
 
-
 if __name__ == "__main__":
+    clock_offset = 0  # Initialize clock offset
     main()

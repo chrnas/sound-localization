@@ -9,6 +9,8 @@ import time
 import numpy as np
 from scipy.optimize import least_squares
 
+from tidsuträkning.TidsförskjutningBeräkning import Wav_file, calc_offset, create_wav_object
+
 app = Flask(__name__, static_folder='public', static_url_path='')
 
 perf_counter = time.perf_counter()
@@ -17,7 +19,7 @@ microphones = {}
 socketio = SocketIO(app)
 
 
-multilateration = Multilateration(v=343, delta_d=1, max_d=300)  # Example values
+multilateration = Multilateration(v=343, delta_d=1, max_d=300)  # TBH i have no idea how to use this class.
 
 class AudioData:
     
@@ -26,14 +28,14 @@ class AudioData:
         self.timestamp = timestamp
 
     def RMS(self):
-        # Calculate the root mean square of the audio data, good for calculating loudness
         return math.sqrt(sum([sample**2 for sample in self.data]) / len(self.data))
 
     def __repr__(self):
         return f'AudioData(data={len(self.data)}, timestamp={self.timestamp})'
 
 class User:
-    def __init__(self, name, xCoordinate=None, yCoordinate=None):
+    def __init__(self, name, xCoordinate=None, yCoordinate=None, sample_rate = 44100):
+        self.sample_rate = sample_rate
         self.name = name
         self.xCoordinate = xCoordinate
         self.yCoordinate = yCoordinate
@@ -45,9 +47,9 @@ class User:
         self.last_timestamp = timestamp
 
     def add_audio_data(self, audio_data):
-        if len(self.audio_data) >= 10:
+        if len(self.audio_data) >= 100: # How many audio data points to store
             self.audio_data.pop(0)
-        self.audio_data.append(audio_data)
+        self.audio_data.append(audio_data.data)
 
     def calculate_distances(self, users):
         for sid, user in users.items():
@@ -68,11 +70,6 @@ class User:
     def __repr__(self):
         return f'User(name={self.name}, xCoordinate={self.xCoordinate}, yCoordinate={self.yCoordinate}, audio_data_count={len(self.audio_data)})'
 
-
-def timestamps_to_tdoas(timestamps):
-    reference_timestamp = min(timestamps)  # Use the earliest timestamp as reference
-    tdoas = [timestamp - reference_timestamp for timestamp in timestamps]
-    return tdoas
 
 def broadcast_user_positions():
     users_data = [{'name': user.name, 'xCoordinate': user.xCoordinate, 'yCoordinate': user.yCoordinate} for user in microphones.values()]
@@ -95,7 +92,11 @@ def handle_new_user(data):
     name = data.get('name')
     xCoordinate = float(data.get('xCoordinate'))  
     yCoordinate = float(data.get('yCoordinate'))
-    new_user = User(name, xCoordinate, yCoordinate)
+    sample_rate = data.get('sample_rate') or 44100
+
+    new_user = User(name, xCoordinate, yCoordinate, sample_rate)
+
+
     microphones[request.sid] = new_user
 
     new_user.calculate_distances(microphones)
@@ -112,18 +113,53 @@ def handle_audio_data(data):
     # TODO triangulation is called everytime a new audio data is received, this is not optimal,
     # and should be called when three or more audio data is received and the timestamps are in sync-ish 
 
+    #print(data["timestamp"])
 
     print("client", data["timestamp"])
-    print("server", time.perf_counter() - perf_counter) # Remember slight delay here since trip time to server is not accounted for
-
+    print("server", time.perf_counter() - perf_counter) 
+    audio_data = AudioData(data['data'], data['timestamp'])
+    return
     if request.sid in microphones:
-        timestamp = data.get('timestamp')
-        if timestamp:
-            microphones[request.sid].last_timestamp = data["timestamp"]
+        microphones[request.sid].add_audio_data(audio_data)
+        microphones[request.sid].update_last_timestamp(data["timestamp"])
+        #print(f'Audio data received from {microphones[request.sid].name} with RMS: {audio_data.RMS()}')
+        
+        if audio_data.RMS() > 0.1:
 
+            # beräkna TDOA
 
-        # Need to perfom check on the timestamps to see if they are in sync, debouncing and problems on client side could cause issues
-        print("Location:" , calculate_sound_source())
+            wavsfiles = []
+            for id in microphones:
+                wavsfiles.append(create_wav_object(microphones[id].audio_data, microphones[id].sample_rate))
+
+            timestamps = [microphones[id].last_timestamp for id in microphones]
+            print("lasttimestamp", timestamps)
+            print('Size of vectors: ' + str(wavsfiles[0].audio_data_size())+ ', ' + str(wavsfiles[1].audio_data_size()))
+
+            tdoa = calc_offset(wavsfiles[0], wavsfiles[1])
+            print("TDOA", tdoa)
+            #wavsfiles = [create_wav_object(user.audiodata, user.sample_rate ) for user in microphones if user]
+
+            #print(wavsfiles[0].audioVectorData)
+            return
+            print("Sound detected")
+            sound_source_position = calculate_sound_source()
+            print("Sound source position:", sound_source_position)
+            if sound_source_position:
+                emit('soundSourcePosition', {'x': sound_source_position[0], 'y': sound_source_position[1]}, broadcast=True)
+    #print("audio_data", audio_data)
+    #print("client", data["timestamp"])
+    #print("server", time.perf_counter() - perf_counter) # Remember slight delay here since trip time to server is not accounted for
+    
+    # Code for ampltiude checks
+    #if request.sid in microphones:
+    #    timestamp = data.get('timestamp')
+    #    if timestamp:
+    #        microphones[request.sid].last_timestamp = data["timestamp"]
+    #
+    #
+    #    # Need to perfom check on the timestamps to see if they are in sync, debouncing and problems on client side could cause issues
+    #    print("Location:" , calculate_sound_source())
 
 @socketio.on('syncTime')
 def handle_sync_time():
@@ -142,7 +178,7 @@ def handle_disconnect():
 
 def calculate_sound_source():
     #TODO verify this code. 
-
+    
     speed_of_sound = 343  # 
 
     valid_mics = [mic for mic in microphones.values() if mic.get_last_audio_data_timestamp()]
@@ -169,8 +205,6 @@ def calculate_sound_source():
     sound_source_position = np.round(result.x).astype(int)
 
     return sound_source_position
-
-
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000)) 

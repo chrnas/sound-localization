@@ -10,9 +10,14 @@ from scipy.fftpack import fft, ifft
 class Wav_file:
     # Initializer for Wav_file class
     def __init__(self, filename: str):
-        self.filename: str = filename
-        # Load WAV file data and sampling rate on instantiation
-        self.audioVectorData, self.sampling_rate = self.read_wav_file(filename) 
+        # Create blank wav object 
+        if filename == '':
+            self.audioVectorData = []
+            self.sampling_rate = 0
+        else:
+            self.filename: str = filename
+            # Load WAV file data and sampling rate on instantiation
+            self.audioVectorData, self.sampling_rate = self.read_wav_file(filename) 
 
     # Function to read WAV file and return its data and sampling rate
     def read_wav_file(self, filename: str) -> tuple[int, list[float]]:
@@ -25,6 +30,20 @@ class Wav_file:
         self.audioVectorData = resample(self.audioVectorData, sample_rate)
         # Update the object's sampling rate to the new rate
         self.sampling_rate = sample_rate
+
+    def audio_data_size(self) -> int:
+        return len(self.audioVectorData)
+
+
+def create_wav_object(audio_data: list[float], sample_rate: int) -> Wav_file:
+    wav_file = Wav_file('')
+    wav_file.filename = 'data_stream'
+    wav_file.audioVectorData = audio_data
+    wav_file.sampling_rate = sample_rate
+    return wav_file
+
+
+    
 
 # Function to calculate the number of shifted samples between two WAV files
 def calc_shifted_samples(wav1: Wav_file, wav2: Wav_file) -> int:
@@ -74,6 +93,8 @@ def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_f
         wav2.resample_wav(highest_sampling_rate)
    
     return wav1, wav2 
+
+
 
 #----------------------------------------------------------------- 
 # Running code
