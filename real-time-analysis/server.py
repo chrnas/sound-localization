@@ -44,6 +44,7 @@ class User:
         self.yCoordinate = yCoordinate
         self.audio_data = []
         self.distances = {}
+
         self.last_timestamp = None
         self.triggered = False
         self.extra_samples = 0
