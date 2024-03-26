@@ -9,16 +9,16 @@ let clockOffset=0
 
 document.getElementById('connectBtn').addEventListener('click', async function () {
     let name = document.getElementById('nameInput').value;
-    let xCoordinate = document.getElementById('xInput').value;
-    let yCoordinate = document.getElementById('yInput').value;
+    //let xCoordinate = document.getElementById('xInput').value;
+    //let yCoordinate = document.getElementById('yInput').value;
 
-    if (!name) {
-        alert('Please enter your name.');
-        return;
-    }
-    
+    //if (!name) {
+    //    alert('Please enter your name.');
+    //    return;
+    //}
+    //
     // Inform the server of the new user and their coordinates and send the time synchronization request
-    socket.emit('newUser', { name, xCoordinate, yCoordinate });
+    socket.emit('newUser',false);
     syncTime();
 
     try {
@@ -96,7 +96,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
                 //if (!lastTriggeredTime || now - lastTriggeredTime > debounceInterval) {
                 //console.log(inputBuffer)
                 const timestamp = performance.now() / 1000 - perf_counter + clockOffset;
-                socket.emit('audioData', { name: name, timestamp: timestamp, data: dataToSend }); 
+                //socket.emit('audioData', { name: name, timestamp: timestamp, data: dataToSend }); 
                 lastTriggeredTime = now;
                 //}
             }
@@ -132,11 +132,10 @@ socket.on('syncResponse', (serverTimestamp) => {
 });
 
 function drawGrid() {
-    // Draws the grid.
-
-    const gridSize = 10; // Adjust grid size as needed
-    const numLinesX = gridnet.width / gridSize;
-    const numLinesY = gridnet.height / gridSize;
+    // Draws the zoomed-in grid
+    const gridSize = 1; // Smaller grid size for a zoomed-in effect
+    const numLinesX = gridnetCanvas.width / gridSize;
+    const numLinesY = gridnetCanvas.height / gridSize;
 
     gridCtx.strokeStyle = '#e0e0e0'; // Light grey lines for the grid
 
@@ -144,7 +143,7 @@ function drawGrid() {
     for (let i = 0; i <= numLinesX; i++) {
         gridCtx.beginPath();
         gridCtx.moveTo(i * gridSize, 0);
-        gridCtx.lineTo(i * gridSize, gridnet.height);
+        gridCtx.lineTo(i * gridSize, gridnetCanvas.height);
         gridCtx.stroke();
     }
 
@@ -152,23 +151,15 @@ function drawGrid() {
     for (let i = 0; i <= numLinesY; i++) {
         gridCtx.beginPath();
         gridCtx.moveTo(0, i * gridSize);
-        gridCtx.lineTo(gridnet.width, i * gridSize);
+        gridCtx.lineTo(gridnetCanvas.width, i * gridSize);
         gridCtx.stroke();
     }
 
-    // Draw origin lines
-    gridCtx.strokeStyle = '#000000'; // Black lines for the axes
-    // X-axis
-    gridCtx.beginPath();
-    gridCtx.moveTo(0, gridnet.height / 2);
-    gridCtx.lineTo(gridnet.width, gridnet.height / 2);
-    gridCtx.stroke();
-    // Y-axis
-    gridCtx.beginPath();
-    gridCtx.moveTo(gridnet.width / 2, 0);
-    gridCtx.lineTo(gridnet.width / 2, gridnet.height);
-    gridCtx.stroke();
+    // Optionally draw origin lines if needed
 }
+
+
+
 
 socket.on('soundSource', (location) => {
     const [x, y] = location;
@@ -222,22 +213,21 @@ function drawIncomingWaveform(dataArray, id, name) {
     newCanvasCtx.stroke();
 }
 
-function plotPoint(x, y, color = "#ff000") { // Default color set to red
+function plotPoint(x, y, color = "#ff0000") { // Default color set to red
     const pointSize = 5; // Size of the point
     gridCtx.fillStyle = color; // Use the color parameter
-
-    // Translate coordinates so (0, 0) is at the center of the gridnet
+    
+    // Translate coordinates for the zoomed-in grid
     const centerX = gridnetCanvas.width / 2;
     const centerY = gridnetCanvas.height / 2;
-    const translatedX = centerX + x;
-    const translatedY = centerY - y; // Subtract y because canvas y-coordinates increase downwards
-
+    const translatedX = centerX + (x*2); // Adjusting the scale for zoomed-in grid
+    const translatedY = centerY - (y*2); // Adjusting the scale for zoomed-in grid
+    
+    
     gridCtx.beginPath();
     gridCtx.arc(translatedX, translatedY, pointSize, 0, 2 * Math.PI);
     gridCtx.fill();
 }
-
-
 
 
 socket.on('incomingAudioData', (payload) => {

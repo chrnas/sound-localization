@@ -93,6 +93,9 @@ def index():
 @socketio.on('newUser')
 def handle_new_user(data):
     # Function to handle new user connection
+    if not data:
+        broadcast_user_positions()
+        return
 
     name = data.get('name')
     xCoordinate = float(data.get('xCoordinate'))
@@ -121,9 +124,13 @@ def handle_audio_data(data):
         user.add_audio_data(audio_data)
         user.update_last_timestamp(data["timestamp"])
 
-        updateSoundSource([0.5, 0.5])
+        for index, sid in enumerate(microphones):
+            print(index, " ", microphones[sid].get_last_audio_data_timestamp())
 
-        if audio_data.RMS() > 0.3 and not user.triggered and len(user.audio_data) == 150:
+        print(".........................")
+
+        return
+        if audio_data.RMS() > 0.5 and not user.triggered and len(user.audio_data) == 150:
             print("Triggered")
             user.triggered = True
             return
@@ -137,20 +144,24 @@ def handle_audio_data(data):
             user.extra_samples = 0
 
             wav_files = []
+            new_microphones = []
             for id in microphones:
                 listconcated = [
                     item for sublist in microphones[id].audio_data for item in sublist]
                 wav_file = create_wav_object(
                     listconcated, microphones[id].sample_rate)
+                new_microphones.append(microphones[id])
                 # wav_file.save(f'{microphones[id].name}_audio_data.wav')
+
                 wav_files.append(wav_file)
 
             tdoa = calc_offset(wav_files[0], wav_files[1])
-            location = calculate_sound_source(tdoa, (microphones[0].xCoordinate, microphones[0].yCoordinate),
-                                              (microphones[1].xCoordinate, microphones[1].yCoordinate))
+            location = calculate_sound_source_line(tdoa, (new_microphones[1].xCoordinate, new_microphones[1].yCoordinate),
+                                                   (new_microphones[0].xCoordinate, new_microphones[0].yCoordinate))
 
             updateSoundSource(location)
-
+            print(tdoa)
+            return
             plt.figure(figsize=(10, 5))
             print("Plotting")
             # Save and plot for the current microphone
@@ -212,41 +223,33 @@ def handle_disconnect():
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
 
-def calculate_sound_source(tdoa, pos_ref, pos_target):
-    """
-    Calculate the sound source location based on TDOA between two microphones.
+def calculate_sound_source_line(tdoa, pos_ref, pos_target):
 
-    Parameters:
-    - tdoa: Time Difference of Arrival between the reference microphone and the target microphone.
-            A positive TDOA means the sound reached the target microphone after the reference microphone,
-            and a negative TDOA means the sound reached the target microphone before the reference microphone.
-    - pos_ref: Tuple representing the (x, y) coordinates of the reference microphone.
-    - pos_target: Tuple representing the (x, y) coordinates of the target microphone.
-
-    Returns:
-    - The estimated (x, y) coordinates of the sound source or None if calculation is not possible.
-    """
     speed_of_sound = 343  # Speed of sound in air (m/s)
 
+    # Calculate the distance difference based on TDOA
     distance_diff = tdoa * speed_of_sound
 
     x_ref, y_ref = pos_ref
     x_target, y_target = pos_target
 
-    midpoint = ((x_ref + x_target) / 2, (y_ref + y_target) / 2)
+    # Calculate the total distance between the two microphones
+    total_distance = np.linalg.norm([x_target - x_ref, y_target - y_ref])
 
-    def equations(guess):
-        x, y = guess
-        dist_ref_to_guess = np.linalg.norm([x - x_ref, y - y_ref])
-        dist_target_to_guess = np.linalg.norm([x - x_target, y - y_target])
-        return [dist_target_to_guess - dist_ref_to_guess - distance_diff]
+    if total_distance == 0:
+        return None  # Microphones are at the same position; can't determine direction
 
-    result = least_squares(equations, midpoint)
+    # Calculate the ratio of distances from the reference microphone to the point
+    # where the sound source lies on the line connecting the two microphones
+    ratio = distance_diff / total_distance
 
-    sound_source_position = result.x
+    # Calculate the sound source position based on the ratio
+    sound_source_x = x_ref + ratio * (x_target - x_ref)
+    sound_source_y = y_ref + ratio * (y_target - y_ref)
 
-    return [sound_source_position, 0]
+    return [sound_source_x, sound_source_y]
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    port = int(os.getenv('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)
