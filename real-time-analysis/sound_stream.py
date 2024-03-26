@@ -6,36 +6,41 @@ import time
 # SocketIO client setup
 sio = socketio.Client()
 server_url = "http://localhost:5000"  # Adjust as needed
-init_perf = time.perf_counter() 
+init_perf = time.perf_counter()
 
 FORMAT = pyaudio.paFloat32
 CHANNELS = 1
 RATE = 44100
-CHUNK = 1024  
-SOUND_THRESHOLD = 0.15  
+CHUNK = 1024
+SOUND_THRESHOLD = 0.15
 
 
 client_send_time = None  # Initialize client_send_time
 
+
 @sio.event
 def connect():
+    # Handle connection to the server
     print("Connected to the server.")
     name = "Mathias"
     xCoordinate = 10
     yCoordinate = 0
     sio.emit('newUser', {
-             'name': name, 'xCoordinate': xCoordinate, 'yCoordinate': yCoordinate})
+             'name': name,
+             'xCoordinate': xCoordinate,
+             'yCoordinate': yCoordinate}
+             )
     sync_time()
 
 
 @sio.event
 def disconnect():
+    # Handle disconnection from the server
     print("Disconnected from the server.")
 
 
-
-
 def sync_time():
+    # Send a message to the server to synchronize time
     global client_send_time
     client_send_time = time.perf_counter() - init_perf  # Use perf_counter here
     sio.emit('syncTime')
@@ -43,6 +48,7 @@ def sync_time():
 
 @sio.on('syncResponse')
 def handle_sync_response(server_time):
+    # Calculate clock offset by comparing server time with client time
     global clock_offset, client_send_time
     client_receive_time = time.perf_counter() - init_perf  # Use perf_counter here
 
@@ -77,7 +83,7 @@ def main():
 
             # Comments here are for debouncing and sound thresholding but not active since we are streaming data
 
-            # rms_value = calculate_rms(float_data) 
+            # rms_value = calculate_rms(float_data)
 
             current_time = time.perf_counter() - init_perf  # Use perf_counter here
             # if rms_value > SOUND_THRESHOLD:
