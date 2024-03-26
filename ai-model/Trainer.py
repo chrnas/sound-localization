@@ -3,6 +3,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv1D, BatchNormalization, MaxPooling1D, Dropout, Flatten, Dense
 from tensorflow.keras.regularizers import l2
 
+# TAKEN FROM THE THESIS
+
 def build_1d_cnn(input_shape):
     model = Sequential()
     

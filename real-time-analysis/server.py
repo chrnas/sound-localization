@@ -19,10 +19,12 @@ microphones = {}
 socketio = SocketIO(app)
 
 
-multilateration = Multilateration(v=343, delta_d=1, max_d=300)  # TBH i have no idea how to use this class.
+# TBH i have no idea how to use this class.
+multilateration = Multilateration(v=343, delta_d=1, max_d=300)
+
 
 class AudioData:
-    
+
     def __init__(self, data, timestamp):
         self.data = data
         self.timestamp = timestamp
@@ -33,26 +35,27 @@ class AudioData:
     def __repr__(self):
         return f'AudioData(data={len(self.data)}, timestamp={self.timestamp})'
 
+
 class User:
-    def __init__(self, name, xCoordinate=None, yCoordinate=None, sample_rate = 44100):
+    def __init__(self, name, xCoordinate=None, yCoordinate=None, sample_rate=44100):
         self.sample_rate = sample_rate
         self.name = name
         self.xCoordinate = xCoordinate
         self.yCoordinate = yCoordinate
         self.audio_data = []
-        self.distances = {} 
+        self.distances = {}
         self.last_timestamp = None
         self.triggered = False
         self.extra_samples = 0
-        
-        
-        self.lock = False  # Initialize the lock attribute for each user (microphone)
+
+        # Initialize the lock attribute for each user (microphone)
+        self.lock = False
 
     def update_last_timestamp(self, timestamp):
         self.last_timestamp = timestamp
 
     def add_audio_data(self, audio_data):
-        if len(self.audio_data) >= 150: # How many audio data points to store
+        if len(self.audio_data) >= 150:  # How many audio data points to store
             self.audio_data.pop(0)
         self.audio_data.append(audio_data.data)
 
@@ -63,7 +66,7 @@ class User:
                 dy = self.yCoordinate - user.yCoordinate
                 distance = math.sqrt(dx**2 + dy**2)
                 self.distances[sid] = distance
-    
+
     def get_last_audio_data(self):
         if len(self.audio_data) > 0:
             return self.audio_data[-1]
@@ -71,36 +74,32 @@ class User:
 
     def get_last_audio_data_timestamp(self):
         return self.last_timestamp
-    
+
     def __repr__(self):
         return f'User(name={self.name}, xCoordinate={self.xCoordinate}, yCoordinate={self.yCoordinate}, audio_data_count={len(self.audio_data)})'
 
 
 def broadcast_user_positions():
-    users_data = [{'name': user.name, 'xCoordinate': user.xCoordinate, 'yCoordinate': user.yCoordinate} for user in microphones.values()]
+    users_data = [{'name': user.name, 'xCoordinate': user.xCoordinate,
+                   'yCoordinate': user.yCoordinate} for user in microphones.values()]
     emit('updatePositions', users_data, broadcast=True)
+
 
 @app.route('/')
 def index():
-    return app.send_static_file('index_once.html')
+    return app.send_static_file('index.html')
 
-#@socketio.on('connect')
-#def handle_connect():
-#    # Function to handle new user connection
-#    print(f'A user connected with ID: {request.sid}')
-#    emit('userConnected', {'id': request.sid}, broadcast=True, include_self=False)
 
 @socketio.on('newUser')
 def handle_new_user(data):
     # Function to handle new user connection
 
     name = data.get('name')
-    xCoordinate = float(data.get('xCoordinate'))  
+    xCoordinate = float(data.get('xCoordinate'))
     yCoordinate = float(data.get('yCoordinate'))
     sample_rate = data.get('sample_rate') or 44100
 
     new_user = User(name, xCoordinate, yCoordinate, sample_rate)
-
 
     microphones[request.sid] = new_user
 
@@ -116,12 +115,12 @@ def handle_new_user(data):
 @socketio.on('audioData')
 def handle_audio_data(data):
     audio_data = AudioData(data['data'], data['timestamp'])
-    
+
     if request.sid in microphones:
         user = microphones[request.sid]
         user.add_audio_data(audio_data)
         user.update_last_timestamp(data["timestamp"])
-        
+
         if audio_data.RMS() > 0.3 and not user.triggered and len(user.audio_data) == 150:
             print("Triggered")
             user.triggered = True
@@ -130,20 +129,22 @@ def handle_audio_data(data):
         if user.triggered and user.extra_samples < 50:
             user.extra_samples += 1
             return
-        
+
         if user.triggered and user.extra_samples == 50:
             user.triggered = False
             user.extra_samples = 0
 
             wav_files = []
             for id in microphones:
-                listconcated = [item for sublist in microphones[id].audio_data for item in sublist]
-                wav_file = create_wav_object(listconcated, microphones[id].sample_rate)
-                #wav_file.save(f'{microphones[id].name}_audio_data.wav')
+                listconcated = [
+                    item for sublist in microphones[id].audio_data for item in sublist]
+                wav_file = create_wav_object(
+                    listconcated, microphones[id].sample_rate)
+                # wav_file.save(f'{microphones[id].name}_audio_data.wav')
                 wav_files.append(wav_file)
 
             tdoa_0_1 = calc_offset(wav_files[0], wav_files[1])
-            
+
             print("TDOA 0 1", tdoa_0_1)
 
             plt.figure(figsize=(10, 5))
@@ -151,64 +152,46 @@ def handle_audio_data(data):
             # Save and plot for the current microphone
             current_user = user  # The current microphone/user
 
-            current_user_audio_flat = [item for sublist in current_user.audio_data for item in sublist]            
+            current_user_audio_flat = [
+                item for sublist in current_user.audio_data for item in sublist]
             plt.subplot(2, 1, 1)  # First subplot
-            plt.plot(current_user_audio_flat, label=f'Microphone {current_user.name}')
+            plt.plot(current_user_audio_flat,
+                     label=f'Microphone {current_user.name}')
             plt.xlabel('Sample')
             plt.ylabel('Amplitude')
             plt.title(f'Waveform - Microphone {current_user.name}')
             plt.legend()
 
             # Save and plot for the other microphone
-            other_microphone_id =  next((id for id in microphones if id != request.sid), None)
+            other_microphone_id = next(
+                (id for id in microphones if id != request.sid), None)
             if other_microphone_id is not None:
                 other_user = microphones[other_microphone_id]
-                other_user_audio_flat = [item for sublist in other_user.audio_data for item in sublist]
+                other_user_audio_flat = [
+                    item for sublist in other_user.audio_data for item in sublist]
                 plt.subplot(2, 1, 2)  # Second subplot
-                plt.plot(other_user_audio_flat, label=f'Microphone {other_user.name}')
+                plt.plot(other_user_audio_flat,
+                         label=f'Microphone {other_user.name}')
                 plt.xlabel('Sample')
                 plt.ylabel('Amplitude')
-                plt.title(f'Waveform - Microphone {other_user.name} {tdoa_0_1} ')
+                plt.title(
+                    f'Waveform - Microphone {other_user.name} {tdoa_0_1} ')
                 plt.legend()
-
-        
-
 
             plt.tight_layout()
             plt.savefig(f'waveforms_{current_user.name}_{other_user.name}.png')
             plt.close()
 
-
-
-            #wavsfiles = [create_wav_object(user.audiodata, user.sample_rate ) for user in microphones if user]
-
-            #print(wavsfiles[0].audioVectorData)
             return
-            print("Sound detected")
-            sound_source_position = calculate_sound_source()
-            print("Sound source position:", sound_source_position)
-            if sound_source_position:
-                emit('soundSourcePosition', {'x': sound_source_position[0], 'y': sound_source_position[1]}, broadcast=True)
-    #print("audio_data", audio_data)
-    #print("client", data["timestamp"])
-    #print("server", time.perf_counter() - perf_counter) # Remember slight delay here since trip time to server is not accounted for
-    
-    # Code for ampltiude checks
-    #if request.sid in microphones:
-    #    timestamp = data.get('timestamp')
-    #    if timestamp:
-    #        microphones[request.sid].last_timestamp = data["timestamp"]
-    #
-    #
-    #    # Need to perfom check on the timestamps to see if they are in sync, debouncing and problems on client side could cause issues
-    #    print("Location:" , calculate_sound_source())
+
 
 @socketio.on('syncTime')
 def handle_sync_time():
     # Function to handle sync time request from the client
-    print("Sync requested") 
-    server_timestamp = time.perf_counter() - perf_counter 
+    print("Sync requested")
+    server_timestamp = time.perf_counter() - perf_counter
     emit('syncResponse', server_timestamp)
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -218,12 +201,14 @@ def handle_disconnect():
         microphones.pop(request.sid, None)
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
-def calculate_sound_source():
-    #TODO verify this code. 
-    
-    speed_of_sound = 343  # 
 
-    valid_mics = [mic for mic in microphones.values() if mic.get_last_audio_data_timestamp()]
+def calculate_sound_source():
+    # TODO verify this code.
+
+    speed_of_sound = 343 
+
+    valid_mics = [mic for mic in microphones.values(
+    ) if mic.get_last_audio_data_timestamp()]
     valid_mics.sort(key=lambda mic: mic.get_last_audio_data_timestamp())
 
     if len(valid_mics) < 2:
@@ -232,9 +217,11 @@ def calculate_sound_source():
 
     ref_time = valid_mics[0].get_last_audio_data_timestamp()
 
-    distances = np.array([speed_of_sound * (mic.get_last_audio_data_timestamp() - ref_time) for mic in valid_mics])
+    distances = np.array(
+        [speed_of_sound * (mic.get_last_audio_data_timestamp() - ref_time) for mic in valid_mics])
 
-    positions = np.array([[mic.xCoordinate, mic.yCoordinate] for mic in valid_mics])
+    positions = np.array([[mic.xCoordinate, mic.yCoordinate]
+                         for mic in valid_mics])
 
     def equations(guess):
         x, y = guess
@@ -248,6 +235,7 @@ def calculate_sound_source():
 
     return sound_source_position
 
+
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000)) 
+    port = int(os.getenv('PORT', 5000))
     socketio.run(app, host='0.0.0.0', port=port, debug=True)
