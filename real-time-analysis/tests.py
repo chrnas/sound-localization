@@ -1,49 +1,35 @@
 
 import numpy as np
 
-
 def calculate_sound_source(tdoa, pos_ref, pos_target):
-    """
-    Calculate the sound source location based on TDOA between two microphones,
-    assuming the source is on the line connecting the microphones.
-
-    Parameters:
-    - tdoa: Time Difference of Arrival between the reference microphone and the target microphone.
-    - pos_ref: Tuple representing the (x, y) coordinates of the reference microphone.
-    - pos_target: Tuple representing the (x, y) coordinates of the target microphone.
-
-    Returns:
-    - The estimated (x, y) coordinates of the sound source or None if calculation is not possible.
-    """
     speed_of_sound = 343  # Speed of sound in air (m/s)
+    
+    # Convert positions to numpy arrays for easier manipulation
+    pos_ref = np.array(pos_ref)
+    pos_target = np.array(pos_target)
 
     # Calculate the distance difference based on TDOA
     distance_diff = tdoa * speed_of_sound
 
-    x_ref, y_ref = pos_ref
-    x_target, y_target = pos_target
+    # Calculate the midpoint between the two microphones
+    midpoint = (pos_ref + pos_target) / 2
 
-    # Calculate the total distance between the two microphones
-    total_distance = np.linalg.norm([x_target - x_ref, y_target - y_ref])
+    # Calculate the direction vector from the reference mic to the target mic, then normalize
+    direction = pos_target - pos_ref
+    direction_norm = direction / np.linalg.norm(direction)
 
-    if total_distance == 0:
-        return None  # Microphones are at the same position; can't determine direction
+    # Calculate the sound source position
+    # Note: Since TDOA might be negative indicating the direction towards the reference microphone,
+    # we adjust the position based on the distance_diff (which can be positive or negative) along the normalized direction.
+    sound_source_pos = midpoint + direction_norm * (distance_diff / 2)
 
-    # Calculate the ratio of distances from the reference microphone to the point
-    # where the sound source lies on the line connecting the two microphones
-    ratio = distance_diff / total_distance
-
-    # Calculate the sound source position based on the ratio
-    sound_source_x = x_ref + ratio * (x_target - x_ref)
-    sound_source_y = y_ref + ratio * (y_target - y_ref)
-
-    return [sound_source_x, sound_source_y]
+    return sound_source_pos.tolist()
 
 
 if __name__ == "__main__":
     pos_ref = (10, 0)
-    pos_target = (1, 0)
-    tdoa = 0.001  # 1 ms
+    pos_target = (-10, 0)
+    tdoa = 0.0583 # 1 ms
 
     sound_source = calculate_sound_source(tdoa, pos_ref, pos_target)
     print(sound_source)  # Output: [0.343, 0.0]
