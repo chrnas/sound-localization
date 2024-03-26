@@ -2,78 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audio Sharing and Visualization</title>
-    <style>
-        body, html {
-            min-height: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-        }
-    
-      
-    
-        #controls {
-            margin-bottom: 20px;
-        }
-    
-        #connectBtn {
-            margin-right: 10px;
-        }
-    
-        #waveform {
-            border: 1px solid #ccc;
-            width:25%; 
-            height: 25;
-            margin-top: 10px;
-        }
-    
-        .audio-canvas {
-            border: 1px solid #ccc;
-            width: left; 
-            height: auto ; 
-            margin-top: 10px;
-        }
-    
-        .audio-container {
-            width: 25%;
-            text-align: auto;
-            margin-top: 10px;
-            align-items: right;
-            padding-left: 10px;
-        }
-
-        .gridnet {
-            border: 1px solid #ccc;
-            width: auto;
-            height: auto;
-            margin-top: 10px;
-        }
-
-        #canvasContainer {
-            display: flex;
-            flex-wrap: wrap;
-        }
-    </style>
+    <title>Datainsamling GUI</title>
 </head>
 <body>
 
-<div id="content">
-    <div id="controls">
-        <input type="text" id="nameInput" placeholder="Enter your name">
-        <input type="text" id="xInput" placeholder="Enter X coordinate">
-        <input type="text" id="yInput" placeholder="Enter Y coordinate">
-        <button id="connectBtn">Connect</button>
-    </div>
-    <!-- Add a new canvas for the gridnet -->
-    <div id = "items">
-    <canvas id="gridnet" width="500" height="500" style="border:1px solid #000;"></canvas>
-    <canvas id="waveform"></canvas>
-    <div id="canvasContainer"></div>
-    </div>
-</div>
+<input type="number" id="test-id"><button onclick="console.log(startTest())">Start test</button>
 
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-<script src="script.js"></script>
+<script>
+function startTest() {
+    fetch(`/start_test/${document.getElementById('test-id').value}`)
+}
+</script>
+
 </body>
 </html>
