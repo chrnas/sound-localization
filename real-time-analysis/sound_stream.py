@@ -97,5 +97,5 @@ def main():
 
 
 if __name__ == "__main__":
-    clock_offset = 
+    clock_offset = 0
     main()
