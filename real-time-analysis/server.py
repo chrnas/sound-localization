@@ -230,7 +230,6 @@ def calculate_sound_source():
     initial_guess = [0, 0]
 
     result = least_squares(equations, initial_guess)
-
     sound_source_position = np.round(result.x).astype(int)
 
     return sound_source_position
