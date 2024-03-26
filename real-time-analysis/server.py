@@ -121,6 +121,8 @@ def handle_audio_data(data):
         user.add_audio_data(audio_data)
         user.update_last_timestamp(data["timestamp"])
 
+        updateSoundSource([0.5, 0.5])
+
         if audio_data.RMS() > 0.3 and not user.triggered and len(user.audio_data) == 150:
             print("Triggered")
             user.triggered = True
@@ -130,7 +132,7 @@ def handle_audio_data(data):
             user.extra_samples += 1
             return
 
-        if user.triggered and user.extra_samples == 50:
+        if user.triggered and user.extra_samples == 50 and len(microphones) >= 2:
             user.triggered = False
             user.extra_samples = 0
 
@@ -143,9 +145,11 @@ def handle_audio_data(data):
                 # wav_file.save(f'{microphones[id].name}_audio_data.wav')
                 wav_files.append(wav_file)
 
-            tdoa_0_1 = calc_offset(wav_files[0], wav_files[1])
+            tdoa = calc_offset(wav_files[0], wav_files[1])
+            location = calculate_sound_source(tdoa, (microphones[0].xCoordinate, microphones[0].yCoordinate),
+                                              (microphones[1].xCoordinate, microphones[1].yCoordinate))
 
-            print("TDOA 0 1", tdoa_0_1)
+            updateSoundSource(location)
 
             plt.figure(figsize=(10, 5))
             print("Plotting")
@@ -175,7 +179,7 @@ def handle_audio_data(data):
                 plt.xlabel('Sample')
                 plt.ylabel('Amplitude')
                 plt.title(
-                    f'Waveform - Microphone {other_user.name} {tdoa_0_1} ')
+                    f'Waveform - Microphone {other_user.name} {tdoa} ')
                 plt.legend()
 
             plt.tight_layout()
@@ -183,6 +187,12 @@ def handle_audio_data(data):
             plt.close()
 
             return
+
+
+def updateSoundSource(location):
+    # Function to update the sound source location
+    if location is not None:
+        emit('soundSource', location, broadcast=True)
 
 
 @socketio.on('syncTime')
@@ -202,39 +212,41 @@ def handle_disconnect():
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
 
-def calculate_sound_source():
-    # TODO verify this code.
+def calculate_sound_source(tdoa, pos_ref, pos_target):
+    """
+    Calculate the sound source location based on TDOA between two microphones.
 
-    speed_of_sound = 343
+    Parameters:
+    - tdoa: Time Difference of Arrival between the reference microphone and the target microphone.
+            A positive TDOA means the sound reached the target microphone after the reference microphone,
+            and a negative TDOA means the sound reached the target microphone before the reference microphone.
+    - pos_ref: Tuple representing the (x, y) coordinates of the reference microphone.
+    - pos_target: Tuple representing the (x, y) coordinates of the target microphone.
 
-    valid_mics = [mic for mic in microphones.values(
-    ) if mic.get_last_audio_data_timestamp()]
-    valid_mics.sort(key=lambda mic: mic.get_last_audio_data_timestamp())
+    Returns:
+    - The estimated (x, y) coordinates of the sound source or None if calculation is not possible.
+    """
+    speed_of_sound = 343  # Speed of sound in air (m/s)
 
-    if len(valid_mics) < 2:
-        print("Need at least two microphones to perform calculation")
-        return None
+    distance_diff = tdoa * speed_of_sound
 
-    ref_time = valid_mics[0].get_last_audio_data_timestamp()
+    x_ref, y_ref = pos_ref
+    x_target, y_target = pos_target
 
-    distances = np.array(
-        [speed_of_sound * (mic.get_last_audio_data_timestamp() - ref_time) for mic in valid_mics])
-
-    positions = np.array([[mic.xCoordinate, mic.yCoordinate]
-                         for mic in valid_mics])
+    midpoint = ((x_ref + x_target) / 2, (y_ref + y_target) / 2)
 
     def equations(guess):
         x, y = guess
-        return [(np.linalg.norm([x - pos[0], y - pos[1]]) - distance) for pos, distance in zip(positions, distances)]
+        dist_ref_to_guess = np.linalg.norm([x - x_ref, y - y_ref])
+        dist_target_to_guess = np.linalg.norm([x - x_target, y - y_target])
+        return [dist_target_to_guess - dist_ref_to_guess - distance_diff]
 
-    initial_guess = [0, 0]
+    result = least_squares(equations, midpoint)
 
-    result = least_squares(equations, initial_guess)
-    sound_source_position = np.round(result.x).astype(int)
+    sound_source_position = result.x
 
-    return sound_source_position
+    return [sound_source_position, 0]
 
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    socketio.run(app, debug=True)

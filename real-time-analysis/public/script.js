@@ -86,7 +86,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
 
         processor.onaudioprocess = function (e) {
             // Send audio data to the server when a sound is detected
-            
+            // Currently turned off as sockets are used
             const inputBuffer = e.inputBuffer.getChannelData(0);
             const dataToSend = Array.from(inputBuffer);
             const rms = calculateRMS(inputBuffer);
@@ -94,7 +94,7 @@ document.getElementById('connectBtn').addEventListener('click', async function (
             
             if (rms > 0) {
                 //if (!lastTriggeredTime || now - lastTriggeredTime > debounceInterval) {
-                console.log(inputBuffer)
+                //console.log(inputBuffer)
                 const timestamp = performance.now() / 1000 - perf_counter + clockOffset;
                 socket.emit('audioData', { name: name, timestamp: timestamp, data: dataToSend }); 
                 lastTriggeredTime = now;
@@ -170,6 +170,12 @@ function drawGrid() {
     gridCtx.stroke();
 }
 
+socket.on('soundSource', (location) => {
+    const [x, y] = location;
+    console.log(`Sound detected at (${x}, ${y}), plotting on the grid.`);
+
+    plotPoint(x * 10, y * 10, '#0000ff'); // Example using blue color
+});
 
 
 function drawIncomingWaveform(dataArray, id, name) {
@@ -216,11 +222,9 @@ function drawIncomingWaveform(dataArray, id, name) {
     newCanvasCtx.stroke();
 }
 
-function plotPoint(x, y) {
-    // Function to plot a point on the grid with the origin in the middle
-
+function plotPoint(x, y, color = "#ff000") { // Default color set to red
     const pointSize = 5; // Size of the point
-    gridCtx.fillStyle = '#ff0000'; // Red color for the points
+    gridCtx.fillStyle = color; // Use the color parameter
 
     // Translate coordinates so (0, 0) is at the center of the gridnet
     const centerX = gridnetCanvas.width / 2;
@@ -232,6 +236,9 @@ function plotPoint(x, y) {
     gridCtx.arc(translatedX, translatedY, pointSize, 0, 2 * Math.PI);
     gridCtx.fill();
 }
+
+
+
 
 socket.on('incomingAudioData', (payload) => {
     // Handle incoming audio data from other users
@@ -244,21 +251,6 @@ socket.on('incomingAudioData', (payload) => {
 const gridnetCanvas = document.getElementById('gridnet'); // Ensure this canvas element exists in your HTML
 const gridCtx = gridnetCanvas.getContext('2d');
 
-// Function to plot a point on the grid with the origin in the middle
-function plotPoint(x, y) {
-    const pointSize = 5; // Size of the point
-    gridCtx.fillStyle = '#ff0000'; // Red color for the points
-
-    // Translate coordinates so (0, 0) is at the center of the gridnet
-    const centerX = gridnetCanvas.width / 2;
-    const centerY = gridnetCanvas.height / 2;
-    const translatedX = centerX + x;
-    const translatedY = centerY - y; // Subtract y because canvas y-coordinates increase downwards
-
-    gridCtx.beginPath();
-    gridCtx.arc(translatedX, translatedY, pointSize, 0, 2 * Math.PI);
-    gridCtx.fill();
-}
 
 socket.on('updatePositions', (users) => {
     // Listen for 'updatePositions' event from the server, TODO implement drawing of where sound is detected
@@ -270,6 +262,6 @@ socket.on('updatePositions', (users) => {
 
     // Plot each user's position on the grid
     users.forEach((user) => {
-        plotPoint(user.xCoordinate * 10, user.yCoordinate * 10); // Adjust scaling factor as needed
+        plotPoint(user.xCoordinate * 10, user.yCoordinate * 10, '#22222'); // Adjust scaling factor as needed
     });
 });
