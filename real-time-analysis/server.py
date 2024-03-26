@@ -205,7 +205,7 @@ def handle_disconnect():
 def calculate_sound_source():
     # TODO verify this code.
 
-    speed_of_sound = 343 
+    speed_of_sound = 343
 
     valid_mics = [mic for mic in microphones.values(
     ) if mic.get_last_audio_data_timestamp()]
