@@ -7,6 +7,7 @@ import time
 import numpy as np
 from scipy.optimize import least_squares
 import sys
+import os
 
 class Microphone:
     def __init__(self, id, sample_rate):
@@ -35,15 +36,15 @@ class Microphone:
         if test_id == 0:
             return False
 
-        try:
-            f = open(
-                f"{OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.txt", "w+")
-            # TODO: This has to be optimized
-            print("audio data", self.current_audio_data)
-            f.write(''.join(map(str, self.current_audio_data)))
-            f.close()
-        except:
-            return False
+        folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
+        
+        if not os.path.exists(os.path.normpath(folder_path)):
+            os.makedirs(os.path.normpath(folder_path))
+        f = open(
+            os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.txt"), "w+")
+        # TODO: This has to be optimized
+        f.write(''.join(map(str, self.current_audio_data)))
+        f.close()
 
         self.current_timestamp = 0
         self.current_audio_data = []
