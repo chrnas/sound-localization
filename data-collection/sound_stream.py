@@ -40,12 +40,14 @@ def main():
             sio.emit('audioData', {
             'data': data.tolist()[:CHUNK], 'test_id': current_test, 'timestamp': timestamp})
             data = data[CHUNK:]
+            print('sent chunk')
         if current_test != 0:
             sio.emit('endOfData', 0)
-            current_test = 0 # Reset current_test
+            current_test = 0  # Reset current_test
             print("Finished sending audio data to server")
 
 # Audio processing functions
+
 
 def record_audio():
     """
@@ -81,6 +83,28 @@ def sync_time():
 def start_test(test_id):
     global current_test
     current_test = test_id
+
+@sio.on('start_test_new')
+def start_test(test_id):
+
+    while True:
+        data = []
+        if test_id != 0:  # Check if a new test should start
+            data = record_audio()
+            print("Sending audio data to server")
+
+        current_time = time.perf_counter() - init_perf  # Use perf_counter here
+        timestamp = current_time + clock_offset
+        
+        while len(data) > 0:
+            sio.emit('audioData', {
+            'data': data.tolist()[:CHUNK], 'test_id': test_id, 'timestamp': timestamp})
+            data = data[CHUNK:]
+            print('sent chunk')
+        if test_id != 0:
+            sio.emit('endOfData', test_id)
+            test_id = 0  # Reset current_test
+            print("Finished sending audio data to server")
 
 @sio.on('syncResponse')
 def handle_sync_response(server_time):
