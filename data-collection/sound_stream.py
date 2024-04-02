@@ -3,6 +3,7 @@ import pyaudio
 import numpy as np
 import time
 import sys
+import wave
 
 ARGS = sys.argv[1:] # IP, ID
 IP = ARGS[0]
@@ -13,12 +14,12 @@ sio = socketio.Client()
 server_url = f"http://{IP}:5000"  # Adjust as needed
 init_perf = time.perf_counter()
 
-FORMAT = pyaudio.paFloat32
+FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-SOUND_THRESHOLD = 0.15
-RECORD_TIME = 7
+RECORD_SECONDS = 5
+OUTPUT_FILENAME = "output_client.wav"
 
 client_send_time = None  # Initialize client_send_time
 
@@ -34,23 +35,32 @@ def record_audio():
     """
     Record audio for RECORD_TIME, seconds
     """
-    p = pyaudio.PyAudio()
-    stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE,
-                    input=True, frames_per_buffer=CHUNK)
+    # Initialize PyAudio
+    audio = pyaudio.PyAudio()
 
-    print(f"Recording for {RECORD_TIME} seconds")
+    # Open stream
+    stream = audio.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+
+    print("Recording...")
+
     frames = []
 
-    for i in range(0, int(RATE / CHUNK * RECORD_TIME)):
+    # Record audio data
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         data = stream.read(CHUNK)
-        frames.append(np.frombuffer(data, dtype=np.float32))
-
+        frames.append(data)
     print("Recording finished.")
+
+    # Stop Recording
     stream.stop_stream()
     stream.close()
-    p.terminate()
+    audio.terminate()
 
-    return np.concatenate(frames).tobytes()
+    return b''.join(frames)
 
 def sync_time():
     """
