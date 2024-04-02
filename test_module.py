@@ -11,7 +11,7 @@ from module import add
 def test_add_numbers():
     """
     Test the add_numbers function.
-    This function checks if the 
+    This function checks if the
     add_numbers function produces the expected results.
     """
     assert add(1, 2) == 3
