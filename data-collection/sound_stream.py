@@ -18,10 +18,9 @@ CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
 SOUND_THRESHOLD = 0.15
-RECORD_TIME = 5
+RECORD_TIME = 7
 
 client_send_time = None  # Initialize client_send_time
-current_test = 0
 
 def main():
     sio.connect(server_url)
@@ -30,7 +29,6 @@ def main():
         pass
 
 # Audio processing functions
-
 
 def record_audio():
     """
@@ -52,7 +50,7 @@ def record_audio():
     stream.close()
     p.terminate()
 
-    return np.concatenate(frames)
+    return np.concatenate(frames).tobytes()
 
 def sync_time():
     """
@@ -64,12 +62,6 @@ def sync_time():
 
 @sio.on('start_test')
 def start_test(test_id):
-    global current_test
-    current_test = test_id
-
-@sio.on('start_test_new')
-def start_test(test_id):
-
     data = []
     data = record_audio()
     print("Sending audio data to server")
@@ -80,12 +72,10 @@ def start_test(test_id):
     
     while len(data) > 0:
         sio.emit('audioData', {
-        'data': data.tolist()[:CHUNK], 'test_id': test_id, 'timestamp': timestamp})
+        'data': data[:CHUNK], 'test_id': test_id, 'timestamp': timestamp})
         data = data[CHUNK:]
-        print('sent chunk')
     if test_id != 0:
         sio.emit('endOfData', test_id)
-        test_id = 0  # Reset current_test
         print("Finished sending audio data to server")
 
 @sio.on('syncResponse')

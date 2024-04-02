@@ -40,19 +40,20 @@ class Microphone:
         if test_id == 0:
             return False
         folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
-        f = open(f"{self.id}_{self.current_timestamp}.txt", "w+")
         if not os.path.exists(os.path.normpath(folder_path)):
             os.makedirs(os.path.normpath(folder_path))
         f = open(
             os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.txt"), "w+")
-        print(self.current_timestamp)
+
         # TODO: This has to be optimized
         audio_data = ''.join(map(str, self.current_audio_data))
         with wave.open('output.wav', 'wb') as wf:
             wf.setnchannels(1)
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paFloat32))
-            wf.setframerate(44100)
-            wf.writeframes(b''.join(self.current_audio_data))
+            wf.setframerate(self.sample_rate)
+            # print(self.current_audio_data)
+            print(self.current_audio_data[:10])
+            wf.writeframes(bytes(self.current_audio_data))
 
         print(f"Audio saved as {'output.wav'}")
         #Write and close files
@@ -79,19 +80,13 @@ def index():
         test_id = request.form['test_id']
         # Do something with the input_text, for example, print it
         print("Input text:", test_id)
-        start_test_new(test_id)
+        start_test(test_id)
     return render_template('index.html', name='app')
 
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
     emit('start_test', test_id, broadcast=True, namespace="/")
-    return {"msg": f"starting test {test_id}"}
-
-@app.route('/start_test_new/<test_id>')
-def start_test_new(test_id):
-    print('Test ID:', test_id)
-    emit('start_test_new', test_id, broadcast=True, namespace="/")
     return {"msg": f"starting test {test_id}"}
 
 @socketio.on('newMicrophone')
