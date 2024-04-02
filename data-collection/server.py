@@ -101,11 +101,11 @@ def handle_audio_data(data):
 
 @socketio.on('endOfData')
 def save_data(test_id):
-    for microphone in microphones.values():
-        print("saving...")
-        # TODO: This has to be optimized
-        microphone.save(test_id)
-        print("done saving")
+    microphone = microphones[request.sid]
+    print("saving...")
+    # TODO: This has to be optimized
+    microphone.save(test_id)
+    print("done saving")
     
 
 @socketio.on('syncTime')
