@@ -42,7 +42,7 @@ class Microphone:
         if not os.path.exists(os.path.normpath(folder_path)):
             os.makedirs(os.path.normpath(folder_path))
 
-        with wave.open(os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.txt"), 'wb') as wf:
+        with wave.open(os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.wav"), 'wb') as wf:
             wf.setnchannels(1)
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
