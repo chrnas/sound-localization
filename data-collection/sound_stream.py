@@ -18,7 +18,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 10
+RECORD_SECONDS = 5
 OUTPUT_FILENAME = "output_client.wav"
 
 client_send_time = None  # Initialize client_send_time

@@ -17,6 +17,7 @@ class Microphone:
         self.sample_rate = sample_rate
         self.current_audio_data = []
         self.current_timestamp = 0
+        self.done_sending = False
 
     def set_test_id(self, id):
         self.test_id = id
@@ -47,7 +48,6 @@ class Microphone:
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
             # print(self.current_audio_data)
-            print(self.current_audio_data[:10])
             wf.writeframes(bytes(self.current_audio_data))
 
         print(f"Audio saved as {'output.wav'}")
@@ -63,6 +63,7 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 perf_counter = time.perf_counter()
 print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
+
 socketio = SocketIO(app)
 
 @app.route('/', methods=['GET', 'POST'])
@@ -102,10 +103,14 @@ def handle_audio_data(data):
 @socketio.on('endOfData')
 def save_data(test_id):
     microphone = microphones[request.sid]
-    print("saving...")
-    # TODO: This has to be optimized
-    microphone.save(test_id)
-    print("done saving")
+    microphone.done_sending = True
+    print(f"request {test_id} is done {microphones[request.sid].id}")
+    if all([microphone.done_sending for microphone in microphones.values()]):
+        for microphone in microphones.values():
+            print("saving...")
+            microphone.save(test_id)
+            microphone.done_sending = False
+            print("done saving")
     
 
 @socketio.on('syncTime')
