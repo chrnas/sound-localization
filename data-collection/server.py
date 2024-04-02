@@ -8,6 +8,8 @@ from scipy.optimize import least_squares
 import sys
 import os
 import matplotlib.pyplot as plt
+import wave
+import pyaudio
 
 class Microphone:
     def __init__(self, id, sample_rate):
@@ -43,15 +45,16 @@ class Microphone:
             os.makedirs(os.path.normpath(folder_path))
         f = open(
             os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.txt"), "w+")
+        print(self.current_timestamp)
         # TODO: This has to be optimized
         audio_data = ''.join(map(str, self.current_audio_data))
-        
-        #Create and save plot
-        x_data = np.arange(len(self.current_audio_data))
-        y_data = self.current_audio_data
-        plt.plot(x_data, y_data)
-        plt.savefig('public/pic.png')
-        
+        with wave.open('output.wav', 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paFloat32))
+            wf.setframerate(44100)
+            wf.writeframes(b''.join(self.current_audio_data))
+
+        print(f"Audio saved as {'output.wav'}")
         #Write and close files
         f.write(audio_data)
         print('writing data')
