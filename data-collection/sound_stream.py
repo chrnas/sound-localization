@@ -18,7 +18,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 5
+RECORD_SECONDS = 10
 OUTPUT_FILENAME = "output_client.wav"
 
 client_send_time = None  # Initialize client_send_time
@@ -76,8 +76,6 @@ def start_test(test_id):
     data = record_audio()
     print("Sending audio data to server")
     current_time = time.perf_counter() - init_perf  # Use perf_counter here
-    print(current_time)
-    print(clock_offset)
     timestamp = current_time + clock_offset
     
     while len(data) > 0:

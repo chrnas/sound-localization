@@ -1,3 +1,4 @@
+from threading import Thread
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import os
@@ -17,7 +18,6 @@ class Microphone:
         self.sample_rate = sample_rate
         self.current_audio_data = []
         self.current_timestamp = 0
-        self.done_sending = False
 
     def set_test_id(self, id):
         self.test_id = id
@@ -50,7 +50,7 @@ class Microphone:
             # print(self.current_audio_data)
             wf.writeframes(bytes(self.current_audio_data))
 
-        print(f"Audio saved as {'output.wav'}")
+        print(f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
         
         self.current_timestamp = 0
         self.current_audio_data = []
@@ -103,15 +103,9 @@ def handle_audio_data(data):
 @socketio.on('endOfData')
 def save_data(test_id):
     microphone = microphones[request.sid]
-    microphone.done_sending = True
-    print(f"request {test_id} is done {microphones[request.sid].id}")
-    if all([microphone.done_sending for microphone in microphones.values()]):
-        for microphone in microphones.values():
-            print("saving...")
-            microphone.save(test_id)
-            microphone.done_sending = False
-            print("done saving")
-    
+    print("saving...")
+    thread = Thread(target=microphone.save, args=(test_id,))
+    microphone.save(test_id)
 
 @socketio.on('syncTime')
 def handle_sync_time():
