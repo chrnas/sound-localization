@@ -93,10 +93,7 @@ def start_test(test_id):
     timestamp = current_time + clock_offset
     
     save_wav(test_id, timestamp, data)
-    while len(data) > 0:
-        sio.emit('audioData', {
-        'data': data[:CHUNK], 'test_id': test_id, 'timestamp': timestamp})
-        data = data[CHUNK:]
+    sio.emit('audioData', {'data': data, 'test_id': test_id, 'timestamp': timestamp})
     if test_id != 0:
         sio.emit('endOfData', test_id)
         print("Finished sending audio data to server")
