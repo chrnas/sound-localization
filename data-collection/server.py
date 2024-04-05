@@ -11,12 +11,13 @@ import os
 import matplotlib.pyplot as plt
 import wave
 import pyaudio
+import zlib
 
 class Microphone:
     def __init__(self, id, sample_rate):
         self.id = id
         self.sample_rate = sample_rate
-        self.current_audio_data = []
+        self.current_audio_data = b""
         self.current_timestamp = 0
 
     def set_test_id(self, id):
@@ -47,13 +48,11 @@ class Microphone:
             wf.setnchannels(1)
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
-            print(bytes(self.current_audio_data))
-            wf.writeframes(bytes(self.current_audio_data))
-        print(bytes(self.current_audio_data))
+            wf.writeframes(bytes(zlib.decompress(self.current_audio_data)))
         print(f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
         
         self.current_timestamp = 0
-        self.current_audio_data = []
+        self.current_audio_data = b""
 
 ARGS = sys.argv[1:] # OUTPUT_FOLDER
 OUTPUT_FOLDER = ARGS[0] 

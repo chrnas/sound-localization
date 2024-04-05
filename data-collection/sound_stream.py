@@ -5,6 +5,7 @@ import time
 import sys
 import wave
 import os
+import zlib
 
 ARGS = sys.argv[1:]  # IP, ID
 IP = ARGS[0]
@@ -19,7 +20,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 30
+RECORD_SECONDS = 60
 OUTPUT_FILENAME = "output_client.wav"
 OUTPUT_FOLDER = "output_local"
 
@@ -91,20 +92,21 @@ def sync_time():
 
 @sio.on('start_test')
 def start_test(test_id):
-    _data = record_audio()
     print("Sending audio data to server")
     current_time = time.perf_counter() - init_perf  # Use perf_counter here
     timestamp = current_time + clock_offset
-    data = _data
+
+    data = record_audio()
+    compressed_data = zlib.compress(data)
     
-    while len(data) > 0:
-        sio.emit('audioData', {'data': data[:CHUNK],
+    while len(compressed_data) > 0:
+        sio.emit('audioData', {'data': compressed_data[:CHUNK],
              'test_id': test_id, 'timestamp': timestamp})
-        data = data[CHUNK:]
+        compressed_data = compressed_data[CHUNK:]
     if test_id != 0:
         sio.emit('endOfData', test_id)
         print("Finished sending audio data to server")
-    save_wav(test_id, timestamp, _data)
+    save_wav(test_id, timestamp, data)
 
 
 @sio.on('syncResponse')
