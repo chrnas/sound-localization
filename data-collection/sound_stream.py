@@ -91,18 +91,20 @@ def sync_time():
 
 @sio.on('start_test')
 def start_test(test_id):
-    data = []
-    data = record_audio()
+    _data = record_audio()
     print("Sending audio data to server")
     current_time = time.perf_counter() - init_perf  # Use perf_counter here
     timestamp = current_time + clock_offset
-
-    save_wav(test_id, timestamp, data)
-    sio.emit('audioData', {'data': data,
+    data = _data
+    
+    while len(data) > 0:
+        sio.emit('audioData', {'data': data[:CHUNK],
              'test_id': test_id, 'timestamp': timestamp})
+        data = data[CHUNK:]
     if test_id != 0:
         sio.emit('endOfData', test_id)
         print("Finished sending audio data to server")
+    save_wav(test_id, timestamp, _data)
 
 
 @sio.on('syncResponse')
