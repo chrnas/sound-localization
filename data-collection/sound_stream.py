@@ -4,6 +4,7 @@ import numpy as np
 import time
 import sys
 import wave
+import os
 
 ARGS = sys.argv[1:] # IP, ID
 IP = ARGS[0]
@@ -18,8 +19,9 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 10
+RECORD_SECONDS = 15
 OUTPUT_FILENAME = "output_client.wav"
+OUTPUT_FOLDER = "output_local"
 
 client_send_time = None  # Initialize client_send_time
 
@@ -62,6 +64,18 @@ def record_audio():
 
     return b''.join(frames)
 
+def save_wav(test_id, timestamp, data):
+    folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
+    if not os.path.exists(os.path.normpath(folder_path)):
+        os.makedirs(os.path.normpath(folder_path))
+
+    with wave.open(os.path.normpath(f"{folder_path}/{ID}_{timestamp}.wav"),'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
+        wf.setframerate(RATE)
+        # print(self.current_audio_data)
+        wf.writeframes(bytes(data))
+
 def sync_time():
     """
     Send a message to the server to synchronize time.
@@ -78,6 +92,7 @@ def start_test(test_id):
     current_time = time.perf_counter() - init_perf  # Use perf_counter here
     timestamp = current_time + clock_offset
     
+    save_wav(test_id, timestamp, data)
     while len(data) > 0:
         sio.emit('audioData', {
         'data': data[:CHUNK], 'test_id': test_id, 'timestamp': timestamp})

@@ -54,7 +54,6 @@ class Microphone:
         
         self.current_timestamp = 0
         self.current_audio_data = []
-        return app.send_static_file('pic.png')
 
 ARGS = sys.argv[1:] # OUTPUT_FOLDER
 OUTPUT_FOLDER = ARGS[0] 
@@ -64,7 +63,7 @@ perf_counter = time.perf_counter()
 print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
 
-socketio = SocketIO(app)
+socketio = SocketIO(app, max_http_buffer_siz=1e10)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -105,7 +104,8 @@ def save_data(test_id):
     microphone = microphones[request.sid]
     print("saving...")
     thread = Thread(target=microphone.save, args=(test_id,))
-    microphone.save(test_id)
+    thread.start()
+    # microphone.save(test_id)
 
 @socketio.on('syncTime')
 def handle_sync_time():
