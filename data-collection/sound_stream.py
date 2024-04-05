@@ -6,7 +6,7 @@ import sys
 import wave
 import os
 
-ARGS = sys.argv[1:] # IP, ID
+ARGS = sys.argv[1:]  # IP, ID
 IP = ARGS[0]
 ID = ARGS[1]
 
@@ -25,6 +25,7 @@ OUTPUT_FOLDER = "output_local"
 
 client_send_time = None  # Initialize client_send_time
 
+
 def main():
     sio.connect(server_url)
 
@@ -32,6 +33,7 @@ def main():
         pass
 
 # Audio processing functions
+
 
 def record_audio():
     """
@@ -42,10 +44,10 @@ def record_audio():
 
     # Open stream
     stream = audio.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
+                        channels=CHANNELS,
+                        rate=RATE,
+                        input=True,
+                        frames_per_buffer=CHUNK)
 
     print("Recording...")
 
@@ -64,17 +66,19 @@ def record_audio():
 
     return b''.join(frames)
 
+
 def save_wav(test_id, timestamp, data):
     folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
     if not os.path.exists(os.path.normpath(folder_path)):
         os.makedirs(os.path.normpath(folder_path))
 
-    with wave.open(os.path.normpath(f"{folder_path}/{ID}_{timestamp}.wav"),'wb') as wf:
+    with wave.open(os.path.normpath(f"{folder_path}/{ID}_{timestamp}.wav"), 'wb') as wf:
         wf.setnchannels(1)
         wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
         wf.setframerate(RATE)
         # print(self.current_audio_data)
         wf.writeframes(bytes(data))
+
 
 def sync_time():
     """
@@ -84,6 +88,7 @@ def sync_time():
     client_send_time = time.perf_counter() - init_perf  # Use perf_counter here
     sio.emit('syncTime')
 
+
 @sio.on('start_test')
 def start_test(test_id):
     data = []
@@ -91,12 +96,14 @@ def start_test(test_id):
     print("Sending audio data to server")
     current_time = time.perf_counter() - init_perf  # Use perf_counter here
     timestamp = current_time + clock_offset
-    
+
     save_wav(test_id, timestamp, data)
-    sio.emit('audioData', {'data': data, 'test_id': test_id, 'timestamp': timestamp})
+    sio.emit('audioData', {'data': data,
+             'test_id': test_id, 'timestamp': timestamp})
     if test_id != 0:
         sio.emit('endOfData', test_id)
         print("Finished sending audio data to server")
+
 
 @sio.on('syncResponse')
 def handle_sync_response(server_time):
@@ -110,6 +117,7 @@ def handle_sync_response(server_time):
 
     print(f"Clock offset adjusted: {clock_offset} seconds.")
 
+
 @sio.event
 def connect():
     # Handle connection to the server
@@ -117,10 +125,12 @@ def connect():
     sio.emit('newMicrophone', {'id': ID, 'sample_rate': RATE})
     sync_time()
 
+
 @sio.event
 def disconnect():
     # Handle disconnection from the server
     print("Disconnected from the server.")
+
 
 if __name__ == "__main__":
     clock_offset = 0
