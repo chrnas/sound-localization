@@ -26,7 +26,7 @@ class Microphone:
         """
         Adds all new data to the end of existing data
         """
-        self.current_audio_data.extend(data)
+        self.current_audio_data += data
 
     def set_timestamp(self, timestamp):
         self.current_timestamp = timestamp
