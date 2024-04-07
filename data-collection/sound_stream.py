@@ -20,7 +20,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 60
+RECORD_SECONDS = 5
 OUTPUT_FILENAME = "output_client.wav"
 OUTPUT_FOLDER = "output_local"
 
@@ -72,13 +72,14 @@ def save_wav(test_id, timestamp, data):
     folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
     if not os.path.exists(os.path.normpath(folder_path)):
         os.makedirs(os.path.normpath(folder_path))
-
+    print(bytes(data))
     with wave.open(os.path.normpath(f"{folder_path}/{ID}_{timestamp}.wav"), 'wb') as wf:
         wf.setnchannels(1)
         wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
         wf.setframerate(RATE)
         # print(self.current_audio_data)
         wf.writeframes(bytes(data))
+        
 
 
 def sync_time():
