@@ -8,12 +8,14 @@ PORT = 5000 # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-
+   
+    if s.recv(1024) == b'start':
+        print('hello world')
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
     RATE = 44100
     CHUNK = 1024
-    RECORD_SECONDS = 10
+    RECORD_SECONDS = 30
     
     audio = pyaudio.PyAudio()
 
