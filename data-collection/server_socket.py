@@ -3,7 +3,14 @@
 import socket
 import wave
 import pyaudio
-from threading import Thread 
+from threading import Thread
+import flask
+import os
+from time import perf_counter
+
+app = flask.Flask(__name__)
+init_perf = perf_counter()
+
 
 HOST = "localhost"  # Standard loopback interface address (localhost)
 PORT = 5000  # Port to listen on (non-privileged ports are > 1023)
@@ -17,7 +24,7 @@ def handle_client(conn, id):
             new_data = conn.recv(1024)
             data += new_data
             print(f'sent data from: {id}')
-            #print(data)
+            # print(data)
             if not new_data:
                 with wave.open(f'test_{id}.wav', 'wb') as wf:
                     RATE = 44100
@@ -30,22 +37,36 @@ def handle_client(conn, id):
                 break
 
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen(3)
-    id = 0
-    client_conns = []
-    client_threads = []
-    while True:
-        for id in range(3):
+@app.route('/sync')
+def sync_time():
+    """
+    Send a message to the server to synchronize time.
+    """
+    client_send_time = perf_counter() - init_perf
+    return str(client_send_time)
+
+
+if __name__ == "__main__":
+
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='localhost', port=port)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print("Listening...")
+        s.bind(("0.0.0.0", PORT))
+        s.listen(3)
+        client_conns = []
+        client_threads = []
+        while True:
             conn, addr = s.accept()
             client_conns.append(conn)
-        for id in range(3):
-            client_conns[id].send(b'start')
-            thread = Thread(target=handle_client, args=(client_conns[id], id))
-            thread.start()
-            client_threads.append(thread)
-        
-                
-                
-                
+
+            if len(client_conns) < 3:
+                continue
+
+            for id, conn in enumerate(client_conns):
+                conn.send(b'start')
+                thread = Thread(target=handle_client,
+                                args=(client_conns[id], id))
+                thread.start()
+                client_threads.append(thread)

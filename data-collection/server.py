@@ -13,6 +13,7 @@ import wave
 import pyaudio
 import zlib
 
+
 class Microphone:
     def __init__(self, id, sample_rate):
         self.id = id
@@ -48,13 +49,15 @@ class Microphone:
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
             wf.writeframes(bytes(zlib.decompress(self.current_audio_data)))
-        print(f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
-        
+        print(
+            f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
+
         self.current_timestamp = 0
         self.current_audio_data = b""
 
-ARGS = sys.argv[1:] # OUTPUT_FOLDER
-OUTPUT_FOLDER = ARGS[0] 
+
+ARGS = sys.argv[1:]  # OUTPUT_FOLDER
+OUTPUT_FOLDER = ARGS[0]
 app = Flask(__name__, static_folder='public', static_url_path='')
 
 perf_counter = time.perf_counter()
@@ -62,6 +65,7 @@ print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
 
 socketio = SocketIO(app, max_http_buffer_siz=1e10)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -72,11 +76,13 @@ def index():
         start_test(test_id)
     return render_template('index.html', name='app')
 
+
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
     emit('start_test', test_id, broadcast=True, namespace="/")
     return {"msg": f"starting test {test_id}"}
+
 
 @socketio.on('newMicrophone')
 def handle_new_microphone(data):
@@ -89,6 +95,7 @@ def handle_new_microphone(data):
 
     print(f'New microphone connected: {microphone_id}')
 
+
 @socketio.on('audioData')
 def handle_audio_data(data):
     if request.sid in microphones:
@@ -96,6 +103,7 @@ def handle_audio_data(data):
         microphone.append_data(data['data'])
         if microphone.current_timestamp == 0:
             microphone.set_timestamp(data["timestamp"])
+
 
 @socketio.on('endOfData')
 def save_data(test_id):
@@ -105,12 +113,14 @@ def save_data(test_id):
     thread.start()
     # microphone.save(test_id)
 
+
 @socketio.on('syncTime')
 def handle_sync_time():
     # Function to handle sync time request from the client
     print("Sync requested")
     server_timestamp = time.perf_counter() - perf_counter
     emit('syncResponse', server_timestamp)
+
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
