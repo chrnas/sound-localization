@@ -10,7 +10,12 @@ PORT = 5000  # The port used by the server
 
 client_send_time = perf_counter()  # Use perf_counter here
 server_time = requests.get(
-    "http://localhost:5000/sync")  # Start test with ID 1
+    "http://localhost:6000/sync")  # Start test with ID 1
+
+while server_time.status_code != 200:
+    # Sleep for a short duration before checking again
+    server_time = requests.get("http://localhost:6000/sync")
+
 
 server_time = float(server_time.text)
 print(f"Server time: {server_time}")
@@ -19,19 +24,33 @@ print(f"Server time: {server_time}")
 client_receive_time = perf_counter()  # Use perf_counter here
 
 round_trip_time = client_receive_time - client_send_time
+
 estimated_server_time_at_client_receive = server_time + round_trip_time / 2
 clock_offset = estimated_server_time_at_client_receive - client_receive_time
 
 clock = perf_counter() + clock_offset
 
-print(f"Clock offset adjusted: {clock} seconds.")
-print(clock)
+HOST = "localhost"
+PORT = 5000
+
+client_send_time = perf_counter()
+server_time_response = requests.get(f"http://{HOST}:{PORT}/sync")
+server_time = float(server_time_response.text)
+print(f"Server time: {server_time}")
+
+client_receive_time = perf_counter()
+round_trip_time = client_receive_time - client_send_time
+
+
+# Synchronize client's clock with estimated server time
+client_clock = perf_counter() + clock_offset
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
 
     if s.recv(1024) == b'start':
-        print('hello world')
+        print(perf_counter() + clock_offset)
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
     RATE = 44100

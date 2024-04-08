@@ -56,8 +56,8 @@ class Microphone:
         self.current_audio_data = b""
 
 
-ARGS = sys.argv[1:]  # OUTPUT_FOLDER
-OUTPUT_FOLDER = ARGS[0]
+# ARGS = sys.argv[1:]  # OUTPUT_FOLDER
+OUTPUT_FOLDER = "output"  # ARGS[0
 app = Flask(__name__, static_folder='public', static_url_path='')
 
 perf_counter = time.perf_counter()

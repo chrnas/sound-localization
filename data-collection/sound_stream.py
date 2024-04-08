@@ -7,9 +7,8 @@ import wave
 import os
 import zlib
 
-ARGS = sys.argv[1:]  # IP, ID
-IP = ARGS[0]
-ID = ARGS[1]
+IP = "localhost"  # ARGS[0]
+ID = 0
 
 # SocketIO client setup
 sio = socketio.Client()
@@ -20,7 +19,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-RECORD_SECONDS = 60
+RECORD_SECONDS = 5
 OUTPUT_FILENAME = "output_client.wav"
 OUTPUT_FOLDER = "output_local"
 

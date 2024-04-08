@@ -42,14 +42,16 @@ def sync_time():
     """
     Send a message to the server to synchronize time.
     """
-    client_send_time = perf_counter() - init_perf
-    return str(client_send_time)
+    server_time = perf_counter() - init_perf
+    return str(server_time)
 
 
 if __name__ == "__main__":
 
-    port = int(os.getenv('PORT', 5000))
-    app.run(host='localhost', port=port)
+    port = int(os.getenv('PORT', 6000))
+    flask_thread = Thread(target=app.run, kwargs={
+                          "host": '0.0.0.0', "port": port})
+    flask_thread.start()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Listening...")
