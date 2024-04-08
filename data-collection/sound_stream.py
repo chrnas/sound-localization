@@ -72,7 +72,6 @@ def save_wav(test_id, timestamp, data):
     folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
     if not os.path.exists(os.path.normpath(folder_path)):
         os.makedirs(os.path.normpath(folder_path))
-    print(bytes(data))
     with wave.open(os.path.normpath(f"{folder_path}/{ID}_{timestamp}.wav"), 'wb') as wf:
         wf.setnchannels(1)
         wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))

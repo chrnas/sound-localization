@@ -37,7 +37,6 @@ class Microphone:
         Save audio data to a file on the form output/test_id/microphoneX_timestamp.txt
         """
         print('start_saving')
-        print(test_id)
         if test_id == 0:
             return False
         folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
