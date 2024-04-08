@@ -99,13 +99,13 @@ def start_test(test_id):
     data = record_audio()
     compressed_data = zlib.compress(data)
     
-    while len(compressed_data) > 0:
-        sio.emit('audioData', {'data': compressed_data[:CHUNK],
-             'test_id': test_id, 'timestamp': timestamp})
-        compressed_data = compressed_data[CHUNK:]
-    if test_id != 0:
-        sio.emit('endOfData', test_id)
-        print("Finished sending audio data to server")
+    # while len(compressed_data) > 0:
+    #     sio.emit('audioData', {'data': compressed_data[:CHUNK],
+    #          'test_id': test_id, 'timestamp': timestamp})
+    #     compressed_data = compressed_data[CHUNK:]
+    # if test_id != 0:
+    #     sio.emit('endOfData', test_id)
+    #     print("Finished sending audio data to server")
     save_wav(test_id, timestamp, data)
 
 
