@@ -7,8 +7,9 @@ import wave
 import os
 import zlib
 
-IP = "localhost"  # ARGS[0]
-ID = 0
+ARGS = sys.argv
+IP = ARGS[0]
+ID = ARGS[1]
 
 # SocketIO client setup
 sio = socketio.Client()
