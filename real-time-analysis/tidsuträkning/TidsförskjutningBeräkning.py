@@ -119,6 +119,9 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
     """
     audio1VectorData = wav1.audioVectorData
     audio2VectorData = wav2.audioVectorData
+
+    audio1VectorData, audio2VectorData = trim_lists_to_same_length(audio1VectorData, audio2VectorData)
+
     fft_audio1 = fft(audio1VectorData, n=2 * max(len(audio1VectorData), len(audio2VectorData)) - 1)
     fft_audio2 = fft(np.flipud(audio2VectorData), n=2 * max(len(audio1VectorData), len(audio2VectorData)) - 1)
     fft_result = fft_audio1 * fft_audio2
@@ -146,6 +149,28 @@ def resample_to_highest(wav1: WavFile, wav2: WavFile) -> tuple[WavFile, WavFile]
         highest_sampling_rate = wav1.sampling_rate
         wav2.resample_wav(highest_sampling_rate)
     return wav1, wav2
+
+
+def trim_lists_to_same_length(list1: list, list2: list) -> tuple[list, list]:
+    """
+    Trims the longer of two lists to make both lists the same length.
+
+    Args:
+        list1 (List): The first list.
+        list2 (List): The second list.
+
+    Returns:
+        Tuple[List, List]: A tuple containing both lists, with the longer list trimmed
+                            to match the length of the shorter list.
+    """
+    # Determine the length of the shorter list
+    shorter_length = min(len(list1), len(list2))
+    
+    # Trim both lists to the determined shorter length
+    trimmed_list1 = list1[:shorter_length]
+    trimmed_list2 = list2[:shorter_length]
+    
+    return trimmed_list1, trimmed_list2
 
 
 # -----------------------------------------------------------------
@@ -191,7 +216,7 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
 
 if __name__ == '__main__':
     # Define filenames for the WAV files to compare
-    filenameSnap1 = 'testSnap1.wav'
-    filenameSnap2 = 'testSnap2.wav'
+    filenameSnap1 = 'trimmed_1_726.9844936760003.wav'
+    filenameSnap2 = 'trimmed_2_726.8680229935003.wav'
     # Print the calculated time offset between the two WAV files
     print(calc_offset_wav(filenameSnap1, filenameSnap2))
