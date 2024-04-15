@@ -80,8 +80,13 @@ def index():
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
-    emit('start_test', test_id, broadcast=True, namespace="/")
-    return {"msg": f"starting test {test_id}"}
+    # Get current server time
+    server_time = time.perf_counter()
+    future_timestamp = server_time - perf_counter + 1
+    print(future_timestamp)
+    emit('start_test', {'test_id': test_id,
+         'start_time': future_timestamp}, broadcast=True, namespace="/")
+    return {"msg": f"starting test {test_id} at {future_timestamp}"}
 
 
 @socketio.on('newMicrophone')
