@@ -6,8 +6,9 @@ import wave
 import os
 import zlib
 
-IP = "localhost"  # Adjust as needed
-ID = 2  # Unique identifier for this microphone/client
+ARGS = sys.argv
+IP = ARGS[0]
+ID = ARGS[1]
 
 # SocketIO client setup
 sio = socketio.Client()
