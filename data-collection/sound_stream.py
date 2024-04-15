@@ -145,3 +145,9 @@ def disconnect():
     Handle disconnection from the server.
     """
     print("Disconnected from the server.")
+
+
+if __name__ == "__main__":
+    # Connect to the server
+    sio.connect(server_url)
+    sio.wait()
