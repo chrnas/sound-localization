@@ -16,8 +16,9 @@ def get_command_input():
 
 def handle_command(command_data, pos_data, eco_data):
     command = command_data[0]
-    args = command_data[1:]
-    print(command)
+    args = []
+    if len(command_data) > 1:
+        args = command_data[1:]
     if command == "test":
         print("Args are:")
         for i in args:
@@ -28,7 +29,7 @@ def handle_command(command_data, pos_data, eco_data):
     elif command == "ECOSet":
         eco_set(eco_data, args)
     elif command == "PosList":
-        pos_list(args[0])
+        pos_list(pos_data)
     elif command == "PosActivate":
         pos_activate(args[0])
     elif command == "PosDeactivate":
@@ -48,9 +49,9 @@ def handle_command(command_data, pos_data, eco_data):
     elif command == "Stop":
         stop()
     elif command == "MicList":
-        mic_list(args[0])
+        mic_list()
     elif command == "MicAdd":
-        mic_add(args[0])
+        mic_add(args)
     elif command == "MicRemove":
         mic_remove(args[0])
     elif command == "exit":
@@ -62,9 +63,13 @@ def handle_command(command_data, pos_data, eco_data):
 print_startup()
 
 def run_cli(positioning_data, eco_data):
+    #print(positioning_data)
 
     running = True
     while running:
         command = get_command_input()
 
         handle_command(command, positioning_data, eco_data)
+
+
+
