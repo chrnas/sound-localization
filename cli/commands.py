@@ -1,13 +1,11 @@
 import json
 
 
-def eco_list(eco_data, params):
-    """
-    EJ FÄRDIG
-    """
+def eco_list(eco_data):
     print("Available methods")
-    for k in eco_data:
-        print("Method: " + k + " Filename: " + eco_data[k].filename)
+    for method in eco_data:
+        print("Method: " + method +
+               "  Filename: " + eco_data[method].filename)
 
 def eco_set(eco_data):
     """
@@ -17,33 +15,31 @@ def eco_set(eco_data):
 
 
 def pos_list(pos_data):
-    """
-    FÄRDIG
-    """
+    print("Available methods")
     for method in pos_data:
-        print(method)
+        print("Method: " + method +
+               "  Filename: " + pos_data[method].file +
+                 "  Active: " + str(pos_data[method].active) +
+                   "  Weight: " + str(pos_data[method].weight))
 
 
 
-def pos_activate(pos_data):
+def pos_activate(pos_data, method):
+    pos_data[method].active = True
+
+
+def pos_deactivate(pos_data, method):
+    pos_data[method].active = False
+
+
+
+def pos_weight(pos_data, args):
     """
-    EJ FÄRDIG
+    args[0] = method
+    args[1] = weight
     """
-    print("pos_activate: " + pos_data)
-
-
-def pos_deactivate(pos_data):
-    """
-    EJ FÄRDIG
-    """
-    print("pos_deactivate: " + pos_data)
-
-
-def pos_weight(pos_data, params):
-    """
-    EJ FÄRDIG
-    """
-    print('pow_weight works')
+    pos_data[args[0]].weight = float(args[1])
+   
 
 
 def run_once(pos_data):
@@ -68,18 +64,12 @@ def stop():
 
 
 def mic_list():
-    """
-    FÄRDIG
-    """
     with open("Positioning/microphones.json", "r") as infile:
         mics = json.load(infile)
     for mic in mics:
         print(mic)
 
 def mic_add(mic_data):
-    """
-    FÄRDIG
-    """
     with open("Positioning/microphones.json", "r") as infile:
         mics = json.load(infile)
 
@@ -105,9 +95,6 @@ def mic_add(mic_data):
 
 
 def mic_remove(mic_data):
-    """
-    FÄRDIG
-    """
     with open("Positioning/microphones.json", "r") as infile:
         mics = json.load(infile)
 
