@@ -6,7 +6,7 @@ import os
 import zlib
 import sys
 import ntplib
-import sounddevice as sd
+
 
 ARGS = sys.argv
 # IP = str(ARGS[0])
@@ -26,8 +26,7 @@ CHUNK = 1024
 RECORD_SECONDS = 7
 OUTPUT_FOLDER = "output_local"
 
-# audio = pyaudio.PyAudio()
-
+audio = pyaudio.PyAudio()
 frames = []
 
 
@@ -44,28 +43,25 @@ def record_audio(start_time):
     while ntp_time < start_time:
         ntp_time = ntp_time + time.perf_counter() - init_time
 
-    # stream = audio.open(format=FORMAT, channels=CHANNELS,
-        # rate=RATE, input=True, frames_per_buffer=CHUNK)
-    # clear_buffer(stream)  # Clear buffer before recording
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                        rate=RATE, input=True, frames_per_buffer=CHUNK)
+
     start_recording = time.perf_counter()
 
-    data = sd.rec(int(RATE * RECORD_SECONDS), samplerate=RATE,
-                  channels=CHANNELS, dtype='int16')
-    sd.wait()  # Wait until recording is finished
-    # while time.perf_counter() - start_recording < RECORD_SECONDS:
-    #    data = stream.read(CHUNK)
-    #    frames.append(data)
-    # print(
-    #    f"Recording finished. Time: {time.perf_counter() - start_recording} seconds.")
+    while time.perf_counter() - start_recording < RECORD_SECONDS:
+        data = stream.read(CHUNK)
+        frames.append(data)
+    print(
+        f"Recording finished. Time: {time.perf_counter() - start_recording} seconds.")
 
     # print("Recording finished.")
 
     # Stop and close the stream
-    # stream.stop_stream()
-    # stream.close()
-    # audio.terminate()
-#
-    return data, ntp_time  # b''.join(frames), ntp_time
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+
+    return b''.join(frames), ntp_time
 
 
 def save_wav(test_id, timestamp, data):
@@ -91,27 +87,20 @@ def handle_start_test(data):
     Handle the 'start_test' event from the server, which includes the start time for recording.
     """
     test_id = data['test_id']
-    start_time = data['start_time']  # Server-provided start time for recording
-
-    # print(
-    #    f"Received start_test signal for test {test_id}. Start time: {start_time}")
-
-    # Record audio starting at the server-specified time
+    start_time = data['start_time']
 
     recorded_data, ntp_time = record_audio(start_time)
 
     compressed_data = zlib.compress(recorded_data)
 
-    # Send the recorded and compressed audio data back to the server in chunks
-    chunk_size = CHUNK  # Adjust the chunk size as needed
+    chunk_size = CHUNK
+
     for i in range(0, len(compressed_data), chunk_size):
         sio.emit('audioData', {
                  'data': compressed_data[i:i + chunk_size], 'test_id': test_id, 'timestamp':  ntp_time})
 
-    # Notify the server that all data has been sent
     sio.emit('endOfData', test_id)
 
-    # Optionally, save the recorded audio locally
     save_wav(test_id, start_time, recorded_data)
 
 
