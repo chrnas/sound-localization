@@ -1,46 +1,25 @@
 import socket
-import flask
-import os
-from threading import Thread
-from time import perf_counter
+import struct
+from time import perfcounter
 
-HOST = 'localhost'
-PORT = 1235
+HOST = '0.0.0.0'  # Listen on all network interfaces
+PORT = 7777       # Port number
 
-app = flask.Flask(__name__)
-
-
-if __name__ == "__main__":
-
-    print("Öpnnar port")
-    port = int(os.getenv('PORT', PORT))
-    print("Potatissallad")
-    flask_thread = Thread(target=app.run, kwargs={
-                          "host": '0.0.0.0', "port": port})
-    print("köttbullar")
-    flask_thread.start()
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-
-        
-        print("Listening...")
-        
-        s.bind(("0.0.0.0", PORT))
-        s.listen(3)
-        
-        while (True):
-            conn, addr = s.accept()
-            with conn:
-                data = bytearray()
-                
-                while (True):
-                    new_data = conn.recv(1024)
-                    data += new_data
-                    while (data(0) != 0xA5):
-                        del data[0]
-                    if (len(data) >= 10):
-                        if (data(9) == 0xA6):
-                            
-                            time_diff = perf_counter() - float(data[1:8])
-                            print(time_diff*1000)
-                        del data[0]
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen()
+    print("Listening for incoming connections...")
+    conn, addr = s.accept()
+    with conn:
+        print(f"Connected by {addr}")
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            if data[0] == 0xA5 and data[-1] == 0xA6:
+                # Unpack the timestamp between the markers
+                , received_time = struct.unpack('!Bd', data[:9])
+                server_time = perf_counter()
+                time_drift = server_time - received_time
+                print(f"Time drift: {time_drift * 1000:.2f} ms")

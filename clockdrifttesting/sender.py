@@ -1,15 +1,14 @@
-import socket
-from time import sleep
-from time import perf_counter
+import requests
+from time import sleep, perf_counter
 
-HOST = "192.168.125.246"  # The server's hostname or IP address
-PORT = 7777  # The port used by the server
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    sleep(2)
-    while True:
-        client_send_time = perf_counter()
-        s.send(0xA5)
-        s.send(client_send_time)
-        s.send(0xA6)
-        sleep(1)
+start_time = perf_counter()
+print(requests.get("http://192.168.125.69:5000/sync").text)
+server_start_time = float(requests.get("http://192.168.125.69:5000/sync").text)
+counter = 0
+while True:
+    server_time = float(requests.get("http://192.168.125.69:5000/sync").text)
+    server_lapsed_time = server_time - server_start_time
+    client_lapsed_time = perf_counter() - start_time
+    print("Client time: " + str(client_lapsed_time) + " Server time: " + str(server_lapsed_time))
+    print("Time diff: " + str(server_lapsed_time - client_lapsed_time))
+    sleep(60)
