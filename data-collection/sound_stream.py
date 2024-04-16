@@ -10,7 +10,7 @@ import ntplib
 
 ARGS = sys.argv
 # IP = str(ARGS[0])
-ID = ARGS[0]
+ID = "mathias"
 
 
 init_time = time.perf_counter()
@@ -27,8 +27,6 @@ RECORD_SECONDS = 7
 OUTPUT_FOLDER = "output_local"
 
 audio = pyaudio.PyAudio()
-stream = audio.open(format=FORMAT, channels=CHANNELS,
-                    rate=RATE, input=True, frames_per_buffer=CHUNK)
 
 frames = []
 
@@ -46,10 +44,16 @@ def record_audio(start_time):
     while ntp_time < start_time:
         ntp_time = ntp_time + time.perf_counter() - init_time
 
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                        rate=RATE, input=True, frames_per_buffer=CHUNK)
+    clear_buffer(stream)  # Clear buffer before recording
     start_recording = time.perf_counter()
+
     while time.perf_counter() - start_recording < RECORD_SECONDS:
         data = stream.read(CHUNK)
         frames.append(data)
+    print(
+        f"Recording finished. Time: {time.perf_counter() - start_recording} seconds.")
 
     # print("Recording finished.")
 
@@ -140,6 +144,13 @@ def disconnect():
     """
     print("Disconnected from the server.")
 
+
+def clear_buffer(stream, chunks=10):
+    for _ in range(chunks):
+        stream.read(CHUNK, exception_on_overflow=False)
+
+
+# Clear buffer right before starting main recording loop
 
 if __name__ == "__main__":
     # Connect to the server
