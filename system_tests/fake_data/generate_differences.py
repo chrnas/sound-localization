@@ -3,16 +3,19 @@ from math import sqrt, pow, tan, pi
 
 
 class Point:
-    def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
-        self.x: float = x
-        self.y: float = y
-        self.z: float = z
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+        self.x: float = float(x)
+        self.y: float = float(y)
+        self.z: float = float(z)
 
     def distance(self, point: Point):
         """ Gives the distance between two points. """
         return sqrt(pow(self.x - point.x, 2) +
                     pow(self.y - point.y, 2) +
                     pow(self.z - point.z, 2))
+
+    def __repr__(self):
+        return f"({round(self.x, 1)}, {round(self.y, 1)}, {round(self.z, 1)})"
 
 
 class Scenario:
@@ -34,7 +37,8 @@ class Scenario:
         """
         distances: tuple[float, ...] = self.distances()
         min_distance: float = min(distances)
-        return tuple(distance - min_distance for distance in distances)
+        return tuple(round(distance - min_distance, 10) for
+                     distance in distances)
 
     def relative_time_arrivals(self) -> tuple[float, ...]:
         """
@@ -42,8 +46,14 @@ class Scenario:
         from the sender
         """
         relative_distances = self.relative_distances()
-        return tuple(relative_distance / self.SOUND_VELOCITY for
+        return tuple(round(relative_distance / self.SOUND_VELOCITY, 10) for
                      relative_distance in relative_distances)
+
+    def __repr__(self):
+        sender_receivers = "".join((
+            str(receiver).ljust(25, " ")
+            for receiver in (self.sender,) + self.receivers))
+        return sender_receivers + f"{self.description}"
 
 
 # Helper functions
@@ -78,3 +88,29 @@ def equilateral_triangle_center(point: Point) -> Point:
         return Point(half_side_length, half_side_length * tan(pi / 6))
     else:
         return Point(half_side_length * tan(pi / 6), half_side_length)
+
+
+def print_header(receivers: tuple[Point, ...]):
+    columns = ["Sender"] + [receiver for receiver in receivers] + \
+        ["Description"]
+    head = "".join((str(column).ljust(25, " ") for column in columns))
+    print(head)
+
+
+def print_scenarios(receivers: tuple[Point, ...],
+                    scenarios: tuple[Scenario, ...]
+                    ):
+    print_header(receivers)
+    for scenario in scenarios:
+        print(scenario)
+
+
+def print_relative_arrivals(receivers: tuple[Point, ...],
+                            scenarios: tuple[Scenario, ...]):
+    print_header(receivers)
+    for scenario in scenarios:
+        relative_arrivals = "".join((
+            str(receiver).ljust(25, " ")
+            for receiver in (scenario.sender,) +
+            scenario.relative_time_arrivals()))
+        print(relative_arrivals + f"{scenario.description}")

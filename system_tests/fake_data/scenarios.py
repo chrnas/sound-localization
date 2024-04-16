@@ -11,9 +11,9 @@ MICROPHONE_PLACEMENTS = (
     (Point(0, 0), Point(0, 35), equilateral_triangle_top(Point(0, 35))),
     (Point(0, 0, 0), Point(0, 30, 5.3), Point(30, 30, 0), Point(30, 0, 5.3))
 )
-SCENORIOS: tuple[Scenario, ...] = (
-    # Scenarios equilateral triangle, side length 15m
 
+# Scenarios equilateral triangle, side length 15m
+SCENARIOS_15M: tuple[Scenario, ...] = (
     Scenario(
         Point(0, 0),
         MICROPHONE_PLACEMENTS[0],
@@ -54,9 +54,11 @@ SCENORIOS: tuple[Scenario, ...] = (
         MICROPHONE_PLACEMENTS[0],
         "[15m] Inside of the triangle (2)"
     ),
+)
 
-    # Scenarios equalateral triangle, side length 25m
+# Scenarios equalateral triangle, side length 25m
 
+SCENARIOS_25M: tuple[Scenario, ...] = (
     Scenario(
         Point(0, 0),
         MICROPHONE_PLACEMENTS[1],
@@ -97,9 +99,11 @@ SCENORIOS: tuple[Scenario, ...] = (
         MICROPHONE_PLACEMENTS[1],
         "[25m] Inside of the triangle (2)"
     ),
+)
 
     # Scenarios equalateral triangle, side length 35m
 
+SCENARIOS_35M: tuple[Scenario, ...] = (
     Scenario(
         Point(0, 0),
         MICROPHONE_PLACEMENTS[2],
@@ -140,9 +144,11 @@ SCENORIOS: tuple[Scenario, ...] = (
         MICROPHONE_PLACEMENTS[2],
         "[35m] Inside of the triangle (2)"
     ),
+)
 
-    # 3D scenarios
+# 3D scenarios
 
+SCENARIOS_3D: tuple[Scenario, ...] = (
     Scenario(
         Point(15, 15, 0),
         MICROPHONE_PLACEMENTS[3],
@@ -204,3 +210,5 @@ SCENORIOS: tuple[Scenario, ...] = (
         "[35m] Inside of the triangle (2)"
     ),
 )
+
+SCENARIOS = SCENARIOS_15M + SCENARIOS_25M + SCENARIOS_35M + SCENARIOS_3D
