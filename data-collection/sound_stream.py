@@ -1,6 +1,5 @@
 import socketio
 import pyaudio
-import numpy as np
 import time
 import wave
 import os
