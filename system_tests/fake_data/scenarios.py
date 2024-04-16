@@ -149,57 +149,57 @@ SCENORIOS: tuple[Scenario, ...] = (
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(15, 15, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(10, 0, 0),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(10, 0, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(0, 30, 0),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(0, 30, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(25, 20, 0),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(25, 20, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(5, 20, 0),
         MICROPHONE_PLACEMENTS[3],
         "[3D] Center of square"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(5, 20, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[35m] Inside of the triangle (2)"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(35, 35, 0),
         MICROPHONE_PLACEMENTS[3],
         "[35m] Inside of the triangle (2)"
     ),
     Scenario(
-        Point(15, 15, 0),
+        Point(35, 35, 2.5),
         MICROPHONE_PLACEMENTS[3],
         "[35m] Inside of the triangle (2)"
     ),
