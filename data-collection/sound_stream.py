@@ -9,14 +9,15 @@ import ntplib
 
 
 ARGS = sys.argv
-IP = ARGS[0]
-ID = ARGS[1]
+# IP = str(ARGS[0])
+ID = ARGS[0]
+
 
 init_time = time.perf_counter()
 client = ntplib.NTPClient()
 
 sio = socketio.Client()
-server_url = f"http://{IP}:5000"
+server_url = f"http://localhost:5000"
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -41,9 +42,9 @@ def record_audio(start_time):
     # TODO very shitty needs fix
 
     ntp_time = client.request("pool.ntp.org", version=3).tx_time
-
+    init_time = time.perf_counter()
     while ntp_time < start_time:
-        ntp_time = client.request("pool.ntp.org", version=3).tx_time
+        ntp_time = ntp_time + time.perf_counter() - init_time
 
     start_recording = time.perf_counter()
     while time.perf_counter() - start_recording < RECORD_SECONDS:
