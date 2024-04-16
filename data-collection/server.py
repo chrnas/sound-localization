@@ -5,13 +5,13 @@ import os
 import numpy as np
 import time
 import numpy as np
-from scipy.optimize import least_squares
 import sys
 import os
 import matplotlib.pyplot as plt
 import wave
 import pyaudio
 import zlib
+import ntplib
 
 
 class Microphone:
@@ -56,14 +56,10 @@ class Microphone:
         self.current_audio_data = b""
 
 
-# ARGS = sys.argv[1:]  # OUTPUT_FOLDER
-OUTPUT_FOLDER = "output"  # ARGS[0
+OUTPUT_FOLDER = "output"
 app = Flask(__name__, static_folder='public', static_url_path='')
 
-perf_counter = time.perf_counter()
-print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
-
 socketio = SocketIO(app, max_http_buffer_siz=1e10)
 
 
@@ -77,13 +73,17 @@ def index():
     return render_template('index.html', name='app')
 
 
+# TODO Fix this for NTP
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
     # Get current server time
-    server_time = time.perf_counter()
-    future_timestamp = server_time - perf_counter + 1
-    print(future_timestamp)
+
+    ntp_client = ntplib.NTPClient()
+    response = ntp_client.request('pool.ntp.org', version=3)
+    current_time = response.tx_time
+    future_timestamp = current_time + 5
+
     emit('start_test', {'test_id': test_id,
          'start_time': future_timestamp}, broadcast=True, namespace="/")
     return {"msg": f"starting test {test_id} at {future_timestamp}"}
@@ -119,12 +119,13 @@ def save_data(test_id):
     # microphone.save(test_id)
 
 
-@socketio.on('syncTime')
-def handle_sync_time():
-    # Function to handle sync time request from the client
-    print("Sync requested")
-    server_timestamp = time.perf_counter() - perf_counter
-    emit('syncResponse', server_timestamp)
+# Old stuff
+# @socketio.on('syncTime')
+# def handle_sync_time():
+#    # Function to handle sync time request from the client
+#    print("Sync requested")
+#    server_timestamp = time.perf_counter() - perf_counter
+#    emit('syncResponse', server_timestamp)
 
 
 if __name__ == '__main__':
