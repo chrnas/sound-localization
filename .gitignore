@@ -1,3 +1,6 @@
+output/
+output_local/
+
 # Logs
 logs
 *.log
