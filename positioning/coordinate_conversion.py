@@ -4,20 +4,11 @@ import math
 # TODO: Implement with JSON file
 mics = [
     {"name": "Mic1",
-     "latitude": 58.40058,
-     "longitude": 15.57636},
+     "latitude": 58.40061,
+     "longitude": 15.57585},
      {"name": "Mic2",
-     "latitude": 58.40072,
-     "longitude": 15.57634},
-     {"name": "Mic3",
-     "latitude": 58.40072,
-     "longitude": 15.57613},
-     {"name": "Mic4",
-     "latitude": 58.40063,
-     "longitude": 15.57621},
-     {"name": "Mic5",
-     "latitude": 58.40067,
-     "longitude": 15.57647}
+     "latitude": 58.40088,
+     "longitude": 15.57584},
      ]
 
 
@@ -65,7 +56,32 @@ def set_coords(mics):
 
     return mics
 
+
+def pythagoras(x1, y1, x2, y2):
+    """
+    Calculate the distance between two points
+    """
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+def get_lat(mics, x):
+    """
+    Härled haversine för att visa varför
+    """
+    # Radius of Earth in meters
+    R = 6371000
+    lat = (x + R*mics[0]["latitude"]) / R
+
+
+    return lat
+
+
+
+
+
 print(set_coords(mics))
+
+
+
 
         
         
