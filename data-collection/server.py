@@ -88,6 +88,7 @@ def start_test(test_id):
 
     emit('start_test', {'test_id': test_id,
          'start_time': future_timestamp}, broadcast=True, namespace="/")
+
     return {"msg": f"starting test {test_id} at {future_timestamp}"}
 
 
