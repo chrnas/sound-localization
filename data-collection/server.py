@@ -84,7 +84,7 @@ def start_test(test_id):
     ntp_client = ntplib.NTPClient()
     response = ntp_client.request('pool.ntp.org', version=3)
     current_time = response.tx_time
-    future_timestamp = current_time + 5
+    future_timestamp = current_time + 2
 
     emit('start_test', {'test_id': test_id,
          'start_time': future_timestamp}, broadcast=True, namespace="/")
