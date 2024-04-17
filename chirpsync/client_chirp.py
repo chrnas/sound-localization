@@ -9,14 +9,16 @@ import pyaudio
 import requests
 import scipy
 from time import perf_counter
+import playsound
 
 HOST = "localhost"  # The server's hostname or IP address
 PORT = 5000  # The port used by the server
 
-RECORDING_FREQ = 44100
-LOWER_FREQ = 10000
-UPPER_FREQ = 20000
-TIME_ARR = [1/44100 * i for i in range(RECORDING_FREQ)]
+CHUNK = 1024
+RECORDING_FREQ = 44100  # MIC recording frequency
+LOWER_FREQ = 10000      # Start frequency ocf chirp
+UPPER_FREQ = 20000      # End frequecy of chirb OBS: should be less than 2 bandwiths (I think)
+TIME_ARR = [1/44100 * i for i in range(RECORDING_FREQ)] # List of sample timestamps
 
 client_send_time = perf_counter()  # Use perf_counter here
 server_time = requests.get(
@@ -33,7 +35,10 @@ print(f"Server time: {server_time}")
 # Calculate clock offset by comparing server time with client time
 client_receive_time = perf_counter()  # Use perf_counter here
 
-first_chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ)
+first_chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ) # Create chirp signal
+
+chirp_wav = stream.read(CHUNK) # Convert to .wav ?
+
 
 round_trip_time = client_receive_time - client_send_time
 
@@ -41,9 +46,6 @@ estimated_server_time_at_client_receive = server_time + round_trip_time / 2
 clock_offset = estimated_server_time_at_client_receive - client_receive_time
 
 clock = perf_counter() + clock_offset
-
-HOST = "localhost"
-PORT = 5000
 
 client_send_time = perf_counter()
 server_time_response = requests.get(f"http://{HOST}:{PORT}/sync")
