@@ -10,7 +10,7 @@ from threading import Thread
 import flask
 import os
 from time import perf_counter
-import ntplib
+# import ntplib
 
 
 app = flask.Flask(__name__)
@@ -18,7 +18,8 @@ init_perf = perf_counter()
 
 
 HOST = "localhost"  # Standard loopback interface address (localhost)
-PORT = 6000  # Port to listen on (non-privileged ports are > 1023)
+PORT = 5000  # Port to listen on (non-privileged ports are > 1023)
+
 
 
 def handle_client(conn, id):
