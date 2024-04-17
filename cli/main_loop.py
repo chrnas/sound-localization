@@ -6,7 +6,7 @@ def print_startup():
 
 
 def get_command_input():
-    print("Write a command:")
+    #print("Write a command:")
     command_string = input()
 
     command_data = command_string.split(" ")

@@ -80,8 +80,8 @@ def mic_add(mic_data):
                 return
         new_mic = {
             "name": mic_data[0],
-            "longitude": float(mic_data[1]),
-            "latitude": float(mic_data[2])
+            "latitude": float(mic_data[1]),
+            "longitude": float(mic_data[2])
         }
     except:
         print("Invalid input. Please provide a name, longitude and latitude.")
