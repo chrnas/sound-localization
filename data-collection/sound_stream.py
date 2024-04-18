@@ -1,10 +1,10 @@
 import socketio
 import pyaudio
 import time
-import wave
-import os
+# import wave
+# import os
 import zlib
-import sys
+# import sys
 import ntplib
 from collections import deque
 from threading import Thread
