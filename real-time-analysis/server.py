@@ -8,7 +8,7 @@ import numpy as np
 import time
 import numpy as np
 from scipy.optimize import least_squares
-from tidsuträkning.TidsförskjutningBeräkning import Wav_file, calc_offset, create_wav_object
+from TidsförskjutningBeräkning import Wav_file, calc_offset, create_wav_object
 import matplotlib.pyplot as plt  # Corrected import
 
 app = Flask(__name__, static_folder='public', static_url_path='')
