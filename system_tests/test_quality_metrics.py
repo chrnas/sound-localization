@@ -11,9 +11,6 @@ from fake_data.scenarios import (
     SCENARIOS_2D,
     SCENARIOS_3D
 )
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from fake_data.generate_differences import Scenario
 
 
 @pytest.mark.skip  # Not implemented
@@ -26,7 +23,7 @@ def test_2d_error():
     Tests: This test collects metrics on the margin of error when locating
     sounds in two dimensions.
     """
-    folders = os.listdir("fake_data/audio_2d")
+    folders = os.path.join(os.path.dirname(__file__), "fake_data/audio_2d")
     assert len([0 for scenario, folder in zip(SCENARIOS_2D, folders) if
                 within_2d_error(scenario, folder)]) / len(folders) >= 0.8
 
@@ -43,7 +40,7 @@ def test_3d_error():
     Tests: This test collects metrics on the total delay from inputted sounds
     to outputted position.
     """
-    folders = os.listdir("fake_data/audio_3d")
+    folders = os.path.join(os.path.dirname(__file__), "fake_data/audio_3d")
     assert len([0 for scenario, folder in zip(SCENARIOS_3D, folders) if
                 within_3d_error(scenario, folder)]) / len(folders) >= 0.75
 
@@ -59,8 +56,9 @@ def test_delay():
     sounds in three dimensions. This in relation to a horizontal x and y
     plane, as well as a vertical axis z.
     """
-    folders = (os.listdir("fake_data/audio_2d") +
-               os.listdir("fake_data/audio_3d"))
+    folders_2d = os.path.join(os.path.dirname(__file__), "fake_data/audio_2d")
+    folders_3d = os.path.join(os.path.dirname(__file__), "fake_data/audio_3d")
+    folders = folders_2d + folders_3d
     assert len([0 for folder in folders if
                 within_allowed_time(folder)]) / len(folders) >= 0.8
 
@@ -77,7 +75,7 @@ def distance(source: tuple[float, float, float],
                 pow(source[2] - guess[2], 2))
 
 
-def within_2d_error(scenario: Scenario, folder: str):
+def within_2d_error(scenario, folder: str):
     """
     Quality requirement: 3.5.2
     Verifies that a guessed postion is within the allowed margin of error for
@@ -93,7 +91,7 @@ def within_2d_error(scenario: Scenario, folder: str):
     return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
 
 
-def within_3d_error(scenario: Scenario, folder: str):
+def within_3d_error(scenario, folder: str):
     """
     Quality requirement: 3.5.4
     Verifies that a guessed postion is within the allowed margin of error for
@@ -118,9 +116,10 @@ def within_allowed_time(folder: str):
 
 
 if __name__ == "__main__":
+    os.listdir(os.path.dirname(__file__))
     # When collecting metrics this is run instead of the pytest tests.
-    folders_2d = os.listdir("fake_data/audio_2d")
-    folders_3d = os.listdir("fake_data/audio_3d")
+    folders_2d = os.path.join(os.path.dirname(__file__), "fake_data/audio_2d")
+    folders_3d = os.path.join(os.path.dirname(__file__), "fake_data/audio_3d")
     folders = folders_2d + folders_3d
 
     pass_2d_percentage = len(
