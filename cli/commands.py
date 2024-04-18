@@ -7,7 +7,8 @@ dirname = os.path.dirname(__file__)
 def eco_list(eco_data):
     for method in eco_data:
         print("Method: " + method +
-               "  Filename: " + eco_data[method].filename)
+              "  Filename: " + eco_data[method].filename)
+
 
 def eco_set(eco_data, args):
     """
@@ -19,26 +20,25 @@ def eco_set(eco_data, args):
 def pos_list(pos_data):
     for method in pos_data:
         print("Method: " + method +
-               "  Filename: " + pos_data[method].file +
-                 "  Active: " + str(pos_data[method].active) +
-                   "  Weight: " + str(pos_data[method].weight))
-
+              "  Filename: " + pos_data[method].file +
+              "  Active: " + str(pos_data[method].active) +
+              "  Weight: " + str(pos_data[method].weight))
 
 
 def pos_activate(pos_data, method):
     try:
         pos_data[method[0]].active = True
-    except:
-        print("Invalid input. Please provide a method name.")
+    except Exception as e:
+        print("Invalid input. Exited with error:", e)
         return
+
 
 def pos_deactivate(pos_data, method):
     try:
         pos_data[method[0]].active = False
-    except:
-        print("Invalid input. Please provide a method name.")
+    except Exception as e:
+        print("Invalid input. Exited with error:", e)
         return
-
 
 
 def pos_weight(pos_data, args):
@@ -48,9 +48,9 @@ def pos_weight(pos_data, args):
     """
     try:
         pos_data[args[0]].weight = float(args[1])
-    except:
-        print("Invalid input. Please provide a method name and a weight.")
-        return   
+    except Exception as e:
+        print("Invalid input. Exited with error:", e)
+        return
 
 
 def run_once(pos_data):
@@ -92,14 +92,14 @@ def mic_add(mic_data):
             "latitude": float(mic_data[1]),
             "longitude": float(mic_data[2])
         }
-    except:
-        print("Invalid input. Please provide a name, longitude and latitude.")
+    except Exception as e:
+        print("Invalid input. Exitet with error code:", e)
         return
-    
+
     mics.append(new_mic)
     write_mics(mics)
-    
-    
+
+
 def mic_remove(mic_data):
     mics = read_mics()
 
