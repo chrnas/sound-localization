@@ -10,20 +10,19 @@ import requests
 import scipy
 from time import perf_counter
 import playsound
-from scipy.io.wavfile import write
-
 
 HOST = "localhost"  # The server's hostname or IP address
 PORT = 5000  # The port used by the server
 
 CHUNK = 1024
 RECORDING_FREQ = 44100  # MIC recording frequency
-LOWER_FREQ = 1000      # Start frequency ocf chirp
-UPPER_FREQ = 2000      # End frequecy of chirb OBS: should be less than 2 bandwiths (I think)
+LOWER_FREQ = 10000      # Start frequency ocf chirp
+UPPER_FREQ = 20000      # End frequecy of chirb OBS: should be less than 2 bandwiths (I think)
 TIME_ARR = [1/44100 * i for i in range(RECORDING_FREQ)] # List of sample timestamps
 
 client_send_time = perf_counter()  # Use perf_counter here
-server_time = requests.get("http://localhost:6000/sync")  # Start test with ID 1
+server_time = requests.get(
+    "http://localhost:6000/sync")  # Start test with ID 1
 
 while server_time.status_code != 200:
     # Sleep for a short duration before checking again
@@ -36,11 +35,9 @@ print(f"Server time: {server_time}")
 # Calculate clock offset by comparing server time with client time
 client_receive_time = perf_counter()  # Use perf_counter here
 
-first_chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ)  # Create chirp signal
+first_chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ) # Create chirp signal
 
-write('first_chirp.wav', RECORDING_FREQ, first_chirp)  # Write Chirp
-
-playsound.playsound('/first_chirp.wav')
+chirp_wav = stream.read(CHUNK) # Convert to .wav ?
 
 
 round_trip_time = client_receive_time - client_send_time
