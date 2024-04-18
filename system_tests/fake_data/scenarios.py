@@ -101,7 +101,7 @@ SCENARIOS_25M: tuple[Scenario, ...] = (
     ),
 )
 
-    # Scenarios equalateral triangle, side length 35m
+# Scenarios equalateral triangle, side length 35m
 
 SCENARIOS_35M: tuple[Scenario, ...] = (
     Scenario(
