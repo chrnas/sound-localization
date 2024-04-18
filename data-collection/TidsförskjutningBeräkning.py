@@ -63,10 +63,19 @@ def calc_shifted_samples(wav1: Wav_file, wav2: Wav_file) -> int:
     shift = max_corr_index - (len(audio1VectorData) - 1)
     return shift
 
-def calc_shifted_samples_fft(wav1: Wav_file, wav2: Wav_file) -> int:
+def calc_shifted_samples_fft(wav1: Wav_file, wav2: Wav_file, extend_shortest=False) -> int:
     # Extract audio vector data from both WAV files
     audio1VectorData = wav1.audioVectorData
     audio2VectorData = wav2.audioVectorData
+
+    if extend_shortest:
+        lendiff = len(audio1VectorData) - len(audio2VectorData)
+        addvector = [0 for i in range(lendiff)]
+        if lendiff > 0:
+            audio2VectorData += addvector
+        elif lendiff < 0:
+            audio1VectorData += addvector
+
 
     # Perform FFT on both audio vectors
     fft_audio1 = fft(audio1VectorData, n=2*max(len(audio1VectorData), len(audio2VectorData))-1)
@@ -102,14 +111,14 @@ def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_f
 # Running code
 
 # Function to calculate the time offset between two WAV files
-def calc_offset(wav1: Wav_file, wav2: Wav_file) -> float:
+def calc_offset(wav1: Wav_file, wav2: Wav_file, extend_shortest=False) -> float:
     # Check if the sampling rates are the same
     if wav1.sampling_rate == wav2.sampling_rate:
-        shifted_samples = calc_shifted_samples_fft(wav1, wav2)
+        shifted_samples = calc_shifted_samples_fft(wav1, wav2, extend_shortest)
     else:
         # Resample the WAV files to the highest sampling rate if they differ
         wav1, wav2 = resample_to_highest(wav1, wav2)
-        shifted_samples = calc_shifted_samples_fft(wav1, wav2)
+        shifted_samples = calc_shifted_samples_fft(wav1, wav2, extend_shortest)
 
     # Calculate the time offset based on the number of shifted samples
     shifted_time = shifted_samples * (1 / wav1.sampling_rate)
@@ -117,10 +126,10 @@ def calc_offset(wav1: Wav_file, wav2: Wav_file) -> float:
     return shifted_time
 
 # Function to calculate the time offset between two WAV files given their filenames
-def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
+def calc_offset_wav(wav_file1: str, wav_file2: str, extend_shortest=False) -> float:
     wav1 = Wav_file(wav_file1)
     wav2 = Wav_file(wav_file2)
-    return calc_offset(wav1, wav2)
+    return calc_offset(wav1, wav2, extend_shortest)
 
 if __name__ == '__main__':
     # Define filenames for the WAV files to compare
