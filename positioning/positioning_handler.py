@@ -20,7 +20,7 @@ class PosMethodData:
 pos_methods_data = {}
 
 for method_data in methods_data:
-    method_file = open(os.path.joinmethod_data["filename"], "r")
+    method_file = open(os.path.join(dirname, method_data["filename"]), "r")
     exec(method_file.read())
     #print(method_data["name"])
     pos_methods_data[method_data["name"]] = PosMethodData(

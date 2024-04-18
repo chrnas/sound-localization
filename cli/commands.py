@@ -1,21 +1,22 @@
 import json
+import os
+
+dirname = os.path.dirname(__file__)
 
 
 def eco_list(eco_data):
-    print("Available methods")
     for method in eco_data:
         print("Method: " + method +
                "  Filename: " + eco_data[method].filename)
 
-def eco_set(eco_data):
+def eco_set(eco_data, args):
     """
     EJ FÄRDIG
     """
-    print("eco_set: " + eco_data)
+    print("eco_set: ", eco_data)
 
 
 def pos_list(pos_data):
-    print("Available methods")
     for method in pos_data:
         print("Method: " + method +
                "  Filename: " + pos_data[method].file +
@@ -25,11 +26,18 @@ def pos_list(pos_data):
 
 
 def pos_activate(pos_data, method):
-    pos_data[method].active = True
-
+    try:
+        pos_data[method[0]].active = True
+    except:
+        print("Invalid input. Please provide a method name.")
+        return
 
 def pos_deactivate(pos_data, method):
-    pos_data[method].active = False
+    try:
+        pos_data[method[0]].active = False
+    except:
+        print("Invalid input. Please provide a method name.")
+        return
 
 
 
@@ -38,8 +46,11 @@ def pos_weight(pos_data, args):
     args[0] = method
     args[1] = weight
     """
-    pos_data[args[0]].weight = float(args[1])
-   
+    try:
+        pos_data[args[0]].weight = float(args[1])
+    except:
+        print("Invalid input. Please provide a method name and a weight.")
+        return   
 
 
 def run_once(pos_data):
@@ -64,15 +75,13 @@ def stop():
 
 
 def mic_list():
-    with open("Positioning/microphones.json", "r") as infile:
-        mics = json.load(infile)
+    mics = read_mics()
     for mic in mics:
         print(mic)
 
-def mic_add(mic_data):
-    with open("Positioning/microphones.json", "r") as infile:
-        mics = json.load(infile)
 
+def mic_add(mic_data):
+    mics = read_mics()
     try:
         for mic in mics:
             if mic["name"] == mic_data[0]:
@@ -88,15 +97,11 @@ def mic_add(mic_data):
         return
     
     mics.append(new_mic)
-    updated_mics = json.dumps(mics)
-    with open("Positioning/microphones.json", "w") as outfile:
-        outfile.write(updated_mics)
+    write_mics(mics)
     
-
-
+    
 def mic_remove(mic_data):
-    with open("Positioning/microphones.json", "r") as infile:
-        mics = json.load(infile)
+    mics = read_mics()
 
     if mic_data == "all":
         mics = []
@@ -105,7 +110,15 @@ def mic_remove(mic_data):
             if mic["name"] == mic_data:
                 mics.remove(mic)
 
-    updated_mics = json.dumps(mics)
-    with open("Positioning/microphones.json", "w") as outfile:
-        outfile.write(updated_mics)
+    write_mics(mics)
 
+
+def read_mics():
+    with open(os.path.join(dirname, "../positioning/microphones.json"), "r") as file:
+        mics = json.load(file)
+    return mics
+
+
+def write_mics(mics):
+    with open(os.path.join(dirname, "../positioning/microphones.json"), "w") as file:
+        file.write(json.dumps(mics))
