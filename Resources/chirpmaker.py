@@ -13,4 +13,4 @@ for i in range(len(freq_ar)-1):
     
     chirp = scipy.signal.chirp(TIME_ARR, freq_ar[i], 1, freq_ar[i+1]) # Create chirp signal
 
-    write('Resources/chirp' + str(freq_ar[i]) + '-' + str(freq_ar[i+1]), RECORDING_FREQ, chirp)
+    write('Resources/chirp' + str(freq_ar[i]) + '-' + str(freq_ar[i+1]) + '.wav', RECORDING_FREQ, chirp)
