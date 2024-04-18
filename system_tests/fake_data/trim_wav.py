@@ -1,10 +1,6 @@
 import os
-import wave
 from scipy.io import wavfile
 from scenarios import SCENARIOS
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from generate_differences import Scenario
 
 
 def parse_timestamp(filename):
