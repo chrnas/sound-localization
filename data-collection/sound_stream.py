@@ -8,6 +8,7 @@ import scipy
 import os
 import zlib
 import sys
+import TidsförskjutningBeräkning
 
 ARGS = sys.argv
 IP = ARGS[0]
@@ -27,6 +28,8 @@ OUTPUT_FOLDER = "output_local"
 # Global variables for synchronization
 client_send_time = None
 clock_offset = 0
+chirp_time = 0
+chirp_distance = 0
 
 
 def record_audio(start_time):
@@ -89,7 +92,7 @@ def handle_start_test(data):
     print(f"Received start_test signal for test {test_id}. Start time: {start_time}")
 
     # Record audio starting at the server-specified time
-    recorded_data = record_audio(start_time)
+    recorded_data = record_audio(start_time + chirp_time)
     compressed_data = zlib.compress(recorded_data)
 
     # Send the recorded and compressed audio data back to the server in chunks
@@ -119,14 +122,19 @@ def handle_sync_response(data):
     start_freq = data['start_freq']
     end_freq = data['end_freq']
 
-    chirpfile = wave.open("../Recources/Chirp" + str(start_freq) + "-" + str(end_freq), 'r')
-    chirp = chirpfile.readframes(-1)
+    chirp_wav = TidsförskjutningBeräkning.Wav_file("../Recources/Chirp" + str(start_freq) + "-" + str(end_freq) + ".wav")
 
-    audio = record_audio(time.perf_counter() + clock_offset)
+    recording_start = time.perf_counter()
+    audio = record_audio(-clock_offset)
 
-    fft_audio = scipy.fft(audio)
+    audio_wav = TidsförskjutningBeräkning.Wav_file()
 
+    audio_wav.audioVectorData = list(audio)
+    audio_wav.audio_data_size(len(audio))
 
+    offset = TidsförskjutningBeräkning.calc_offset(audio_wav, chirp_wav, True)
+
+    chirp_time = recording_start + offset - (chirp_distance/343)
 
 
 def sync_time():
@@ -159,7 +167,6 @@ def disconnect():
 
 
 if __name__ == "__main__":
-    play_sync_audio({"freq_range": "400-800"})
     # Connect to the server
-    #sio.connect(server_url)
-    #sio.wait()
+    sio.connect(server_url)
+    sio.wait()
