@@ -10,6 +10,8 @@ import requests
 import scipy
 from time import perf_counter
 import playsound
+from scipy.io.wavfile import write
+
 
 HOST = "localhost"  # The server's hostname or IP address
 PORT = 5000  # The port used by the server
@@ -35,7 +37,9 @@ print(f"Server time: {server_time}")
 # Calculate clock offset by comparing server time with client time
 client_receive_time = perf_counter()  # Use perf_counter here
 
-first_chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ) # Create chirp signal
+chirp = scipy.signal.chirp(TIME_ARR, LOWER_FREQ, 1, UPPER_FREQ) # Create chirp signal
+
+write('chirp' + str(LOWER_FREQ) + '-' + str(UPPER_FREQ), RECORDING_FREQ, chirp)
 
 chirp_wav = stream.read(CHUNK) # Convert to .wav ?
 
