@@ -1,5 +1,5 @@
 import json
-import Positioning as pos
+import positioning as pos
 import ecohandling as eco
 import cli
 
