@@ -2,19 +2,19 @@ import math
 import time
 
 
-def haversine(lon1, lat1, lon2, lat2):
+def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great circle distance between two points
     Args:
-        lon1 (float): longitude of the first point
         lat1 (float): latitude of the first point
-        lon2 (float): longitude of the second point
+        lon1 (float): longitude of the first point
         lat2 (float): latitude of the second point
+        lon2 (float): longitude of the second point
     Returns:
         float: distance between the two points in meters
     """
     # Convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
 
     # Radius of Earth in meters
     R = 6371000
@@ -47,17 +47,17 @@ def set_coords(mics):
 
     for mic in mics[1:]:
         mic["x"] = haversine(
-            mic["longitude"],
             mics[0]["latitude"],
             mic["longitude"],
-            mic["latitude"])
+            mic["latitude"],
+            mic["longitude"])
         if mics[0]["latitude"] > mic["latitude"]:
             mic["x"] = -mic["x"]
         mic["y"] = haversine(
+            mic["latitude"],
             mics[0]["longitude"],
             mic["latitude"],
-            mic["longitude"],
-            mic["latitude"])
+            mic["longitude"])
         if mics[0]["longitude"] > mic["longitude"]:
             mic["y"] = -mic["y"]
 
@@ -119,5 +119,5 @@ if __name__ == "__main__":
     ]
     print(set_coords(mics))
     start_time = time.time()
-    print("LAT_LONG: ", get_lat_long(mics, 235.5 / 2, 208.46 / 2))
+    print("LAT_LONG: ", get_lat_long(mics, 208.46 / 2, 235.5/ 2))
     print("--- %s seconds ---" % (time.time() - start_time))
