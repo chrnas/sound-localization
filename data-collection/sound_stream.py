@@ -2,6 +2,7 @@ import socketio
 import pyaudio
 import time
 import wave
+from playsound import playsound
 import os
 import zlib
 import sys
@@ -103,18 +104,20 @@ def handle_start_test(data):
     save_wav(test_id, start_time, recorded_data)
 
 
+@sio.on('playSyncSound')
+def play_sync_audio(freq_range):
+    playsound("../resources/Chirp" + freq_range + ".wav")
+
+
 @sio.on('syncResponse')
-def handle_sync_response(server_time):
+def handle_sync_response(source_distance):
     """
     Handle the syncResponse event from the server, which includes the server's timestamp.
     Adjust the clock offset based on the server's timestamp and the round-trip time.
     """
-    global clock_offset
-    client_receive_time = time.perf_counter()
-    round_trip_time = client_receive_time - client_send_time
-    estimated_server_time_at_client_receive = server_time + round_trip_time / 2
-    clock_offset = estimated_server_time_at_client_receive - client_receive_time
-    print(f"Clock offset adjusted: {clock_offset} seconds.")
+    audio = record_audio(time.perf_counter() + clock_offset)
+
+    #Do gcc with chirp
 
 
 def sync_time():
@@ -147,6 +150,7 @@ def disconnect():
 
 
 if __name__ == "__main__":
+    play_sync_audio("400-800")
     # Connect to the server
-    sio.connect(server_url)
-    sio.wait()
+    #sio.connect(server_url)
+    #sio.wait()
