@@ -68,18 +68,20 @@ def index():
     if request.method == 'POST':
         start_freq = request.form['start_freq']
         test_id = request.form['test_id']
+        start_freq = request.form['start_freq']
         end_freq = request.form['end_freq']
         # Do something with the input_text, for example, print it
-        print("Input text:", test_id)
-        
+        print("Input text:", test_id, "Start frequency: ", start_freq, "End frequency: ", end_freq)
         start_test(test_id, start_freq, end_freq)
     return render_template('index.html', name='app')
 
 
-#@app.route('/', methods=['GET', 'POST'])
+# @app.route('/', methods=['GET', 'POST'])
 def start_test(test_id, start_freq, end_freq):
-    print(start_freq)
-    print(end_freq)
+    # test_id = request.form['test_id']
+    # start_freq = request.form['start_freq']
+    # end_freq = request.form['end_freq']
+    
     emit('detectSyncSound', {'start_freq': start_freq, 'end_freq': end_freq}, broadcast=True, namespace='/', skip_sid='soundbringer')
     print("Microphones listening to chirp. Sleeping for 1 second")
     time.sleep(1)

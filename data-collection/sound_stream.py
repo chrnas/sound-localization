@@ -11,8 +11,8 @@ import sys
 import TidsförskjutningBeräkning
 
 ARGS = sys.argv
-IP = ARGS[0]
-ID = ARGS[1]
+IP = ARGS[1]
+ID = ARGS[2]
 
 # SocketIO client setup
 sio = socketio.Client()
@@ -168,5 +168,6 @@ def disconnect():
 
 if __name__ == "__main__":
     # Connect to the server
+    print(server_url)
     sio.connect(server_url)
     sio.wait()
