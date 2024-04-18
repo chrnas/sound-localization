@@ -5,13 +5,10 @@ from scenarios import (
     SCENARIOS_25M,
     SCENARIOS_35M,
     SCENARIOS_3D,
-    MICROPHONE_PLACEMENTS
 )
 from generate_differences import (
     Point,
     Scenario,
-    equilateral_triangle_center,
-    equilateral_triangle_top
 )
 
 
@@ -29,7 +26,8 @@ def test_distance(args, expected):
 @pytest.mark.parametrize(["args", "expected"], [
     ((SCENARIOS_15M[3],), (0, 0, 0)),
     ((SCENARIOS_35M[4],), (0, round(sqrt(10**2+35**2) - 10, 10),
-                           round(sqrt((17.5 * tan(pi / 3) - 10)**2 + 17.5**2) - 10, 10))),
+                           round(sqrt((17.5 * tan(pi / 3) - 10)**2 + 17.5**2)
+                                 - 10, 10))),
     ((SCENARIOS_3D[0],), (0, round(sqrt(2*15**2+5.3**2) -
      sqrt(2*15**2), 10), 0, round(sqrt(2*15**2+5.3**2)-sqrt(2*15**2), 10)))
 ])

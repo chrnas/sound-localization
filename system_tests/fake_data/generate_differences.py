@@ -28,12 +28,12 @@ class Scenario:
         self.description: str = description
 
     def distances(self) -> tuple[float, ...]:
-        """ Get the all receivers distances to the sender. """
+        """ Get the distances from all receivers to the sender. """
         return tuple(point.distance(self.sender) for point in self.receivers)
 
     def relative_distances(self) -> tuple[float, ...]:
         """
-        Get receivers distances to the sender relative to the eachother.
+        Get receivers distances to the sender relative to each other.
         """
         distances: tuple[float, ...] = self.distances()
         min_distance: float = min(distances)
@@ -43,7 +43,7 @@ class Scenario:
     def relative_time_arrivals(self) -> tuple[float, ...]:
         """
         Get receivers relative time offset when receiving a sound signal
-        from the sender
+        from the sender.
         """
         relative_distances = self.relative_distances()
         return tuple(round(relative_distance / self.SOUND_VELOCITY, 10) for
