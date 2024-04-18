@@ -58,6 +58,7 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 perf_counter = time.perf_counter()
 print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
+sound_emitter = Microphone
 
 socketio = SocketIO(app, max_http_buffer_siz=1e10)
 
@@ -72,15 +73,25 @@ def index():
     return render_template('index.html', name='app')
 
 
-@app.route('/start_test/<test_id>')
-def start_test(test_id):
+@app.route('/', methods=['GET', 'POST'])
+def start_test():
+    test_id = request.form['test_id']
+    start_freq = request.form['start_freq']
+    end_freq = request.form['end_freq']
+    emit('detectSyncSound', {'start_freq': start_freq, 'end_freq': end_freq}, broadcast=True, namespace='/', skip_sid='soundbringer')
+    print("Microphones listening to chirp. Sleeping for 1 second")
+    time.sleep(1)
+    emit('playSyncSound', {'freq_range': str(start_freq) + "-" + str(end_freq)}, namespace='/', to='soundbringer')
+    print("Emitted chirp. Sleeping for 5 seconds")
+    time.sleep(5)
     print('Test ID:', test_id)
     # Get current server time
     server_time = time.perf_counter()
     future_timestamp = server_time - perf_counter + 1
     print(future_timestamp)
+    
     emit('start_test', {'test_id': test_id,
-         'start_time': future_timestamp}, broadcast=True, namespace="/")
+         'start_time': 7}, broadcast=True, namespace="/")
     return {"msg": f"starting test {test_id} at {future_timestamp}"}
 
 
@@ -91,7 +102,10 @@ def handle_new_microphone(data):
     microphone_id = data.get('id') or 0
     sample_rate = data.get('sample_rate') or 44100
 
-    microphones[request.sid] = Microphone(microphone_id, sample_rate)
+    if microphone_id == "soundbringer":
+        sound_emitter = Microphone(microphone_id, sample_rate)
+    else:
+        microphones[request.sid] = Microphone(microphone_id, sample_rate)
 
     print(f'New microphone connected: {microphone_id}')
 

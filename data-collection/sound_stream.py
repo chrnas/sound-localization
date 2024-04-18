@@ -1,8 +1,10 @@
+import scipy.fft
 import socketio
 import pyaudio
 import time
 import wave
 from playsound import playsound
+import scipy
 import os
 import zlib
 import sys
@@ -84,8 +86,7 @@ def handle_start_test(data):
     test_id = data['test_id']
     start_time = data['start_time']  # Server-provided start time for recording
 
-    print(
-        f"Received start_test signal for test {test_id}. Start time: {start_time}")
+    print(f"Received start_test signal for test {test_id}. Start time: {start_time}")
 
     # Record audio starting at the server-specified time
     recorded_data = record_audio(start_time)
@@ -105,19 +106,27 @@ def handle_start_test(data):
 
 
 @sio.on('playSyncSound')
-def play_sync_audio(freq_range):
-    playsound("../resources/Chirp" + freq_range + ".wav")
+def play_sync_audio(data):
+    playsound("../resources/Chirp" + data['freq_range'] + ".wav")
 
 
-@sio.on('syncResponse')
-def handle_sync_response(source_distance):
+@sio.on('detectSyncSound')
+def handle_sync_response(data):
     """
     Handle the syncResponse event from the server, which includes the server's timestamp.
     Adjust the clock offset based on the server's timestamp and the round-trip time.
     """
+    start_freq = data['start_freq']
+    end_freq = data['end_freq']
+
+    chirpfile = wave.open("../Recources/Chirp" + str(start_freq) + "-" + str(end_freq), 'r')
+    chirp = chirpfile.readframes(-1)
+
     audio = record_audio(time.perf_counter() + clock_offset)
 
-    #Do gcc with chirp
+    fft_audio = scipy.fft(audio)
+
+
 
 
 def sync_time():
@@ -150,7 +159,7 @@ def disconnect():
 
 
 if __name__ == "__main__":
-    play_sync_audio("400-800")
+    play_sync_audio({"freq_range": "400-800"})
     # Connect to the server
     #sio.connect(server_url)
     #sio.wait()
