@@ -136,7 +136,7 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
 
 if __name__ == '__main__':
     # Define filenames for the WAV files to compare
-    filenameSnap1 = 'testSnap1.wav'
-    filenameSnap2 = 'testSnap2.wav'
+    filenameSnap1 = '1_726.9844936760003.wav'
+    filenameSnap2 = '3_726.9186789760172.wav'
     # Print the calculated time offset between the two WAV files
     print(calc_offset_wav(filenameSnap1, filenameSnap2))
