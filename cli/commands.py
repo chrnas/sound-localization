@@ -114,11 +114,13 @@ def mic_remove(mic_data):
 
 
 def read_mics():
-    with open(os.path.join(dirname, "../positioning/microphones.json"), "r") as file:
+    with open(os.path.join(dirname, "../positioning/microphones.json"),
+              "r") as file:
         mics = json.load(file)
     return mics
 
 
 def write_mics(mics):
-    with open(os.path.join(dirname, "../positioning/microphones.json"), "w") as file:
+    with open(os.path.join(dirname, "../positioning/microphones.json"),
+              "w") as file:
         file.write(json.dumps(mics))

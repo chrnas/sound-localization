@@ -1,4 +1,7 @@
-from .commands import *
+from commands import eco_list, eco_set, pos_list, pos_activate, \
+                     pos_deactivate, pos_weight, run_once, run_cont, \
+                     stop, mic_list, mic_add, mic_remove
+
 
 def print_startup():
     print("Startup complete")
@@ -6,7 +9,7 @@ def print_startup():
 
 
 def get_command_input():
-    #print("Write a command:")
+    # print("Write a command:")
     command_string = input()
 
     command_data = command_string.split(" ")
@@ -62,14 +65,12 @@ def handle_command(command_data, pos_data, eco_data):
 
 print_startup()
 
+
 def run_cli(positioning_data, eco_data):
-    #print(positioning_data)
+    # print(positioning_data)
 
     running = True
     while running:
         command = get_command_input()
 
         handle_command(command, positioning_data, eco_data)
-
-
-
