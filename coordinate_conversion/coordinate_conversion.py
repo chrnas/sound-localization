@@ -64,11 +64,11 @@ def set_coords(mics):
     return mics
 
 
-def get_lat_long(mics, x, y):
+def get_lat_long(mic, x, y):
     """
     Get the latitude and longitude of a point in the x, y plane
     Args:
-        mics (list): dictionaries with the keys "latitude" and "longitude"
+        mic (dict): dictionary of the mic with coord (0, 0) in the x, y plane 
         x (float): x coordinate of the point
         y (float): y coordinate of the point
     Returns:
@@ -87,8 +87,8 @@ def get_lat_long(mics, x, y):
 
     # First mic is assusmed to be the origin, based on set_coords function
     curr_pos = {
-        "latitude": mics[0]["latitude"],
-        "longitude": mics[0]["longitude"],
+        "latitude": mic["latitude"],
+        "longitude": mic["longitude"],
         "x": 0,
         "y": 0}
     while True:
@@ -119,5 +119,5 @@ if __name__ == "__main__":
     ]
     print(set_coords(mics))
     start_time = time.time()
-    print("LAT_LONG: ", get_lat_long(mics, 208.46 / 2, 235.5/ 2))
+    print("LAT_LONG: ", get_lat_long(mics[0], 208.46 / 2, 235.5/ 2))
     print("--- %s seconds ---" % (time.time() - start_time))
