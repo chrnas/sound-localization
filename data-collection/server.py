@@ -66,6 +66,7 @@ socketio = SocketIO(app, max_http_buffer_siz=1e10)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        start_freq = request.form['start_freq']
         test_id = request.form['test_id']
         start_freq = request.form['start_freq']
         end_freq = request.form['end_freq']
