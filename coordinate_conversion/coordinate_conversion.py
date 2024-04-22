@@ -119,5 +119,5 @@ if __name__ == "__main__":
     ]
     print(set_coords(mics))
     start_time = time.time()
-    print("LAT_LONG: ", get_lat_long(mics[0], 208.46 / 2, 235.5/ 2))
+    print("LAT_LONG: ", get_lat_long(mics[0], 208.46 / 2, 235.5 / 2))
     print("--- %s seconds ---" % (time.time() - start_time))

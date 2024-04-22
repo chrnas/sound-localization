@@ -58,7 +58,7 @@ def handle_command(command_data, pos_data, eco_data):
         case "exit":
             exit(0)
         case default:
-            print("Unknown command")
+            print("Unknown command:", default)
 
 
 print_startup()
