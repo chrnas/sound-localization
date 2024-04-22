@@ -93,6 +93,9 @@ def index():
 @socketio.on('newUser')
 def handle_new_user(data):
     # Function to handle new user connection
+    if not data:
+        broadcast_user_positions()
+        return
 
     name = data.get('name')
     xCoordinate = float(data.get('xCoordinate'))
@@ -121,7 +124,13 @@ def handle_audio_data(data):
         user.add_audio_data(audio_data)
         user.update_last_timestamp(data["timestamp"])
 
-        if audio_data.RMS() > 0.3 and not user.triggered and len(user.audio_data) == 150:
+        for index, sid in enumerate(microphones):
+            print(index, " ", microphones[sid].get_last_audio_data_timestamp())
+
+        print(".........................")
+
+        return
+        if audio_data.RMS() > 0.5 and not user.triggered and len(user.audio_data) == 150:
             print("Triggered")
             user.triggered = True
             return
@@ -130,23 +139,29 @@ def handle_audio_data(data):
             user.extra_samples += 1
             return
 
-        if user.triggered and user.extra_samples == 50:
+        if user.triggered and user.extra_samples == 50 and len(microphones) >= 2:
             user.triggered = False
             user.extra_samples = 0
 
             wav_files = []
+            new_microphones = []
             for id in microphones:
                 listconcated = [
                     item for sublist in microphones[id].audio_data for item in sublist]
                 wav_file = create_wav_object(
                     listconcated, microphones[id].sample_rate)
+                new_microphones.append(microphones[id])
                 # wav_file.save(f'{microphones[id].name}_audio_data.wav')
+
                 wav_files.append(wav_file)
 
-            tdoa_0_1 = calc_offset(wav_files[0], wav_files[1])
+            tdoa = calc_offset(wav_files[0], wav_files[1])
+            location = calculate_sound_source_line(tdoa, (new_microphones[1].xCoordinate, new_microphones[1].yCoordinate),
+                                                   (new_microphones[0].xCoordinate, new_microphones[0].yCoordinate))
 
-            print("TDOA 0 1", tdoa_0_1)
-
+            updateSoundSource(location)
+            print(tdoa)
+            return
             plt.figure(figsize=(10, 5))
             print("Plotting")
             # Save and plot for the current microphone
@@ -175,7 +190,7 @@ def handle_audio_data(data):
                 plt.xlabel('Sample')
                 plt.ylabel('Amplitude')
                 plt.title(
-                    f'Waveform - Microphone {other_user.name} {tdoa_0_1} ')
+                    f'Waveform - Microphone {other_user.name} {tdoa} ')
                 plt.legend()
 
             plt.tight_layout()
@@ -183,6 +198,12 @@ def handle_audio_data(data):
             plt.close()
 
             return
+
+
+def updateSoundSource(location):
+    # Function to update the sound source location
+    if location is not None:
+        emit('soundSource', location, broadcast=True)
 
 
 @socketio.on('syncTime')
@@ -202,37 +223,30 @@ def handle_disconnect():
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
 
 
-def calculate_sound_source():
-    # TODO verify this code.
+def calculate_sound_source_line(tdoa, pos_ref, pos_target):
 
-    speed_of_sound = 343
+        
+    # Convert positions to numpy arrays for easier manipulation
+    pos_ref = np.array(pos_ref)
+    pos_target = np.array(pos_target)
 
-    valid_mics = [mic for mic in microphones.values(
-    ) if mic.get_last_audio_data_timestamp()]
-    valid_mics.sort(key=lambda mic: mic.get_last_audio_data_timestamp())
+    # Calculate the distance difference based on TDOA
+    distance_diff = tdoa * speed_of_sound
 
-    if len(valid_mics) < 2:
-        print("Need at least two microphones to perform calculation")
-        return None
+    # Calculate the midpoint between the two microphones
+    midpoint = (pos_ref + pos_target) / 2
 
-    ref_time = valid_mics[0].get_last_audio_data_timestamp()
+    # Calculate the direction vector from the reference mic to the target mic, then normalize
+    direction = pos_target - pos_ref
+    direction_norm = direction / np.linalg.norm(direction)
 
-    distances = np.array(
-        [speed_of_sound * (mic.get_last_audio_data_timestamp() - ref_time) for mic in valid_mics])
+    # Calculate the sound source position
+    # Note: Since TDOA might be negative indicating the direction towards the reference microphone,
+    # we adjust the position based on the distance_diff (which can be positive or negative) along the normalized direction.
+    sound_source_pos = midpoint + direction_norm * (distance_diff / 2)
 
-    positions = np.array([[mic.xCoordinate, mic.yCoordinate]
-                         for mic in valid_mics])
 
-    def equations(guess):
-        x, y = guess
-        return [(np.linalg.norm([x - pos[0], y - pos[1]]) - distance) for pos, distance in zip(positions, distances)]
-
-    initial_guess = [0, 0]
-
-    result = least_squares(equations, initial_guess)
-    sound_source_position = np.round(result.x).astype(int)
-
-    return sound_source_position
+    return [sound_source_x, sound_source_y]
 
 
 if __name__ == '__main__':
