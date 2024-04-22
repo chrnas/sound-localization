@@ -7,6 +7,7 @@ from scipy.fftpack import fft, ifft
 
 # Helper Functions and Classes
 
+
 class WavFile:
     """
     A class for representing and manipulating WAV files.
@@ -30,7 +31,6 @@ class WavFile:
             self.audioVectorData, self.sampling_rate = self.read_wav_file(
                 filename)
 
-
     def read_wav_file(self, filename: str) -> tuple[list[float], int]:
         """
         Reads a WAV file and returns its data and sampling rate.
@@ -44,8 +44,8 @@ class WavFile:
         sampling_rate, audioVectorData = wavfile.read(filename)
         return audioVectorData, sampling_rate
 
-
     # Function to resample the WAV file to a new sampling rate
+
     def resample_wav(self, sample_rate: int) -> None:
         """
         Resamples the WAV file to a new sampling rate.
@@ -76,6 +76,7 @@ class WavFile:
         # or np.float32 depending on your audio data format
         audio_array = np.array(self.audioVectorData, dtype=np.float32)
         wavfile.write(output_filename, self.sampling_rate, audio_array)
+
 
 def create_wav_object(audio_data: list[float], sample_rate: int) -> WavFile:
     """
@@ -115,7 +116,6 @@ def calc_shifted_samples(wav1: WavFile, wav2: WavFile) -> int:
     return shift
 
 
-
 def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
     """
     Calculates the number of shifted samples between two WAV files using FFT.
@@ -145,7 +145,6 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
     correlation = np.abs(ifft(fft_result))
     max_corr_index = np.argmax(correlation)
 
-
     # Calculate the shift amount based on the max correlation index
     shift = max_corr_index - len(audio1VectorData) + 1
 
@@ -154,8 +153,8 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
 # Function to resample WAV files to the highest sampling rate between them
 
 
-def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_file]:
-     """
+def resample_to_highest(wav1: WavFile, wav2: WavFile) -> tuple[WavFile, WavFile]:
+    """
     Resamples two WAV files to the highest sampling rate between them.
 
     Args:
@@ -191,19 +190,18 @@ def trim_lists_to_same_length(list1: list, list2: list) -> tuple[list, list]:
     """
     # Determine the length of the shorter list
     shorter_length = min(len(list1), len(list2))
-    
+
     # Trim both lists to the determined shorter length
     trimmed_list1 = list1[:shorter_length]
     trimmed_list2 = list2[:shorter_length]
-    
-    return trimmed_list1, trimmed_list2
 
-    return wav1, wav2
+    return trimmed_list1, trimmed_list2
 
 # -----------------------------------------------------------------
 # Running code
 
-def calc_offset(wav1: Wav_file, wav2: Wav_file) -> float:
+
+def calc_offset(wav1: WavFile, wav2: WavFile) -> float:
     """
     Calculates the time offset between two WAV files.
 
@@ -239,10 +237,11 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
     wav2 = WavFile(wav_file2)
     return calc_offset(wav1, wav2)
 
+
 if __name__ == '__main__':
     # Define filenames for the WAV files to compare
-    filenameSnap1 = 'microphone_2.wav'
-    filenameSnap2 = 'microphone_3.wav'
+    filenameSnap1 = 'testSnap1.wav'
+    filenameSnap2 = 'testSnap2.wav'
 
     # Print the calculated time offset between the two WAV files
     print(calc_offset_wav(filenameSnap1, filenameSnap2))
