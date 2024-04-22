@@ -47,8 +47,8 @@ def record_continuously():
 @sio.on('start_test')
 def handle_start_test(data):
     """
-    Handle the 'start_test' event from the server, which includes the start 
-    time for recording. Uses the initial NTP time and perf_counter to wait 
+    Handle the 'start_test' event from the server, which includes the start
+    time for recording. Uses the initial NTP time and perf_counter to wait
     until the specified start time.
     """
     test_id = data['test_id']
