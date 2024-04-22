@@ -19,7 +19,8 @@ class Microphone:
 class TravelSettings():
 
     def __init__(self, dimensions, step):
-        self.dimensions = dimensions  # Number of dimensions the settings are for
+        self.dimensions = dimensions  # Number of dimensions the settings
+        # are for
         # Smallest coordinates to always include
         self.smallest_start = [0 for i in range(dimensions)]
         # Biggest coordinates to always include
@@ -33,7 +34,7 @@ class TravelSettings():
 
 def get_error(coords, mics):
     """
-    Calculate an error heuristic for a given position in the grid. 
+    Calculate an error heuristic for a given position in the grid
     See the arcitecture document for an explanation of the error heuristic.
 
     @param list coords: The coordinates to calculate the error for
@@ -101,7 +102,7 @@ def travel_grid(mics, smallest, biggest, step):
 
 def find_sound_source(mics, settings):
     """
-    Sets parameters for the grid search and calls the travel_grid function to 
+    Sets parameters for the grid search and calls the travel_grid function to
     find the best position of the sound source
 
     @param list mics: Instances of the Microphone class

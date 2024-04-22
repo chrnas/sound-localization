@@ -68,7 +68,7 @@ def get_lat_long(mic, x, y):
     """
     Get the latitude and longitude of a point in the x, y plane
     Args:
-        mic (dict): dictionary of the mic with coord (0, 0) in the x, y plane 
+        mic (dict): dictionary of the mic with coord (0, 0) in the x, y plane
         x (float): x coordinate of the point
         y (float): y coordinate of the point
     Returns:
