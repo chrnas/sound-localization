@@ -128,8 +128,7 @@ class Multilateration:
             total_distance = 0
             for locus in loci:
                 locus_x, locus_y = locus
-                distances = [(x - locus_x[i]) ** 2 + (y - locus_y[i])
-                             ** 2 for i in range(len(locus_x))]
+                distances = [(x - locus_x[i]) ** 2 + (y - locus_y[i]) ** 2 for i in range(len(locus_x))]
                 min_distance = min(distances)
                 total_distance += min_distance
             return total_distance

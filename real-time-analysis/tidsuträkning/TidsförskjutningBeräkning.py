@@ -132,10 +132,8 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
     audio2VectorData = wav2.audioVectorData
 
     # Perform FFT on both audio vectors
-    fft_audio1 = fft(audio1VectorData, n=2
-                     * max(len(audio1VectorData), len(audio2VectorData))-1)
-    fft_audio2 = fft(np.flipud(audio2VectorData), n=2
-                     * max(len(audio1VectorData), len(audio2VectorData))-1)
+    fft_audio1 = fft(audio1VectorData, n=2 * max(len(audio1VectorData), len(audio2VectorData))-1)
+    fft_audio2 = fft(np.flipud(audio2VectorData), n=2 * max(len(audio1VectorData), len(audio2VectorData))-1)
 
     # Perform element-wise multiplication of the two FFT results
     fft_result = fft_audio1 * fft_audio2
