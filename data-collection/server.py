@@ -76,11 +76,7 @@ def index():
     return render_template('index.html', name='app')
 
 
-# @app.route('/', methods=['GET', 'POST'])
 def start_test(test_id, start_freq, end_freq):
-    # test_id = request.form['test_id']
-    # start_freq = request.form['start_freq']
-    # end_freq = request.form['end_freq']
     
     emit('detectSyncSound', {'start_freq': start_freq, 'end_freq': end_freq}, broadcast=True, namespace='/', skip_sid='soundbringer')
     print("Microphones listening to chirp. Sleeping for 1 second")
