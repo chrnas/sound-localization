@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Datainsamling GUI</title>
+    </head>
+    <body>
+        <h1>Test record request from client</h1>
+        <h2>Description:</h2>
+        <div>Input test id, send request, record 5 sek, send data,plot data, save data in .txt file</div>
+        <form method="post" action="/">
+            <label for="test_id">Input test id:</label><br>
+            <input type="text" id="test_id" name="test_id"><br><br>
+            <button type="submit">Submit</button>
+        </form>
+
+    <p>{{ name }}</p>
+
+    <img src="{{ url_for('static', filename='pic.png') }}" alt="Example Image">
+
+    </body>
+</html>
