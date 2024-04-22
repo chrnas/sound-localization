@@ -1,6 +1,5 @@
 import json
 import positioning as pos
-import ecohandling as eco
 import cli
 import os
 
@@ -12,7 +11,7 @@ if __name__ == "__main__":
     startup_settings = json.loads(startup_file.read())
 
     if startup_settings["UIMode"] == "CLI":
-        cli.run_cli(pos.pos_methods_data, eco.eco_methods_data)
+        cli.run_cli(pos.pos_methods_data, 0)
     elif startup_settings["UIMode"] == "GUI":
         pass
     else:
