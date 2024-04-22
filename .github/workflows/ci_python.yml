@@ -26,7 +26,7 @@ jobs:
                 if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
             - name: Lint with flake8
               run: |
-                flake8 . --count --show-source --statistics --max-complexity=10 --exclude=*/__init__.py --ignore E501
+                flake8 . --count --show-source --statistics --max-complexity=10 --exclude=*/__init__.py --ignore E501,E226
     tesing:
       name: testing python
       needs: linting_flake

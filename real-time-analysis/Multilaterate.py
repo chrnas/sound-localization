@@ -36,11 +36,13 @@ class Multilateration:
         x0, x1, y0, y1 = [], [], [], []
         t_delta_d = abs(time_1 - time_2) * self.v
         if time_1 < time_2:
-            circle1, circle2 = (tower_1[0], tower_1[1], 0), (tower_2[0], tower_2[1], t_delta_d)
+            circle1, circle2 = (
+                tower_1[0], tower_1[1], 0), (tower_2[0], tower_2[1], t_delta_d)
         else:
-            circle1, circle2 = (tower_2[0], tower_2[1], 0), (tower_1[0], tower_1[1], t_delta_d)
+            circle1, circle2 = (
+                tower_2[0], tower_2[1], 0), (tower_1[0], tower_1[1], t_delta_d)
 
-        for _ in range(int(self.max_d) // int(self.delta_d)):   
+        for _ in range(int(self.max_d) // int(self.delta_d)):
             intersect = self.circle_intersection(circle1, circle2)
             if intersect is not None:
                 x0.append(intersect[0][0])
@@ -111,9 +113,7 @@ class Multilateration:
         ys1, ys2 = ym - h * dx / d, ym + h * dx / d
 
         return ((xs1, ys1), (xs2, ys2))
-    
-    
-    
+
     def estimate_location(self, loci):
         """
         Estimate a single location from a set of loci using least squares optimization.
@@ -122,27 +122,32 @@ class Multilateration:
         def objective_function(point, loci):
             # Check if point has exactly two elements; if not, raise an error
             if len(point) != 2:
-                raise ValueError(f"Expected point to have 2 elements, got {len(point)}")
+                raise ValueError(
+                    f"Expected point to have 2 elements, got {len(point)}")
             x, y = point  # Now safe to unpack
             total_distance = 0
             for locus in loci:
                 locus_x, locus_y = locus
-                distances = [(x - locus_x[i]) ** 2 + (y - locus_y[i]) ** 2 for i in range(len(locus_x))]
+                distances = [(x - locus_x[i]) ** 2 + (y - locus_y[i])
+                             ** 2 for i in range(len(locus_x))]
                 min_distance = min(distances)
                 total_distance += min_distance
             return total_distance
 
         # Flatten the loci into a list of points and ensure it's a 2D array
-        points = np.array([(x, y) for locus in loci for x, y in zip(locus[0], locus[1])])
+        points = np.array([(x, y) for locus in loci for x,
+                          y in zip(locus[0], locus[1])])
 
         # Initial guess for the location is the mean of all points
         initial_guess = np.mean(points, axis=0)
 
         # Ensure initial_guess is explicitly shaped as a 2D array with one row and two columns
-        initial_guess = np.array(initial_guess)  # This should be a 1D array with two elements
+        # This should be a 1D array with two elements
+        initial_guess = np.array(initial_guess)
 
         # Minimize the objective function to find the best estimate for the location
-        result = minimize(objective_function, initial_guess, args=(loci,), method='L-BFGS-B')
+        result = minimize(objective_function, initial_guess,
+                          args=(loci,), method='L-BFGS-B')
 
         if result.success:
             estimated_location = result.x

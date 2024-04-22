@@ -182,6 +182,5 @@ def old_triangulate_method():
     print("Time: " + str(time.time() - start_time))
 
 
-
 if __name__ == "__main__":
     old_triangulate_method()

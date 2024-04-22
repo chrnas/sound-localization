@@ -1,9 +1,10 @@
 
 import numpy as np
 
+
 def calculate_sound_source(tdoa, pos_ref, pos_target):
     speed_of_sound = 343  # Speed of sound in air (m/s)
-    
+
     # Convert positions to numpy arrays for easier manipulation
     pos_ref = np.array(pos_ref)
     pos_target = np.array(pos_target)
@@ -29,7 +30,7 @@ def calculate_sound_source(tdoa, pos_ref, pos_target):
 if __name__ == "__main__":
     pos_ref = (10, 0)
     pos_target = (-10, 0)
-    tdoa = 0.0583 # 1 ms
+    tdoa = 0.0583  # 1 ms
 
     sound_source = calculate_sound_source(tdoa, pos_ref, pos_target)
     print(sound_source)  # Output: [0.343, 0.0]
