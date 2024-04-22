@@ -1,11 +1,19 @@
 from threading import Thread
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import os
+import numpy as np
 import time
+import numpy as np
+import sys
+import os
+import matplotlib.pyplot as plt
 import wave
 import pyaudio
 import zlib
+import ntplib
+
+perf_counter = time.perf_counter()
 
 
 class Microphone:
@@ -29,8 +37,7 @@ class Microphone:
 
     def save(self, test_id):
         """
-        Save audio data to a file on the '
-        form output/test_id/microphoneX_timestamp.txt
+        Save audio data to a file on the form output/test_id/microphoneX_timestamp.txt
         """
         print('start_saving')
         if test_id == 0:
@@ -38,27 +45,23 @@ class Microphone:
         folder_path = f"{OUTPUT_FOLDER}/test_{test_id}"
         if not os.path.exists(os.path.normpath(folder_path)):
             os.makedirs(os.path.normpath(folder_path))
-        path = f"{folder_path}/{self.id}_{self.current_timestamp}.wav"
-        with wave.open(os.path.normpath(path), 'wb') as wf:
+
+        with wave.open(os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.wav"), 'wb') as wf:
             wf.setnchannels(1)
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
             wf.writeframes(bytes(zlib.decompress(self.current_audio_data)))
         print(
-            f"Audio saved as path/{self.id}_{self.current_timestamp}.wav")
+            f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
 
         self.current_timestamp = 0
         self.current_audio_data = b""
 
 
-# ARGS = sys.argv[1:]  # OUTPUT_FOLDER
-OUTPUT_FOLDER = "output"  # ARGS[0
+OUTPUT_FOLDER = "output"
 app = Flask(__name__, static_folder='public', static_url_path='')
 
-perf_counter = time.perf_counter()
-print("preftcounter", perf_counter)
 microphones: dict[int, Microphone] = {}
-
 socketio = SocketIO(app, max_http_buffer_siz=1e10)
 
 
@@ -72,15 +75,20 @@ def index():
     return render_template('index.html', name='app')
 
 
+# TODO Fix this for NTP
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
     # Get current server time
-    server_time = time.perf_counter()
-    future_timestamp = server_time - perf_counter + 1
-    print(future_timestamp)
+
+    ntp_client = ntplib.NTPClient()
+    response = ntp_client.request('pool.ntp.org', version=3)
+    current_time = response.tx_time
+    future_timestamp = current_time + 2
+
     emit('start_test', {'test_id': test_id,
          'start_time': future_timestamp}, broadcast=True, namespace="/")
+
     return {"msg": f"starting test {test_id} at {future_timestamp}"}
 
 
@@ -112,6 +120,9 @@ def save_data(test_id):
     thread = Thread(target=microphone.save, args=(test_id,))
     thread.start()
     # microphone.save(test_id)
+
+
+# TODO Old stuff
 
 
 @socketio.on('syncTime')
