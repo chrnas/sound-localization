@@ -49,13 +49,38 @@ def calculate_symbolic_expressions(dimensions, num_mics, speed_of_sound_symbol='
 
 
 def load_expression(filename):
-    if os.path.exists(filename):
-        with open(filename, "r") as file:
-            expr_str = file.read()
-        expr = sp.sympify(expr_str, locals=sp.__dict__)
-        return expr
-    else:
-        raise FileNotFoundError(f"Expression file not found: {filename}")
+    """
+    Load a symbolic expression from a file.
+
+    Args:
+        filename (str): The name of the file containing the symbolic expression.
+        base_dir (str, optional): The base directory where the file is located. If None, uses the current working directory.
+
+    Returns:
+        sympy.Expr: The loaded symbolic expression.
+
+    Raises:
+        FileNotFoundError: If the expression file cannot be found.
+    """
+
+    # If no base directory is given, use the current working directory or a predefined directory.
+
+    # Or any other default directory, e.g., "/default/path/to/expression_files"
+    base_dir = os.getcwd()
+
+    full_path = os.path.join(base_dir, filename)
+
+    # Check if the file exists at the full path.
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"Expression file not found: {full_path}")
+
+    # Open and read the file.
+    with open(full_path, "r") as file:
+        expr_str = file.read()
+
+    # Convert the string back to a Sympy expression.
+    expr = sp.sympify(expr_str, locals=sp.__dict__)
+    return expr
 
 
 def save_expression(expr, directory, base_filename):

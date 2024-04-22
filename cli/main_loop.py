@@ -1,7 +1,7 @@
 
 from .commands import pos_list, pos_activate, \
-                    pos_deactivate, pos_weight, run_once, run_cont, \
-                    stop, mic_list, mic_add, mic_remove
+    pos_deactivate, pos_weight, run_once, run_cont, \
+    stop, mic_list, mic_add, mic_remove
 
 
 def print_startup():

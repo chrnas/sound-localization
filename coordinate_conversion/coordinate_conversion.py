@@ -23,10 +23,7 @@ def haversine(lat1, lon1, lat2, lon2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     distance = 2 * R * math.asin(
-        math.sqrt(
-            math.sin(dlat / 2) ** 2 +
-            math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        ))
+        math.sqrt(math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2))
 
     return round(distance, 2)
 
@@ -99,11 +96,7 @@ def get_lat_long(mic, x, y):
 
         curr_pos = set_coords([mics[0], curr_pos])[1]
 
-        if abs(
-                curr_pos["x"] -
-                x) <= ACCURACY and abs(
-                curr_pos["y"] -
-                y) <= ACCURACY:
+        if abs(curr_pos["x"] - x) <= ACCURACY and abs(curr_pos["y"] - y) <= ACCURACY:
             return curr_pos["latitude"], curr_pos["longitude"]
 
 

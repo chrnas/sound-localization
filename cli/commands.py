@@ -6,10 +6,8 @@ dirname = os.path.dirname(__file__)
 
 def pos_list(pos_data):
     for method in pos_data:
-        print("Method: " + method +
-              "  Filename: " + pos_data[method].file +
-              "  Active: " + str(pos_data[method].active) +
-              "  Weight: " + str(pos_data[method].weight))
+        print("Method: " + method + "  Filename: " + pos_data[method].file + "  Active: " + str(
+            pos_data[method].active) + "  Weight: " + str(pos_data[method].weight))
 
 
 def pos_activate(pos_data, method):
