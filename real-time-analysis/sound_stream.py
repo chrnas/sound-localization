@@ -23,7 +23,7 @@ def connect():
     # Handle connection to the server
     print("Connected to the server.")
     name = "Mathias"
-    xCoordinate = 10
+    xCoordinate = -5
     yCoordinate = 0
     sio.emit('newUser', {
              'name': name,
