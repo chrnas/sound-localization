@@ -70,9 +70,10 @@ def distance(source: tuple[float, float, float],
     """
     Checks distance between a source of a sound and a guess.
     """
-    return sqrt(pow(source[0] - guess[0], 2) +
-                pow(source[1] - guess[1], 2) +
-                pow(source[2] - guess[2], 2))
+    x_diff = source[0] - guess[0]
+    y_diff = source[1] - guess[1]
+    z_diff = source[2] - guess[2]
+    return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2))
 
 
 def within_2d_error(scenario, folder: str):
@@ -129,8 +130,8 @@ if __name__ == "__main__":
         [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
          within_3d_error(scenario, folder)]) / len(folders_3d) * 100
     pass_delay_percentage = (len(
-        [0 for folder in folders if within_allowed_time(folder)]) /
-        len(folders) * 100)
+        [0 for folder in folders
+         if within_allowed_time(folder)]) / len(folders) * 100)
 
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")
