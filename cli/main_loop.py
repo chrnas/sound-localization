@@ -57,8 +57,8 @@ def handle_command(command_data, pos_data, eco_data):
             mic_remove(args[0])
         case "exit":
             exit(0)
-        case default:
-            print("Unknown command:", default)
+        case _:
+            print("Unknown command")
 
 
 print_startup()
