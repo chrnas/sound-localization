@@ -11,7 +11,7 @@ from threading import Thread
 
 # Configuration and initialization
 ID = "mathias"
-server_url = f"http://localhost:5000"
+server_url = "http://localhost:5000"
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
@@ -47,8 +47,9 @@ def record_continuously():
 @sio.on('start_test')
 def handle_start_test(data):
     """
-    Handle the 'start_test' event from the server, which includes the start time for recording.
-    Uses the initial NTP time and perf_counter to wait until the specified start time.
+    Handle the 'start_test' event from the server, which includes the start 
+    time for recording. Uses the initial NTP time and perf_counter to wait 
+    until the specified start time.
     """
     test_id = data['test_id']
     start_time = data['start_time']
@@ -66,7 +67,8 @@ def handle_start_test(data):
 
     for i in range(0, len(compressed_data), chunk_size):
         sio.emit('audioData', {
-                 'data': compressed_data[i:i + chunk_size], 'test_id': test_id, 'timestamp': current_time})
+                 'data': compressed_data[i:i + chunk_size], 'test_id': test_id,
+                 'timestamp': current_time})
 
     sio.emit('endOfData', {'test_id': test_id})
 
