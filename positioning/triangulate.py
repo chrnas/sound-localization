@@ -5,7 +5,7 @@ from typing import Union
 import sympy as sp
 import time
 import os
-import symbolic_helpers
+from . symbolic_helpers import load_expression
 
 
 class Microphone:
@@ -232,9 +232,9 @@ class MicrophoneArray:
             hessian_dir, f"hessian_function_{base_filename}.txt")
 
         # Load expressions
-        cost_expr = symbolic_helpers.load_expression(cost_file)
-        gradients_expr = symbolic_helpers.load_expression(gradient_file)
-        hessian_expr = symbolic_helpers.load_expression(hessian_file)
+        cost_expr = load_expression(cost_file)
+        gradients_expr = load_expression(gradient_file)
+        hessian_expr = load_expression(hessian_file)
 
         # Define the necessary symbols for evaluation
         symbols = sp.symbols(
@@ -246,8 +246,8 @@ class MicrophoneArray:
                       for mic in range(num_mics)]
         all_params = symbols + (speed_of_sound,) + \
             mic_positions + tuple(time_diffs)
-        
-        #sp.pprint(hessian_expr)
+
+        # sp.pprint(hessian_expr)
 
         # Convert the symbolic expressions to callable functions
         modules = [{'ImmutableMatrix': np.array,

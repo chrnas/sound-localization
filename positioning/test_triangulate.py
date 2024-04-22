@@ -1,5 +1,4 @@
-
-from triangulate import MicrophoneArray
+from .triangulate import MicrophoneArray
 import numpy as np
 from typing import Union
 import time
