@@ -62,10 +62,8 @@ def load_expression(filename):
         FileNotFoundError: If the expression file cannot be found.
     """
 
-    # If no base directory is given, use the current working directory or a predefined directory.
-
-    # Or any other default directory, e.g., "/default/path/to/expression_files"
     base_dir = os.getcwd()
+    base_dir = os.path.join(base_dir, "positioning")
 
     full_path = os.path.join(base_dir, filename)
 
