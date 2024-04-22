@@ -4,8 +4,6 @@ from .commands import eco_list, eco_set, pos_list, pos_activate, \
     stop, mic_list, mic_add, mic_remove
 
 
-
-
 def print_startup():
     print("Startup complete")
     print("Welcome to the program")
