@@ -73,8 +73,8 @@ def main():
                     input=True, frames_per_buffer=CHUNK)
 
     print("Listening for audio. Press Ctrl+C to stop.")
-    last_triggered_time = None
-    debounce_interval = 0.3
+    # last_triggered_time = None
+    # debounce_interval = 0.3
 
     try:
         while True:
@@ -91,7 +91,7 @@ def main():
             timestamp = current_time + clock_offset
             sio.emit('audioData', {
                      'data': float_data.tolist(), 'timestamp': timestamp})
-            last_triggered_time = current_time
+            # last_triggered_time = current_time
 
     except KeyboardInterrupt:
         pass

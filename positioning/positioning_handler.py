@@ -22,6 +22,6 @@ pos_methods_data = {}
 for method_data in methods_data:
     method_file = open(os.path.join(dirname, method_data["filename"]), "r")
     exec(method_file.read())
-    #print(method_data["name"])
-    pos_methods_data[method_data["name"]] = PosMethodData(
-        method_data["filename"], method_main, False, 1)
+    # print(method_data["name"])
+    # pos_methods_data[method_data["name"]] = PosMethodData(
+    #    method_data["filename"], method_main, False, 1)
