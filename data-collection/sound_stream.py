@@ -53,7 +53,6 @@ def handle_start_test(data):
     test_id = data['test_id']
     start_time = data['start_time']
 
-    # Calculate the wait time using initial NTP time and performance counter
     while True:
         current_time = initial_ntp_time + \
             (time.perf_counter() - initial_perf_time)
@@ -62,7 +61,6 @@ def handle_start_test(data):
         if current_time >= start_time - 1:
             recorded_data = b"".join(buffer)
 
-    print("breaked at", current_time)
     compressed_data = zlib.compress(recorded_data)
     chunk_size = CHUNK
 
@@ -91,11 +89,11 @@ def disconnect():
 
 
 if __name__ == "__main__":
-    # Connect to the server
+
     sio.connect(server_url)
-    # Start recording continuously in a separate thread
+
     record_thread = Thread(target=record_continuously)
     record_thread.start()
-    # Keep the SocketIO client running
+
     sio.wait()
     record_thread.join()
