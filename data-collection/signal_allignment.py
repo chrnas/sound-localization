@@ -14,7 +14,10 @@ def open_wav_file(path):
 
 
 def parse_time_stamps(file_name):
-    """Parse timestamps from the filename assuming they are right before the extension."""
+    """
+    Parse timestamps from the filename assuming they are
+    right before the extension.
+    """
     try:
         base_name = os.path.basename(file_name)
         timestamp_str = base_name.split('_')[-1].split('.')[0]
