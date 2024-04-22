@@ -1,14 +1,11 @@
-from flask import Flask, send_from_directory, request
+from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import os
 import math
-from datetime import datetime
 from Multilaterate import Multilateration
 import numpy as np
 import time
-import numpy as np
-from scipy.optimize import least_squares
-from tidsuträkning.TidsförskjutningBeräkning import Wav_file, calc_offset, create_wav_object
+from tidsuträkning.TidsförskjutningBeräkning import calc_offset, create_wav_object
 import matplotlib.pyplot as plt  # Corrected import
 
 app = Flask(__name__, static_folder='public', static_url_path='')
@@ -225,7 +222,6 @@ def handle_disconnect():
 
 def calculate_sound_source_line(tdoa, pos_ref, pos_target):
 
-        
     # Convert positions to numpy arrays for easier manipulation
     pos_ref = np.array(pos_ref)
     pos_target = np.array(pos_target)
@@ -244,7 +240,6 @@ def calculate_sound_source_line(tdoa, pos_ref, pos_target):
     # Note: Since TDOA might be negative indicating the direction towards the reference microphone,
     # we adjust the position based on the distance_diff (which can be positive or negative) along the normalized direction.
     sound_source_pos = midpoint + direction_norm * (distance_diff / 2)
-
 
     return [sound_source_x, sound_source_y]
 
