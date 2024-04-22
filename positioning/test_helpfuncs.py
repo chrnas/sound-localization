@@ -2,8 +2,10 @@ import pytest
 import helpfuncs
 import time
 
+
 def create_mics(actual_pos, mic_positions):
-    distances = [helpfuncs.get_distance(actual_pos, mic) for mic in mic_positions]
+    distances = [helpfuncs.get_distance(
+        actual_pos, mic) for mic in mic_positions]
     first_dist = distances[0]
     for dist in distances:
         dist -= first_dist
@@ -13,10 +15,12 @@ def create_mics(actual_pos, mic_positions):
         mics.append(mic)
     return mics
 
-STEP = 1 # How small steps to take [m]
-EXPANSION = 5 # How much to expand the search area [m]
-TIME_LIMIT = 1.5 # Acceptable time for the function to run [s]
-ACCURACY = 1 # Acceptable difference between actual and calculated position [m]
+
+STEP = 1  # How small steps to take [m]
+EXPANSION = 5  # How much to expand the search area [m]
+TIME_LIMIT = 1.5  # Acceptable time for the function to run [s]
+# Acceptable difference between actual and calculated position [m]
+ACCURACY = 1
 
 
 def test_1_8():
@@ -25,8 +29,10 @@ def test_1_8():
     """
     mic_positions = [[0, 0], [0, 15], [13, 7.5]]
     settings = helpfuncs.TravelSettings(len(mic_positions[0]), STEP)
-    settings.smallest_expansion = [EXPANSION for i in settings.smallest_expansion]
-    settings.biggest_expansion = [EXPANSION for i in settings.smallest_expansion]
+    settings.smallest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
+    settings.biggest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
 
     start_time = time.time()
     actual_pos = [0, 0]
@@ -91,8 +97,10 @@ def test_9_16():
     """
     mic_positions = [[0, 0], [0, 25], [21.5, 12.5]]
     settings = helpfuncs.TravelSettings(len(mic_positions[0]), STEP)
-    settings.smallest_expansion = [EXPANSION for i in settings.smallest_expansion]
-    settings.biggest_expansion = [EXPANSION for i in settings.smallest_expansion]
+    settings.smallest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
+    settings.biggest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
 
     start_time = time.time()
     actual_pos = [0, 0]
@@ -157,8 +165,10 @@ def test_17_24():
     """
     mic_positions = [[0, 0], [0, 35], [30.5, 17.5]]
     settings = helpfuncs.TravelSettings(len(mic_positions[0]), STEP)
-    settings.smallest_expansion = [EXPANSION for i in settings.smallest_expansion]
-    settings.biggest_expansion = [EXPANSION for i in settings.smallest_expansion]
+    settings.smallest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
+    settings.biggest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
 
     start_time = time.time()
     actual_pos = [0, 0]
@@ -223,8 +233,10 @@ def test_25_36():
     """
     mic_positions = [[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]]
     settings = helpfuncs.TravelSettings(len(mic_positions[0]), STEP)
-    settings.smallest_expansion = [EXPANSION for i in settings.smallest_expansion]
-    settings.biggest_expansion = [EXPANSION for i in settings.smallest_expansion]
+    settings.smallest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
+    settings.biggest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
 
     start_time = time.time()
     actual_pos = [15, 15, 0]
@@ -310,15 +322,18 @@ def test_25_36():
     assert sum(resultpos) - sum(actual_pos) <= ACCURACY
     assert time.time() - start_time < TIME_LIMIT
 
+
 def test_5_mics():
     """
     Testing some cases with 5 microphones.
     """
-    mic_positions = [[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]]
+    mic_positions = [[0, 0, 0], [0, 30, 5.5], [
+        30, 30, 0], [30, 0, 5.5], [15, 15, 0]]
     settings = helpfuncs.TravelSettings(len(mic_positions[0]), STEP)
-    settings.smallest_expansion = [EXPANSION for i in settings.smallest_expansion]
-    settings.biggest_expansion = [EXPANSION for i in settings.smallest_expansion]
-
+    settings.smallest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
+    settings.biggest_expansion = [
+        EXPANSION for i in settings.smallest_expansion]
 
     start_time = time.time()
     actual_pos = [35, 35, 2.5]
@@ -340,4 +355,3 @@ def test_5_mics():
     resultpos = helpfuncs.find_sound_source(mics, settings)
     assert sum(resultpos) - sum(actual_pos) <= ACCURACY
     assert time.time() - start_time < TIME_LIMIT
-
