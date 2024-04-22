@@ -1,13 +1,13 @@
 from threading import Thread
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request  # jsonify
 from flask_socketio import SocketIO, emit
 import os
-import numpy as np
+# import numpy as np
 import time
-import numpy as np
-import sys
-import os
-import matplotlib.pyplot as plt
+# import numpy as np
+# import sys
+# import os
+# import matplotlib.pyplot as plt
 import wave
 import pyaudio
 import zlib
@@ -37,7 +37,8 @@ class Microphone:
 
     def save(self, test_id):
         """
-        Save audio data to a file on the form output/test_id/microphoneX_timestamp.txt
+        Save audio data to a file on the form
+        output/test_id/microphoneX_timestamp.txt
         """
         print('start_saving')
         if test_id == 0:
@@ -46,13 +47,15 @@ class Microphone:
         if not os.path.exists(os.path.normpath(folder_path)):
             os.makedirs(os.path.normpath(folder_path))
 
-        with wave.open(os.path.normpath(f"{folder_path}/{self.id}_{self.current_timestamp}.wav"), 'wb') as wf:
+        with wave.open(os.path.normpath(f"{folder_path}/{self.id}_\
+                      {self.current_timestamp}.wav"), 'wb') as wf:
             wf.setnchannels(1)
             wf.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wf.setframerate(self.sample_rate)
             wf.writeframes(bytes(zlib.decompress(self.current_audio_data)))
         print(
-            f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_{self.current_timestamp}.wav")
+            f"Audio saved as {OUTPUT_FOLDER}/test_{test_id}/{self.id}_\
+                             {self.current_timestamp}.wav")
 
         self.current_timestamp = 0
         self.current_audio_data = b""
