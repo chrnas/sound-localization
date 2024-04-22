@@ -44,4 +44,4 @@ jobs:
               if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
           - name: Test with pytest
             run: |
-              pytest
+              pytest --tb=no
