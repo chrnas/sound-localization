@@ -2,8 +2,9 @@ import numpy as np
 import warnings
 import pytest
 from scipy.io import wavfile
-from TidsförskjutningBeräkning import WavFile, create_wav_object, calc_shifted_samples_fft, calc_offset_wav
+from TidsförskjutningBeräkning import create_wav_object, calc_shifted_samples_fft, calc_offset_wav
 import os
+
 
 @pytest.fixture
 def example_wavfile():
@@ -16,11 +17,14 @@ def example_wavfile():
     wav_file = create_wav_object(audio_data, sample_rate)
     return wav_file
 
+
 def test_audio_data_size(example_wavfile):
     """
     Test if audio_data_size method returns the correct size.
     """
-    assert example_wavfile.audio_data_size() == 48000, "Audio data size should be equal to 48000"
+    assert example_wavfile.audio_data_size(
+    ) == 48000, "Audio data size should be equal to 48000"
+
 
 def test_resample_wav(example_wavfile):
     """
@@ -29,6 +33,7 @@ def test_resample_wav(example_wavfile):
     example_wavfile.resample_wav(24000)
     assert example_wavfile.sampling_rate == 24000, "Sampling rate should be updated to 24000"
     # Note: This test does not check if the data was correctly resampled, just the sample rate change.
+
 
 def test_calc_shifted_samples_fft():
     """
@@ -39,22 +44,8 @@ def test_calc_shifted_samples_fft():
     sample_rate = 48000
     wav_file1 = create_wav_object(audio_data, sample_rate)
     wav_file2 = create_wav_object(audio_data, sample_rate)
-    assert calc_shifted_samples_fft(wav_file1, wav_file2) == 0, "Shifted samples should be 0 for identical audio"
-
-def test_calc_offset_wav():
-    """
-    Test calculation of time offset between two WAV files.
-    """
-    d = tmp_path / "sub"
-    d.mkdir()
-    file1 = d / "testSnap1.wav"
-    file2 = d / "testSnap2.wav"
-    # Normally, here you would generate actual WAV files to test with.
-    # For this example, we're skipping this step due to the complexity of handling audio files in tests.
-
-    # Assume the function is correctly implemented, this is a placeholder for real testing.
-    # You should replace this with actual test code.
-    assert calc_offset_wav(str(file1), str(file2)) == 0 
+    assert calc_shifted_samples_fft(
+        wav_file1, wav_file2) == 0, "Shifted samples should be 0 for identical audio"
 
 
 def test_calc_offset_wav():
@@ -63,7 +54,7 @@ def test_calc_offset_wav():
     """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", wavfile.WavFileWarning)
-        
+
         # Assuming the test script is in the same directory as the WAV files
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file1 = os.path.join(dir_path, "testSnap1.wav")
@@ -77,4 +68,5 @@ def test_calc_offset_wav():
 
         # Asserting that the actual delay is approximately equal to the expected delay
         # Allowing a small margin of error due to processing and rounding
-        assert abs(actual_delay - expected_delay) < 0.001, f"Expected delay of {expected_delay}s, but got {actual_delay}s"
+        assert abs(actual_delay - expected_delay) < 0.001, f"Expected delay of {
+            expected_delay}s, but got {actual_delay}s"
