@@ -13,7 +13,7 @@ init_perf = perf_counter()
 
 
 HOST = "localhost"  # Standard loopback interface address (localhost)
-PORT = 5000  # Port to listen on (non-privileged ports are > 1023)
+PORT = 6000  # Port to listen on (non-privileged ports are > 1023)
 
 
 def handle_client(conn, id):
@@ -48,11 +48,11 @@ def sync_time():
 
 if __name__ == "__main__":
 
-    port = int(os.getenv('PORT', 6000))
+    port = int(os.getenv('PORT', 5000))
     flask_thread = Thread(target=app.run, kwargs={
                           "host": '0.0.0.0', "port": port})
     flask_thread.start()
-
+    pass
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Listening...")
         s.bind(("0.0.0.0", PORT))
