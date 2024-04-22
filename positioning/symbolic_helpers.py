@@ -65,10 +65,10 @@ def load_expression(filename):
 
     # If no base directory is given, use the current working directory or a predefined directory.
 
-    base_dir = os.getcwd()  # Or any other default directory, e.g., "/default/path/to/expression_files"
+    # Or any other default directory, e.g., "/default/path/to/expression_files"
+    base_dir = os.getcwd()
 
     full_path = os.path.join(base_dir, filename)
-
 
     # Check if the file exists at the full path.
     if not os.path.exists(full_path):
