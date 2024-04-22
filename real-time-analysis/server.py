@@ -3,7 +3,6 @@ from flask_socketio import SocketIO, emit
 import os
 import math
 from Multilaterate import Multilateration
-import numpy as np
 import time
 from tidsuträkning.TidsförskjutningBeräkning import calc_offset, create_wav_object
 import matplotlib.pyplot as plt  # Corrected import
@@ -153,10 +152,10 @@ def handle_audio_data(data):
                 wav_files.append(wav_file)
 
             tdoa = calc_offset(wav_files[0], wav_files[1])
-            location = calculate_sound_source_line(tdoa, (new_microphones[1].xCoordinate, new_microphones[1].yCoordinate),
-                                                   (new_microphones[0].xCoordinate, new_microphones[0].yCoordinate))
+            # location = calculate_sound_source_line(tdoa, (new_microphones[1].xCoordinate, new_microphones[1].yCoordinate),
+            #                                       (new_microphones[0].xCoordinate, new_microphones[0].yCoordinate))
 
-            updateSoundSource(location)
+            # updateSoundSource(location)
             print(tdoa)
             return
             plt.figure(figsize=(10, 5))
@@ -218,30 +217,6 @@ def handle_disconnect():
         print(f'User {microphones[request.sid].name} disconnected')
         microphones.pop(request.sid, None)
     emit('userDisconnected', {'id': request.sid}, broadcast=True)
-
-
-def calculate_sound_source_line(tdoa, pos_ref, pos_target):
-
-    # Convert positions to numpy arrays for easier manipulation
-    pos_ref = np.array(pos_ref)
-    pos_target = np.array(pos_target)
-
-    # Calculate the distance difference based on TDOA
-    distance_diff = tdoa * speed_of_sound
-
-    # Calculate the midpoint between the two microphones
-    midpoint = (pos_ref + pos_target) / 2
-
-    # Calculate the direction vector from the reference mic to the target mic, then normalize
-    direction = pos_target - pos_ref
-    direction_norm = direction / np.linalg.norm(direction)
-
-    # Calculate the sound source position
-    # Note: Since TDOA might be negative indicating the direction towards the reference microphone,
-    # we adjust the position based on the distance_diff (which can be positive or negative) along the normalized direction.
-    sound_source_pos = midpoint + direction_norm * (distance_diff / 2)
-
-    return [sound_source_x, sound_source_y]
 
 
 if __name__ == '__main__':
