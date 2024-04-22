@@ -1,6 +1,9 @@
-from commands import eco_list, eco_set, pos_list, pos_activate, \
-                     pos_deactivate, pos_weight, run_once, run_cont, \
-                     stop, mic_list, mic_add, mic_remove
+
+from .commands import eco_list, eco_set, pos_list, pos_activate, \
+                    pos_deactivate, pos_weight, run_once, run_cont, \
+                    stop, mic_list, mic_add, mic_remove
+                    
+
 
 
 def print_startup():
@@ -27,9 +30,9 @@ def handle_command(command_data, pos_data, eco_data):
         for i in args:
             print(i)
         print("testcommand executed")
-    elif command == "ECOList":
+    elif command == "EcoList":
         eco_list(eco_data)
-    elif command == "ECOSet":
+    elif command == "EcoSet":
         eco_set(eco_data, args)
     elif command == "PosList":
         pos_list(pos_data)
