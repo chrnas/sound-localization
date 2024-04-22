@@ -1,4 +1,3 @@
-import pytest
 from . helpfuncs import get_distance, Microphone, TravelSettings, find_sound_source
 import time
 
