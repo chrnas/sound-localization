@@ -4,19 +4,6 @@ import os
 dirname = os.path.dirname(__file__)
 
 
-def eco_list(eco_data):
-    for method in eco_data:
-        print("Method: " + method +
-              "  Filename: " + eco_data[method].filename)
-
-
-def eco_set(eco_data, args):
-    """
-    EJ FÄRDIG
-    """
-    print("eco_set: ", eco_data)
-
-
 def pos_list(pos_data):
     for method in pos_data:
         print("Method: " + method +
