@@ -10,9 +10,10 @@ class Point:
 
     def distance(self, point: Point):
         """ Gives the distance between two points. """
-        return sqrt(pow(self.x - point.x, 2)
-                    + pow(self.y - point.y, 2)
-                    + pow(self.z - point.z, 2))
+        x_diff = self.x - point.x
+        y_diff = self.y - point.y
+        z_diff = self.z - point.z
+        return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2))
 
     def __repr__(self):
         return f"({round(self.x, 1)}, {round(self.y, 1)}, {round(self.z, 1)})"
@@ -109,8 +110,8 @@ def print_relative_arrivals(receivers: tuple[Point, ...],
                             scenarios: tuple[Scenario, ...]):
     print_header(receivers)
     for scenario in scenarios:
+        row = (scenario.sender,) + scenario.relative_time_arrivals()
         relative_arrivals = "".join((
             str(receiver).ljust(25, " ")
-            for receiver in (scenario.sender,)
-            + scenario.relative_time_arrivals()))
+            for receiver in row))
         print(relative_arrivals + f"{scenario.description}")
