@@ -1,4 +1,7 @@
-from .commands import *
+from commands import eco_list, eco_set, pos_list, pos_activate, \
+                     pos_deactivate, pos_weight, run_once, run_cont, \
+                     stop, mic_list, mic_add, mic_remove
+
 
 def print_startup():
     print("Startup complete")
@@ -6,7 +9,7 @@ def print_startup():
 
 
 def get_command_input():
-    print("Write a command:")
+    # print("Write a command:")
     command_string = input()
 
     command_data = command_string.split(" ")
@@ -16,25 +19,26 @@ def get_command_input():
 
 def handle_command(command_data, pos_data, eco_data):
     command = command_data[0]
-    args = command_data[1:]
-    print(command)
+    args = []
+    if len(command_data) > 1:
+        args = command_data[1:]
     if command == "test":
         print("Args are:")
         for i in args:
             print(i)
         print("testcommand executed")
     elif command == "ECOList":
-        eco_list(eco_data, args)
+        eco_list(eco_data)
     elif command == "ECOSet":
         eco_set(eco_data, args)
     elif command == "PosList":
-        pos_list(args[0])
+        pos_list(pos_data)
     elif command == "PosActivate":
-        pos_activate(args[0])
+        pos_activate(pos_data, args)
     elif command == "PosDeactivate":
-        pos_deactivate(args[0])
+        pos_deactivate(pos_data, args)
     elif command == "PosWeight":
-        pos_weight(args[0])
+        pos_weight(pos_data, args)
     elif command == "PosActivate":
         pos_activate(pos_data, args)
     elif command == "PosDeactivate":
@@ -48,9 +52,9 @@ def handle_command(command_data, pos_data, eco_data):
     elif command == "Stop":
         stop()
     elif command == "MicList":
-        mic_list(args[0])
+        mic_list()
     elif command == "MicAdd":
-        mic_add(args[0])
+        mic_add(args)
     elif command == "MicRemove":
         mic_remove(args[0])
     elif command == "exit":
@@ -61,7 +65,9 @@ def handle_command(command_data, pos_data, eco_data):
 
 print_startup()
 
+
 def run_cli(positioning_data, eco_data):
+    # print(positioning_data)
 
     running = True
     while running:
