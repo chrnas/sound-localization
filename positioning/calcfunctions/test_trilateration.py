@@ -1,4 +1,4 @@
-from .triangulate import MicrophoneArray
+from .trilateration import MicrophoneArray
 import numpy as np
 from typing import Union
 import time

@@ -5,59 +5,8 @@ from typing import Union
 import sympy as sp
 import time
 import os
-from . symbolic_helpers import load_expression
-
-
-class Microphone:
-    """
-    Represents a microphone with a position and time difference attribute.
-    This time differents will represent the time between the first microphone to detect a sound and this microphone.
-    As such the time difference of the first microphone will be 0 seconds.
-    """
-
-    def __init__(self, position: Union[list, np.ndarray]):
-        """
-        Initialize a Microphone instance with a position.
-
-        Args:
-            position (Union[list, np.ndarray]): The position of the microphone,
-                                                either as a list or np.ndarray.
-        Raises:
-            TypeError: If the position is not a list or np.ndarray.
-        """
-        if isinstance(position, (list, np.ndarray)):
-            self.position = np.array(position)
-        else:
-            raise TypeError("Position must be a list or numpy ndarray.")
-
-        self.time_difference = 0.0  # Initial time difference, set later.
-
-    def set_time_difference(self, time_diff: float) -> None:
-        """
-        Set the time difference for this microphone.
-
-        Args:
-            time_diff (float): The time difference to be set.
-        """
-        self.time_difference = time_diff
-
-    def get_position(self) -> np.ndarray:
-        """
-        Retrieve the position of the microphone.
-
-        Returns:
-            np.ndarray: The position of the microphone.
-        """
-        return self.position
-
-    def get_time_difference(self) -> float:
-        """
-        Retrieve the time difference associated with this microphone.
-
-        Returns:
-            float: The time difference.
-        """
-        return self.time_difference
+from .symbolic_helpers import load_expression
+from .reciever import Microphone
 
 
 class MicrophoneArray:
