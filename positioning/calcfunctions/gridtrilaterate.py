@@ -1,19 +1,9 @@
 # import numpy
 import math
-
+import reciever
 import numpy as np
 import time
 from typing import Sequence
-
-
-speed_of_sound: int = 343
-
-
-class Microphone:
-
-    def __init__(self, distance, coords: list[float, float]):
-        self.distance = distance
-        self.coords = coords
 
 
 class GridTravelSettings():
@@ -151,7 +141,7 @@ def old_triangulate_method():
         mic_positions.append(coords)
 
     step = float(input("Please enter the accuracy: "))
-    settings = TravelSettings(len(mic_positions[0]), step)
+    settings = GridTravelSettings(len(mic_positions[0]), step)
 
     expansion = input("Enter negative search expansion (Default is 1): ")
     settings.smallest_expansion = [
@@ -172,12 +162,11 @@ def old_triangulate_method():
     for dist in distances:
         dist -= first_dist
 
-    mics = []
+    mics = reciever.create_mics(mic_positions)
     for i in range(int(number_of_mics)):
-        mic = Microphone(distances[i], mic_positions[i])
-        mics.append(mic)
+        mics[i].set_distance_difference(distances[i])
 
-    resultpos = find_sound_source(mics, settings)
+    resultpos = trilaterate_grid(mics, settings)
     print(resultpos)
     print("Time: " + str(time.time() - start_time))
 
