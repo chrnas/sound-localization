@@ -1,4 +1,4 @@
-import constants
+from . import constants
 
 class Microphone:
 
@@ -18,7 +18,7 @@ class Microphone:
     def set_time_difference(self, time_difference):
         self.distance_difference = time_difference * constants.SOUNDSPEED
 
-    def get_positions(self):
+    def get_position(self):
         return self.coords
 
 def create_mics(positions):
