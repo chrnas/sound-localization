@@ -16,7 +16,7 @@ class Microphone:
         self.coords = coords
 
 
-class TravelSettings():
+class GridTravelSettings():
 
     def __init__(self, dimensions, step):
         self.dimensions = dimensions  # Number of dimensions the settings
@@ -100,7 +100,7 @@ def travel_grid(mics, smallest, biggest, step):
     return best_pos
 
 
-def find_sound_source(mics, settings):
+def trilaterate_grid(mics, settings):
     """
     Sets parameters for the grid search and calls the travel_grid function to
     find the best position of the sound source
