@@ -1,3 +1,4 @@
-from .positioning_handler import pos_methods_data
+from .positioning_handler import pos_methods_data, microphones
+
 
 
