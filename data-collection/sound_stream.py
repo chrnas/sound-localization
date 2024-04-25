@@ -110,6 +110,9 @@ def handle_start_test(data):
 
 @sio.on('playSyncSound')
 def play_sync_audio(data):
+    if ID != "soundbringer":
+        return
+    
     playsound("../Resources/Chirp" + data['freq_range'] + ".wav")
 
 
