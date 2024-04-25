@@ -54,6 +54,7 @@ class Microphone:
 # ARGS = sys.argv[1:]  # OUTPUT_FOLDER
 OUTPUT_FOLDER = "output"  # ARGS[0
 app = Flask(__name__, static_folder='public', static_url_path='')
+soundbringer_id = ""
 
 perf_counter = time.perf_counter()
 print("preftcounter", perf_counter)
@@ -78,10 +79,10 @@ def index():
 
 def start_test(test_id, start_freq, end_freq):
     
-    emit('detectSyncSound', {'start_freq': start_freq, 'end_freq': end_freq}, broadcast=True, namespace='/', skip_sid='soundbringer')
+    emit('detectSyncSound', {'start_freq': start_freq, 'end_freq': end_freq}, broadcast=True, namespace='/', skip_sid=soundbringer_id)
     print("Microphones listening to chirp. Sleeping for 1 second")
     time.sleep(1)
-    emit('playSyncSound', {'freq_range': str(start_freq) + "-" + str(end_freq)}, namespace='/', to='soundbringer')
+    emit('playSyncSound', {'freq_range': str(start_freq) + "-" + str(end_freq)}, broadcast=True, namespace='/', to=soundbringer_id)
     print("Emitted chirp. Sleeping for 5 seconds")
     time.sleep(5)
     print('Test ID:', test_id)
@@ -104,6 +105,7 @@ def handle_new_microphone(data):
 
     if microphone_id == "soundbringer":
         sound_emitter = Microphone(microphone_id, sample_rate)
+        soundbringer_id = request.sid
     else:
         microphones[request.sid] = Microphone(microphone_id, sample_rate)
 

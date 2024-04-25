@@ -110,7 +110,7 @@ def handle_start_test(data):
 
 @sio.on('playSyncSound')
 def play_sync_audio(data):
-    playsound("../resources/Chirp" + data['freq_range'] + ".wav")
+    playsound("../Resources/chirp" + data['freq_range'] + ".wav")
 
 
 @sio.on('detectSyncSound')
@@ -122,7 +122,7 @@ def handle_sync_response(data):
     start_freq = data['start_freq']
     end_freq = data['end_freq']
 
-    chirp_wav = TidsförskjutningBeräkning.Wav_file("../Recources/Chirp" + str(start_freq) + "-" + str(end_freq) + ".wav")
+    chirp_wav = TidsförskjutningBeräkning.Wav_file("../Recources/chirp" + str(start_freq) + "-" + str(end_freq) + ".wav")
 
     recording_start = time.perf_counter()
     audio = record_audio(-clock_offset)
