@@ -47,8 +47,6 @@ def create_wav_object(audio_data: list[float], sample_rate: int) -> Wav_file:
     return wav_file
 
 
-    
-
 # Function to calculate the number of shifted samples between two WAV files
 def calc_shifted_samples(wav1: Wav_file, wav2: Wav_file) -> int:
     # Extract audio vector data from both WAV files
@@ -63,6 +61,7 @@ def calc_shifted_samples(wav1: Wav_file, wav2: Wav_file) -> int:
     shift = max_corr_index - (len(audio1VectorData) - 1)
     return shift
 
+
 def calc_shifted_samples_fft(wav1: Wav_file, wav2: Wav_file, extend_shortest=False) -> int:
     # Extract audio vector data from both WAV files
     audio1VectorData = wav1.audioVectorData
@@ -70,12 +69,11 @@ def calc_shifted_samples_fft(wav1: Wav_file, wav2: Wav_file, extend_shortest=Fal
 
     if extend_shortest:
         lendiff = len(audio1VectorData) - len(audio2VectorData)
-        addvector = [0 for i in range(lendiff)]
+        addvector = np.array([0 for i in range(abs(lendiff))])
         if lendiff > 0:
-            audio2VectorData += addvector
+            audio2VectorData = np.concatenate((audio2VectorData, addvector), axis=None)
         elif lendiff < 0:
-            audio1VectorData += addvector
-
+            audio1VectorData = np.concatenate((audio1VectorData, addvector), axis=None)
 
     # Perform FFT on both audio vectors
     fft_audio1 = fft(audio1VectorData, n=2*max(len(audio1VectorData), len(audio2VectorData))-1)
@@ -95,6 +93,7 @@ def calc_shifted_samples_fft(wav1: Wav_file, wav2: Wav_file, extend_shortest=Fal
     
     return shift
 
+
 # Function to resample WAV files to the highest sampling rate between them
 def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_file]:
     # Determine the highest sampling rate between the two WAV files
@@ -106,6 +105,7 @@ def resample_to_highest(wav1: Wav_file, wav2: Wav_file) -> tuple[Wav_file, Wav_f
         wav2.resample_wav(highest_sampling_rate)
    
     return wav1, wav2 
+
 
 #----------------------------------------------------------------- 
 # Running code
@@ -125,11 +125,13 @@ def calc_offset(wav1: Wav_file, wav2: Wav_file, extend_shortest=False) -> float:
 
     return shifted_time
 
+
 # Function to calculate the time offset between two WAV files given their filenames
 def calc_offset_wav(wav_file1: str, wav_file2: str, extend_shortest=False) -> float:
     wav1 = Wav_file(wav_file1)
     wav2 = Wav_file(wav_file2)
     return calc_offset(wav1, wav2, extend_shortest)
+
 
 if __name__ == '__main__':
     # Define filenames for the WAV files to compare

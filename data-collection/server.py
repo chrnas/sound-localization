@@ -54,6 +54,7 @@ class Microphone:
 # ARGS = sys.argv[1:]  # OUTPUT_FOLDER
 OUTPUT_FOLDER = "output"  # ARGS[0
 app = Flask(__name__, static_folder='public', static_url_path='')
+global soundbringer_id
 soundbringer_id = ""
 
 perf_counter = time.perf_counter()
@@ -104,7 +105,9 @@ def handle_new_microphone(data):
     sample_rate = data.get('sample_rate') or 44100
 
     if microphone_id == "soundbringer":
+        global sound_emitter
         sound_emitter = Microphone(microphone_id, sample_rate)
+        global soundbringer_id
         soundbringer_id = request.sid
     else:
         microphones[request.sid] = Microphone(microphone_id, sample_rate)
@@ -123,6 +126,9 @@ def handle_audio_data(data):
 
 @socketio.on('endOfData')
 def save_data(test_id):
+    if request.sid == soundbringer_id:
+        return
+
     microphone = microphones[request.sid]
     print("saving...")
     thread = Thread(target=microphone.save, args=(test_id,))
