@@ -1,6 +1,6 @@
 # import numpy
 import math
-import reciever
+import positioning.calcfunctions.receiver as receiver
 import numpy as np
 import time
 from typing import Sequence
@@ -9,17 +9,20 @@ from typing import Sequence
 class GridTravelSettings():
 
     def __init__(self, dimensions, step):
-        self.dimensions = dimensions  # Number of dimensions the settings
+        self.set_dimension(dimension=dimensions) 
+        self.step = step  # How far to travel between each search point
+
+    def set_dimension(self, dimension: int) -> None:
+        self.dimensions = dimension  # Number of dimensions the settings
         # are for
         # Smallest coordinates to always include
-        self.smallest_start = [0 for i in range(dimensions)]
+        self.smallest_start = [0 for i in range(dimension)]
         # Biggest coordinates to always include
-        self.biggest_start = [0 for i in range(dimensions)]
+        self.biggest_start = [0 for i in range(dimension)]
         # How far outside mic area to search in negative coords
-        self.smallest_expansion = [1 for i in range(dimensions)]
+        self.smallest_expansion = [1 for i in range(dimension)]
         # How far outside mic area to search in positive coords
-        self.biggest_expansion = [1 for i in range(dimensions)]
-        self.step = step  # How far to travel between each search point
+        self.biggest_expansion = [1 for i in range(dimension)]
 
 
 def get_error(coords, mics):
@@ -43,7 +46,7 @@ def get_error(coords, mics):
 
         left_side = math.sqrt(current_eqv) - math.sqrt(previous_eqv)
 
-        right_side = mic.distance - previous_mic.distance
+        right_side = mic.get_distance_difference() - previous_mic.get_distance_difference()
 
         error += abs(left_side - right_side)
 
@@ -114,6 +117,7 @@ def trilaterate_grid(mics, settings):
         biggest[i] += settings.biggest_expansion[i]
 
     best_pos = travel_grid(mics, smallest, biggest, settings.step)
+
     return best_pos
 
 
@@ -162,7 +166,7 @@ def old_triangulate_method():
     for dist in distances:
         dist -= first_dist
 
-    mics = reciever.create_mics(mic_positions)
+    mics = receiver.create_mics(mic_positions)
     for i in range(int(number_of_mics)):
         mics[i].set_distance_difference(distances[i])
 

@@ -6,7 +6,7 @@ import sympy as sp
 import time
 import os
 from .symbolic_helpers import load_expression
-from .reciever import Microphone
+from .receiver import Receiver
 
 
 class MicrophoneArray:
@@ -15,14 +15,22 @@ class MicrophoneArray:
     estimate source positions, and evaluate cost functions.
     """
 
-    def __init__(self, positions: list[np.ndarray]):
+    def __init__(self, items: list[Union[np.ndarray, list, Receiver]]):
         """
         Initialize a MicrophoneArray with a list of positions.
 
         Args:
             positions (list[np.ndarray]): Positions of microphones in the array.
         """
-        self.microphones = [Microphone(pos) for pos in positions]
+        if all(isinstance(item, np.ndarray) or isinstance(item, list) for item in items):
+            # If items are arrays or lists, create new Receiver objects
+            self.microphones = [Receiver(pos) for pos in items]
+        elif all(isinstance(item, Receiver) for item in items):
+            # If items are Receiver objects, add them directly
+            self.microphones = items
+        else:
+            raise ValueError(
+                "All items must be either lists, numpy arrays, or Receiver instances.")
         self.cost_function = None
         self.gradient_functions = None
         self.hessian_function = None
@@ -47,7 +55,7 @@ class MicrophoneArray:
             time_diff = (distance - reference_distance) / speed_of_sound
             mic.set_time_difference(time_diff)
 
-    def get_microphones(self) -> list[Microphone]:
+    def get_microphones(self) -> list[Receiver]:
         """
         Retrieve a list of microphones in the array.
 
@@ -63,6 +71,7 @@ class MicrophoneArray:
         Returns:
             int: Number of dimensions.
         """
+
         return len(self.microphones[0].get_position())
 
     def get_num_microphones(self) -> int:
@@ -74,7 +83,7 @@ class MicrophoneArray:
         """
         return len(self.microphones)
 
-    def generate_pairs_with_first(self) -> list[tuple[Microphone, Microphone]]:
+    def generate_pairs_with_first(self) -> list[tuple[Receiver, Receiver]]:
         """
         Generate pairs of the first microphone with each of the other microphones.
 
@@ -84,14 +93,14 @@ class MicrophoneArray:
         first_mic = self.microphones[0]
         return [(first_mic, mic) for mic in self.microphones[1:]]
 
-    def add_microphones(self, mics: Union[Microphone, list[Microphone]]) -> None:
+    def add_microphones(self, mics: Union[Receiver, list[Receiver]]) -> None:
         """
         Adds one or more microphones to the array and sorts all microphones by time difference.
 
         Args:
             mics (Union[Microphone, list[Microphone]]): A single Microphone instance or a list of Microphone instances.
         """
-        if isinstance(mics, Microphone):
+        if isinstance(mics, Receiver):
             self.microphones.append(mics)
         elif isinstance(mics, list):
             self.microphones.extend(mics)
@@ -113,10 +122,7 @@ class MicrophoneArray:
             tuple[np.ndarray, float]: A tuple containing the estimated position of the sound source
                                        and the minimized cost function value.
         """
-        start_time: float = time.time()
         self.create_dynamic_cost_function()
-        print(f"to create all of the functions took about: {
-              time.time() - start_time}")
 
         initial_guesses = np.mean([mic.get_position()
                                   for mic in self.get_microphones()], axis=0)
@@ -207,8 +213,6 @@ class MicrophoneArray:
             all_params, gradients_expr, modules=modules)
         self.hessian_function = sp.lambdify(
             all_params, hessian_expr, modules=modules)
-
-        print("Dynamic cost functions loaded and ready for use.")
 
     def create_dynamic_cost_function_old(self):
         """

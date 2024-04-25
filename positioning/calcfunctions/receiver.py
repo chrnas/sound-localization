@@ -1,11 +1,15 @@
 from . import constants
+import numpy as np
 
 
-class Microphone:
+class Receiver:
 
-    def __init__(self, coords: list[float, float]):
+    def __init__(self, coords):
         self.distance_difference = 0
-        self.coords = coords
+        if isinstance(coords, np.ndarray) or isinstance(coords, list):
+            self.coords = coords
+        else:
+            raise ValueError
 
     def get_distance_difference(self):
         return self.distance_difference
@@ -22,8 +26,6 @@ class Microphone:
     def get_position(self):
         return self.coords
 
-
-def create_mics(positions):
-    mics = [Microphone(position for position in positions)]
-
-    return mics
+    def create_mics(positions):
+        mics = [Receiver(position) for position in positions]
+        return mics

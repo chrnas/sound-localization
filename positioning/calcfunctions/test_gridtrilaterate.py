@@ -1,5 +1,5 @@
 from .gridtrilaterate import get_distance, GridTravelSettings, trilaterate_grid
-from . import reciever
+from . import receiver
 import time
 
 
@@ -9,7 +9,7 @@ def create_mics(actual_pos, mic_positions):
     first_dist = distances[0]
     for dist in distances:
         dist -= first_dist
-    mics = reciever.create_mics(mic_positions)
+    mics = receiver.create_mics(mic_positions)
     for i in range(len(mic_positions)):
         mics[i].set_distance_difference(distances[i])
     return mics

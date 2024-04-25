@@ -1,4 +1,10 @@
+from typing import Any
+
+
 class MethodBaseClass:
+    def __init__(self) -> None:
+        self.settings: dict[str, Any] = {}
+
     def find_source(self, mic_data):
         pass
 

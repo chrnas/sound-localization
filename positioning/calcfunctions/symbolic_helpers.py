@@ -63,8 +63,6 @@ def load_expression(filename):
     """
 
     base_dir = os.path.dirname(__file__)
-    print(base_dir)
-
     full_path = os.path.join(base_dir, filename)
 
     # Check if the file exists at the full path.
