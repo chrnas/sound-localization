@@ -4,7 +4,7 @@ from .calcfunctions.receiver import Receiver
 from .calcfunctions.trilateration import MicrophoneArray
 from .calcfunctions.gridtrilaterate import GridTravelSettings, trilaterate_grid
 import numpy as np
-from .TidsförskjutningBeräkning import # here I need to get a function that will be able to calculate the time difference between two sample lists. This should be done in two parts creating the wav objects and then calculating the time difference with the internal functions. However, I would like to compress this into a signal function internally
+# from .TidsförskjutningBeräkning import # here I need to get a function that will be able to calculate the time difference between two sample lists. This should be done in two parts creating the wav objects and then calculating the time difference with the internal functions. However, I would like to compress this into a signal function internally
 
 
 class MethodClass(MethodBaseClass):
