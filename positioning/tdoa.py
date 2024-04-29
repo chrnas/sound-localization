@@ -6,6 +6,7 @@ from .calcfunctions.gridtrilaterate import GridTravelSettings, trilaterate_grid
 from .TidsförskjutningBeräkning import identify_first_sound, calc_offset_from_samples
 import numpy as np
 from itertools import combinations, permutations
+from typing import Union
 
 
 class MethodClass(MethodBaseClass):
@@ -14,9 +15,17 @@ class MethodClass(MethodBaseClass):
         self.settings["grid settings"] = GridTravelSettings(
             dimensions=2, step=0.5)
 
-    def find_source(self, mic_data: list[dict[Receiver, list[float]]]) -> list[float]:
+    def find_source(self, mic_data: dict[Receiver, Union[list[float], str]]) -> list[float]:
 
-        receivers: list[Receiver] = calculate_time_differences(mic_data)
+        sampling_rate = 1
+
+        for receiver, data in mic_data.items():
+            if isinstance(data, str):
+                audio_data, sampling_rate = self.read_wav_file(data)
+                mic_data[receiver] = audio_data
+
+        receivers: list[Receiver] = calculate_time_differences(
+            mic_data, sampling_rate=sampling_rate)
 
         if self.settings['algorithm'] == "grid":
             dimenstion: int = len(receivers[0].get_position())
