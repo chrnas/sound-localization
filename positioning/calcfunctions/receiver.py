@@ -29,3 +29,7 @@ class Receiver:
     def create_mics(positions):
         mics = [Receiver(position) for position in positions]
         return mics
+    
+    def __str__(self):
+        return f"Receiver at position {self.coords} with time difference {self.get_time_difference():.3f}s"
+

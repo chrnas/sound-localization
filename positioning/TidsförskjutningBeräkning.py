@@ -132,8 +132,10 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
     audio2VectorData = wav2.audioVectorData
 
     # Perform FFT on both audio vectors
-    fft_audio1 = fft(audio1VectorData, n=2 * max(len(audio1VectorData), len(audio2VectorData))-1)
-    fft_audio2 = fft(np.flipud(audio2VectorData), n=2 * max(len(audio1VectorData), len(audio2VectorData))-1)
+    fft_audio1 = fft(audio1VectorData, n=2 *
+                     max(len(audio1VectorData), len(audio2VectorData))-1)
+    fft_audio2 = fft(np.flipud(audio2VectorData), n=2 *
+                     max(len(audio1VectorData), len(audio2VectorData))-1)
 
     # Perform element-wise multiplication of the two FFT results
     fft_result = fft_audio1 * fft_audio2
@@ -199,6 +201,38 @@ def trim_lists_to_same_length(list1: list, list2: list) -> tuple[list, list]:
 # Running code
 
 
+def identify_first_sound(sounds: list[list[float]]):
+    """
+    Identify the first sound file based on cross-correlation time differences.
+    The one with the largest negative time difference when compared to others is the first.
+
+    Args:
+        sounds (list of list of float): A list where each item is a sound sample list.
+
+    Returns:
+        int: Index of the first sound sample list detected.
+    """
+    min_time_difference = float('inf')
+    first_index = 0
+
+    # Choose one sound as a reference, compare it against all others
+    reference_sound = sounds[0]
+
+    for i in range(1, len(sounds)):
+        time_difference = calc_offset_from_samples(
+            sounds[i], reference_sound)
+        # If this sound starts before the current reference
+        if time_difference < min_time_difference:
+            min_time_difference = time_difference
+            first_index = i
+
+    # Adjust for the fact that the first sound might not be the reference
+    if min_time_difference > 0:
+        first_index = 0
+
+    return first_index
+
+
 def calc_offset(wav1: WavFile, wav2: WavFile) -> float:
     """
     Calculates the time offset between two WAV files.
@@ -233,6 +267,27 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
     """
     wav1 = WavFile(wav_file1)
     wav2 = WavFile(wav_file2)
+    return calc_offset(wav1, wav2)
+
+
+def calc_offset_from_samples(samples1, samples2, rate1=44100, rate2=44100,):
+    """
+    Calculates the time offset between two sets of audio samples and their sampling rates.
+
+    Args:
+        samples1 (list[float]): The audio samples of the first sound.
+        rate1 (int): The sampling rate of the first sound.
+        samples2 (list[float]): The audio samples of the second sound.
+        rate2 (int): The sampling rate of the second sound.
+
+    Returns:
+        float: The time offset in seconds between the two sets of samples.
+    """
+    # Create WavFile objects from the provided samples and rates
+    wav1 = create_wav_object(samples1, rate1)
+    wav2 = create_wav_object(samples2, rate2)
+
+    # Calculate and return the time offset using the existing functionality
     return calc_offset(wav1, wav2)
 
 
