@@ -3,7 +3,7 @@ import socketio
 import pyaudio
 import time
 import wave
-from playsound import playsound
+# from playsound import playsound
 import scipy
 import os
 import zlib
@@ -114,7 +114,7 @@ def play_sync_audio(data):
     if ID != "soundbringer":
         return
     
-    playsound("../Resources/Chirp" + data['freq_range'] + ".wav")
+    # playsound("Resources/Chirp" + data['freq_range'] + ".wav")
 
 
 @sio.on('detectSyncSound')
@@ -126,7 +126,7 @@ def handle_sync_response(data):
     start_freq = data['start_freq']
     end_freq = data['end_freq']
 
-    chirp_wav = TidsförskjutningBeräkning.Wav_file("../Resources/chirp" + str(start_freq) + "-" + str(end_freq) + ".wav")
+    chirp_wav = TidsförskjutningBeräkning.Wav_file("Resources/chirp" + str(start_freq) + "-" + str(end_freq) + ".wav")
 
     recording_start = time.perf_counter()
     audio = record_audio(-clock_offset)
