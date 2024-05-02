@@ -28,6 +28,7 @@ OUTPUT_FOLDER = "output_local"
 # Global variables for synchronization
 client_send_time = None
 clock_offset = 0
+global chirp_time
 chirp_time = 0
 chirp_distance = 0
 
@@ -136,6 +137,7 @@ def handle_sync_response(data):
 
     offset = TidsförskjutningBeräkning.calc_offset(audio_wav, chirp_wav, True)
 
+    global chirp_time
     chirp_time = recording_start + offset - (chirp_distance/343)
 
 
