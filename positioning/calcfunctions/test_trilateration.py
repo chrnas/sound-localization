@@ -2,6 +2,7 @@ from .trilateration import MicrophoneArray
 import numpy as np
 from typing import Union
 import time
+import pytest
 
 
 TIME_LIMIT = 1.5  # Acceptable time for the function to run [s]
@@ -9,105 +10,62 @@ TIME_LIMIT = 1.5  # Acceptable time for the function to run [s]
 ACCURACY = 1
 
 
-def assert_function(actual_positions: Union[list, np.ndarray], microphone_array: MicrophoneArray) -> None:
+# Collect all test cases with detailed configurations and actual positions.
+test_cases = [
+    ([[0, 0], [0, 15], [13, 7.5]], [0, 0]),
+    ([[0, 0], [0, 15], [13, 7.5]], [0, 15]),
+    ([[0, 0], [0, 15], [13, 7.5]], [13, 7.5]),
+    ([[0, 0], [0, 15], [13, 7.5]], [4.5, 7.5]),
+    ([[0, 0], [0, 15], [13, 7.5]], [10, 0]),
+    ([[0, 0], [0, 15], [13, 7.5]], [0, 7.5]),
+    ([[0, 0], [0, 15], [13, 7.5]], [5, 5]),
+    ([[0, 0], [0, 15], [13, 7.5]], [3, 10]),
 
-    actual_positions = np.array(actual_positions)
-    for actual_position in actual_positions:
-        start_time: float = time.time()
-        actual_position: np.ndarray = np.array(actual_position)
-        microphone_array.calculate_time_diffs(actual_position)
-        result_position, _ = microphone_array.estimate_position()
+    ([[0, 0], [0, 25], [21.5, 12.5]], [0, 0]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [0, 25]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [21.5, 12.5]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [7, 12.5]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [10, 0]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [0, 10]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [4, 11]),
+    ([[0, 0], [0, 25], [21.5, 12.5]], [13, 13]),
 
-        assert np.linalg.norm(actual_position - result_position) <= ACCURACY
-        assert time.time() - start_time < TIME_LIMIT
+    ([[0, 0], [0, 35], [30.5, 17.5]], [0, 0]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [0, 35]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [30.5, 17.5]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [10, 17.5]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [10, 0]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [0, 10]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [17.5, 17.5]),
+    ([[0, 0], [0, 35], [30.5, 17.5]], [3, 27]),
 
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [15, 15, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [15, 15, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [10, 0, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [10, 0, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [0, 30, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [0, 30, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [25, 20, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [25, 20, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [5, 20, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [5, 20, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [35, 35, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [35, 35, 2.5]),
 
-def test_1_8():
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]], [35, 35, 2.5]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]], [-1, -1, 0]),
+    ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]], [15, 15, 0])
+]
+
+@pytest.mark.parametrize("mic_positions, actual_position", test_cases)
+def test_positioning_accuracy(mic_positions, actual_position):
     """
-    Testing cases 1-8 from "Datainsamlingsplan 4/4". Coordinates are round to closest 0.5.
+    Test the accuracy of the positioning method under various scenarios.
     """
-    mic_positions = [[0, 0], [0, 15], [13, 7.5]]
-    microphone_array: MicrophoneArray = MicrophoneArray(mic_positions)
-    actual_positions = [[0, 0], [0, 15], [13, 7.5], [
-        4.5, 7.5], [10, 0], [0, 7.5], [5, 5], [3, 10]]
+    microphone_array = MicrophoneArray(mic_positions)
+    start_time = time.time()
+    microphone_array.calculate_time_diffs(actual_position)
+    result_position, _ = microphone_array.estimate_position()
 
-    assert_function(actual_positions=actual_positions,
-                    microphone_array=microphone_array)
-
-
-def test_9_16():
-    """
-    Testing cases 9-16 from "Datainsamlingsplan 4/4". Coordinates are round to closest 0.5.
-    """
-    mic_positions = [[0, 0], [0, 25], [21.5, 12.5]]
-    microphone_array: MicrophoneArray = MicrophoneArray(mic_positions)
-    actual_positions = [[0, 0], [0, 25], [21.5, 12.5],
-                        [7, 12.5], [10, 0], [0, 10], [4, 11], [13, 13]]
-
-    assert_function(actual_positions=actual_positions,
-                    microphone_array=microphone_array)
-
-
-def test_17_24():
-    """
-    Testing cases 9-16 from "Datainsamlingsplan 4/4". Coordinates are round to closest 0.5.
-    """
-    mic_positions = [[0, 0], [0, 35], [30.5, 17.5]]
-    microphone_array: MicrophoneArray = MicrophoneArray(mic_positions)
-    actual_positions = [
-        [0, 0],
-        [0, 35],
-        [30.5, 17.5],
-        [10, 17.5],
-        [10, 0],
-        [0, 10],
-        [17.5, 17.5],
-        [3, 27]
-    ]
-
-    assert_function(actual_positions=actual_positions,
-                    microphone_array=microphone_array)
-
-
-def test_25_36():
-    """
-    Testing cases 25-36 from "Datainsamlingsplan 4/4". Coordinates are round to closest 0.5.
-    """
-    mic_positions = [[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]]
-    microphone_array: MicrophoneArray = MicrophoneArray(mic_positions)
-
-    actual_positions = [
-        [15, 15, 0],
-        [15, 15, 2.5],
-        [10, 0, 0],
-        [10, 0, 2.5],
-        [0, 30, 0],
-        [0, 30, 2.5],
-        [25, 20, 0],
-        [25, 20, 2.5],
-        [5, 20, 0],
-        [5, 20, 2.5],
-        [35, 35, 0],
-        [35, 35, 2.5]
-    ]
-
-    assert_function(actual_positions=actual_positions,
-                    microphone_array=microphone_array)
-
-
-def test_5_microphones():
-    """
-    Testing some cases with 5 microphones.
-    """
-    mic_positions = [[0, 0, 0], [0, 30, 5.5], [
-        30, 30, 0], [30, 0, 5.5], [15, 15, 0]]
-    microphone_array: MicrophoneArray = MicrophoneArray(mic_positions)
-
-    actual_positions = [
-        [35, 35, 2.5],
-        [-1, -1, 0],
-        [15, 15, 0]
-    ]
-
-    assert_function(actual_positions=actual_positions,
-                    microphone_array=microphone_array)
+    assert np.linalg.norm(np.array(actual_position) - np.array(result_position)) <= ACCURACY, f"Position {actual_position} not within accuracy limits"
+    assert time.time() - start_time < TIME_LIMIT, f"Calculation exceeded time limit for position {actual_position}"

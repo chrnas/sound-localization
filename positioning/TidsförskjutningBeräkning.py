@@ -28,21 +28,8 @@ class WavFile:
             self.filename: str = filename
             # Load WAV file data and sampling rate on instantiation
 
-            self.audioVectorData, self.sampling_rate = self.read_wav_file(
+            self.audioVectorData, self.sampling_rate = read_wav_file(
                 filename)
-
-    def read_wav_file(self, filename: str) -> tuple[list[float], int]:
-        """
-        Reads a WAV file and returns its data and sampling rate.
-
-        Args:
-            filename (str): The name of the file to read.
-
-        Returns:
-            tuple[list[float], int]: The audio data and sampling rate.
-        """
-        sampling_rate, audioVectorData = wavfile.read(filename)
-        return audioVectorData, sampling_rate
 
     # Function to resample the WAV file to a new sampling rate
 
@@ -76,6 +63,20 @@ class WavFile:
         # or np.float32 depending on your audio data format
         audio_array = np.array(self.audioVectorData, dtype=np.float32)
         wavfile.write(output_filename, self.sampling_rate, audio_array)
+
+
+def read_wav_file(filename: str) -> tuple[list[float], int]:
+    """
+    Reads a WAV file and returns its data and sampling rate.
+
+    Args:
+        filename (str): The name of the file to read.
+
+    Returns:
+        tuple[list[float], int]: The audio data and sampling rate.
+    """
+    sampling_rate, audioVectorData = wavfile.read(filename)
+    return audioVectorData, sampling_rate
 
 
 def create_wav_object(audio_data: list[float], sample_rate: int) -> WavFile:

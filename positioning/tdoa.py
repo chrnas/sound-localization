@@ -3,9 +3,9 @@ from typing import Any
 from .calcfunctions.receiver import Receiver
 from .calcfunctions.trilateration import MicrophoneArray
 from .calcfunctions.gridtrilaterate import GridTravelSettings, trilaterate_grid
-from .TidsförskjutningBeräkning import identify_first_sound, calc_offset_from_samples
+from .TidsförskjutningBeräkning import identify_first_sound, calc_offset_from_samples, read_wav_file
 import numpy as np
-from itertools import combinations, permutations
+from itertools import combinations
 from typing import Union
 
 
@@ -13,7 +13,7 @@ class MethodClass(MethodBaseClass):
     def __init__(self) -> None:
         self.settings: dict[str, Any] = {"algorithm": "grid"}
         self.settings["grid settings"] = GridTravelSettings(
-            dimensions=2, step=0.5)
+            dimensions=2, step=0.1)
 
     def find_source(self, mic_data: dict[Receiver, Union[list[float], str]]) -> list[float]:
 
@@ -21,12 +21,12 @@ class MethodClass(MethodBaseClass):
 
         for receiver, data in mic_data.items():
             if isinstance(data, str):
-                audio_data, sampling_rate = self.read_wav_file(data)
+                audio_data, sampling_rate = read_wav_file(data)
                 mic_data[receiver] = audio_data
 
         receivers: list[Receiver] = calculate_time_differences(
             mic_data, sampling_rate=sampling_rate)
-
+        
         if self.settings['algorithm'] == "grid":
             dimenstion: int = len(receivers[0].get_position())
             self.settings["grid settings"].set_dimension(dimension=dimenstion)
