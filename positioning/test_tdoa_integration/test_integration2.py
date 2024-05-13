@@ -127,3 +127,8 @@ def test_positioning_gradient_id_27():
 def test_positioning_grid_id_27():
     assert_positioning(test_id=27, mic_positions=[
                        [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[10, 0, 0], algorithm='grid')
+
+
+def test_positioning_grid_id_35():
+    assert_positioning(test_id=35, mic_positions=[
+                       [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[35, 35, 0], algorithm='grid')

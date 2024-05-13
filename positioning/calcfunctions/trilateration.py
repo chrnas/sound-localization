@@ -144,29 +144,36 @@ class MicrophoneArray:
             estimated_pos (np.ndarray): The estimated position of the sound source as determined by the optimization.
         """
         x_grid, y_grid = np.meshgrid(
-            np.arange(-200, 200, 5), np.arange(-200, 200, 5))
-        z = np.array([[self.cost(np.array([x, y])) for x, y in zip(
+            np.arange(-50, 50, 2), np.arange(-50, 50, 2))
+        z = np.array([[self.evaluate_cost(np.array([x, y])) for x, y in zip(
             x_row, y_row)] for x_row, y_row in zip(x_grid, y_grid)])
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(x_grid, y_grid, z, cmap='viridis')
 
-        z_max = np.max(z)  # Maximum Z value for plots
+        fig, ax = plt.subplots()
+        # Create a heatmap (or contour map) of the cost function values
+        c = ax.contourf(x_grid, y_grid, z, cmap='viridis', levels=50)
+        fig.colorbar(c, ax=ax, label='Kostnad värde (J)')
 
+        # Flag to add label only once
+        label_added = False
+
+        # Plotting crosses at the microphone positions
         for mic in self.microphones:
             mic_pos = mic.get_position()
-            ax.plot([mic_pos[0], mic_pos[0]], [mic_pos[1], mic_pos[1]], [
-                    0, z_max], 'b-', linewidth=2, label='Microphone Position')
+            if not label_added:
+                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10 )
+                label_added = True
+            else:
+                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
 
-        ax.plot([actual_pos[0], actual_pos[0]], [actual_pos[1], actual_pos[1]], [
-                np.min(z), np.max(z)], color='k', linewidth=2)
-        ax.plot([estimated_pos[0], estimated_pos[0]], [estimated_pos[1], estimated_pos[1]], [
-                np.min(z), np.max(z)], color='r', linewidth=2, linestyle='--')
+        # Plotting and labeling the actual position cross
+        #ax.plot(actual_pos[0], actual_pos[1], 'rx', markersize=12, label='Actual Position')
+
+        # Plotting and labeling the estimated position cross
+        ax.plot(estimated_pos[0], estimated_pos[1], 'gx', markersize=12,)
 
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        ax.set_zlabel('Cost Function Value (J)')
-        ax.set_title('3D Surface Plot of the Cost Function')
+        ax.set_title('2D Heatmap of the Cost Function')
         plt.legend()
         plt.show()
 

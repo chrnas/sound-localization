@@ -1,5 +1,5 @@
 from .gridtrilaterate import get_distance, GridTravelSettings, trilaterate_grid
-from .receiver import Receiver 
+from .receiver import Receiver
 import time
 import pytest
 import numpy as np
