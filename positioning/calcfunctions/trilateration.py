@@ -44,8 +44,12 @@ class MicrophoneArray:
             source_pos (Union[list, np.ndarray]): The position of the sound source.
             speed_of_sound (float): The speed of sound used in the calculations (default: 343 m/s).
         """
+
         source_pos = np.array(
             source_pos)  # Ensure source position is an ndarray.
+
+        self.order_microphones_by_distance(source_pos=source_pos)
+
         pairs = self.generate_pairs_with_first()
         # Time difference for the first microphone is always zero.
         self.microphones[0].set_time_difference(0.0)
@@ -55,6 +59,16 @@ class MicrophoneArray:
                 source_pos - first_mic.get_position())
             time_diff = (distance - reference_distance) / speed_of_sound
             mic.set_time_difference(time_diff)
+
+    def order_microphones_by_distance(self, source_pos: np.ndarray) -> None:
+        """
+        Orders the microphones in the class based on their distances from the source position.
+
+        Args:
+            source_pos (np.ndarray): The position of the sound source.
+        """
+        self.microphones.sort(key=lambda mic: np.linalg.norm(
+            source_pos - mic.get_position()))
 
     def get_microphones(self) -> list[Receiver]:
         """
@@ -124,6 +138,9 @@ class MicrophoneArray:
                                        and the minimized cost function value.
         """
         self.create_dynamic_cost_function()
+        
+        [print(microphone.get_time_difference())
+         for microphone in self.get_microphones()]
 
         initial_guesses = np.mean([mic.get_position()
                                   for mic in self.get_microphones()], axis=0)
@@ -160,13 +177,13 @@ class MicrophoneArray:
         for mic in self.microphones:
             mic_pos = mic.get_position()
             if not label_added:
-                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10 )
+                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
                 label_added = True
             else:
                 ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
 
         # Plotting and labeling the actual position cross
-        #ax.plot(actual_pos[0], actual_pos[1], 'rx', markersize=12, label='Actual Position')
+        # ax.plot(actual_pos[0], actual_pos[1], 'rx', markersize=12, label='Actual Position')
 
         # Plotting and labeling the estimated position cross
         ax.plot(estimated_pos[0], estimated_pos[1], 'gx', markersize=12,)

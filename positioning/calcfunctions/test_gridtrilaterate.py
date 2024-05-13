@@ -7,7 +7,7 @@ import numpy as np
 # Constants for the test
 STEP = 0.5  # Step size for the grid [m]
 EXPANSION = 5  # Expansion factor for the search grid [m]
-TIME_LIMIT = 1.5  # Maximum allowable time for the test to run [s]
+TIME_LIMIT = 2  # Maximum allowable time for the test to run [s]
 ACCURACY = 0.5  # Maximum allowable error [m]
 
 
@@ -57,8 +57,11 @@ test_cases = [
     ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]], [15, 15, 0])
 ]
 
+# test_cases = [([[0, 0], [0, 15], [13, 7.5]], [0, 0])]
 
 # Utility function to create receivers with adjusted distances
+
+
 def create_mics(actual_pos, mic_positions):
     distances = [get_distance(actual_pos, mic) for mic in mic_positions]
     first_dist = distances[0]

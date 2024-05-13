@@ -57,7 +57,8 @@ test_cases = [
     ([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5], [15, 15, 0]], [15, 15, 0])
 ]
 
-test_cases = [([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [35, 35, 0])]
+# test_cases = [([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [35, 35, 0])]
+
 
 @pytest.mark.parametrize("mic_positions, actual_position", test_cases)
 def test_positioning_accuracy(mic_positions, actual_position):
@@ -67,9 +68,12 @@ def test_positioning_accuracy(mic_positions, actual_position):
     microphone_array = MicrophoneArray(mic_positions)
     start_time = time.time()
     microphone_array.calculate_time_diffs(actual_position)
-    [print(microphone.get_time_difference()) for microphone in microphone_array.get_microphones()]
+    # [print(microphone.get_time_difference()) for microphone in microphone_array.get_microphones()]
     result_position, _ = microphone_array.estimate_position()
-    #microphone_array.plot_cost_function(actual_pos=actual_position, estimated_pos=result_position)
+    # microphone_array.plot_cost_function(actual_pos=actual_position, estimated_pos=result_position)
 
-    assert np.linalg.norm(np.array(actual_position) - np.array(result_position)) <= ACCURACY, f"Position {actual_position} not within accuracy limits"
-    assert time.time() - start_time < TIME_LIMIT, f"Calculation exceeded time limit for position {actual_position}"
+    assert np.linalg.norm(np.array(actual_position) - np.array(result_position)
+                          ) <= ACCURACY, f"Position {actual_position} not within accuracy limits"
+    assert time.time() - \
+        start_time < TIME_LIMIT, f"Calculation exceeded time limit for position {
+            actual_position}"
