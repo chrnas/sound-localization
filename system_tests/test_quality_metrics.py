@@ -7,11 +7,17 @@ import pytest
 from math import sqrt, pow
 from datetime import datetime, timedelta
 import os
+from fake_data.generate_differences import (
+    Point,
+    Scenario
+)
 from fake_data.scenarios import (
     SCENARIOS_2D,
-    SCENARIOS_3D
+    SCENARIOS_3D,
+    SCENARIOS
 )
-
+import positioning.tdoa as tdoa
+from positioning.calcfunctions.receiver import Receiver
 
 @pytest.mark.skip  # Not implemented
 def test_2d_error():
@@ -64,6 +70,13 @@ def test_delay():
 
 # Helper functions
 
+def coords_from_point(point: Point):
+    return [point.x, point.y, point.z]
+
+def data_from_scenario(scenario: Scenario, folder: str):
+    audio_files = os.listdir(folder)
+    return {Receiver(coords_from_point(receiver)): audio_files[i] for
+            i, receiver in enumerate(scenario.receivers)}
 
 def distance(source: tuple[float, float, float],
              guess: tuple[float, float, float]):
@@ -76,23 +89,24 @@ def distance(source: tuple[float, float, float],
     return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2))
 
 
-def within_2d_error(scenario, folder: str):
+def within_2d_error(scenario: Scenario, folder: str):
     """
     Quality requirement: 3.5.2
     Verifies that a guessed postion is within the allowed margin of error for
     the 2d plane.
     """
+    method = tdoa.MethodClass()
+    method.set_setting("algorithm", "gradient")
     source = scenario.sender
-    # audio_files = os.listdir(folder)
-    # TODO: guess = guess_pos(data)
-    guess = (0, 0, 0)  # TODO: temp replace with actual guess above.
+    data = data_from_scenario(scenario, folder)
+    guess = method.find_source(data)
     microphone_distance = scenario.receivers[0].distance(scenario.receivers[1])
     source_no_z = (source.x, source.y, 0)
     guess_no_z = (guess[0], guess[1], 0)
     return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
 
 
-def within_3d_error(scenario, folder: str):
+def within_3d_error(scenario: Scenario, folder: str):
     """
     Quality requirement: 3.5.4
     Verifies that a guessed postion is within the allowed margin of error for
@@ -105,7 +119,7 @@ def within_3d_error(scenario, folder: str):
     return distance(source, guess) <= 5
 
 
-def within_allowed_time(folder: str):
+def within_allowed_time(scenario: Scenario, folder: str):
     """
     Quality requirement: 3.5.3
     Verifies that a answer is given within the allowed time.
@@ -130,8 +144,8 @@ if __name__ == "__main__":
         [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
          within_3d_error(scenario, folder)]) / len(folders_3d) * 100
     pass_delay_percentage = (len(
-        [0 for folder in folders
-         if within_allowed_time(folder)]) / len(folders) * 100)
+        [0 for scenario, folder in zip(SCENARIOS, folders)
+         if within_allowed_time(scenario, folder)]) / len(folders) * 100)
 
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")
