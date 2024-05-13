@@ -26,7 +26,7 @@ class MethodClass(MethodBaseClass):
 
         receivers: list[Receiver] = calculate_time_differences(
             mic_data, sampling_rate=sampling_rate)
-        
+
         if self.settings['algorithm'] == "grid":
             dimenstion: int = len(receivers[0].get_position())
             self.settings["grid settings"].set_dimension(dimension=dimenstion)
@@ -88,7 +88,12 @@ def calculate_time_differences(receivers: dict[Receiver, list[float]], sampling_
                     [sum(pairwise_time_diffs[step] for step in path) for path in all_paths])
                 receiver.set_time_difference(average_time_diff)
 
-    return list(receivers.keys())
+
+    ordered_microphones = list(receivers.keys())
+    ordered_microphones.sort(
+        key=lambda mic: mic.get_time_difference())
+
+    return ordered_microphones
 
 
 def find_all_paths(start, end, receivers, pairwise_time_diffs):
