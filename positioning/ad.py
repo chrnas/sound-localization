@@ -1,6 +1,7 @@
 from .methodclass import MethodBaseClass
 from typing import Any
 from .calcfunctions.receiver import Receiver
+from .calcfunctions.gridtrilaterate import GridTravelSettings
 from .TidsförskjutningBeräkning import read_wav_file
 import numpy as np
 
@@ -8,7 +9,7 @@ import numpy as np
 class MethodClass(MethodBaseClass):
     def __init__(self) -> None:
         self.settings: dict[str, Any] = {"algorithm": "grid"}
-        self.settings["grid settings"] = cf.GridTravelSettings(
+        self.settings["grid settings"] = GridTravelSettings(
             dimensions=2, step=0.1)
         self.settings["number of peaks"] = 5
 
