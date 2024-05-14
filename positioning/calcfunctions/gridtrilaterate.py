@@ -47,7 +47,8 @@ def get_error(coords, mics):
 
         left_side = math.sqrt(current_eqv) - math.sqrt(previous_eqv)
 
-        right_side = mic.get_distance_difference() - previous_mic.get_distance_difference()
+        right_side = mic.get_distance_difference() - \
+            previous_mic.get_distance_difference()
 
         error += abs(left_side - right_side)
 
@@ -63,10 +64,11 @@ def get_amp_error(coords, mics):
         for i in range(len(coords)):
             current_eqv += (coords[i] - mic.coords[i])**2
             previous_eqv += (coords[i] - previous_mic.coords[i])**2
-       
-        numerator = math.sqrt(previous_eqv)/math.sqrt(current_eqv)
-        relation = previous_mic.get_distance_difference()/mic.get_distance_difference()
-        error += abs(relation-numerator)
+
+        source_dist_relation = math.sqrt(previous_eqv) / math.sqrt(current_eqv)
+        mic_dist_relation = previous_mic.get_distance_difference() / \
+            mic.get_distance_difference()
+        error += abs(mic_dist_relation-source_dist_relation)
 
     return error
 
@@ -139,12 +141,14 @@ def trilaterate_grid(mics, settings):
         smallest[i] -= settings.smallest_expansion[i]
         biggest[i] += settings.biggest_expansion[i]
 
-    best_pos = travel_grid(mics, smallest, biggest, settings.step, settings.amp_error)
+    best_pos = travel_grid(mics, smallest, biggest,
+                           settings.step, settings.amp_error)
 
     return best_pos
 
 
-def get_distance(sound_pos: Sequence[float], mic_pos: Sequence[float]) -> float:
+def get_distance(sound_pos: Sequence[float],
+                 mic_pos: Sequence[float]) -> float:
     # Convert input sequences to numpy arrays if they aren't already
     if not isinstance(sound_pos, np.ndarray):
         sound_pos = np.array(sound_pos)

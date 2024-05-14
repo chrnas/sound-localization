@@ -1,6 +1,6 @@
 from .methodclass import MethodBaseClass
 from typing import Any
-from . import calcfunctions as cf
+from .calcfunctions.receiver import Receiver
 from .TidsförskjutningBeräkning import read_wav_file
 import numpy as np
 
@@ -12,7 +12,8 @@ class MethodClass(MethodBaseClass):
             dimensions=2, step=0.1)
         self.settings["number of peaks"] = 5
 
-    def find_source(self, mic_data: dict[cf.receiver.Receiver, Union[list[float], str]]) -> list[float]:
+    def find_source(self, mic_data: dict[Receiver,
+                    Union[list[float], str]]) -> list[float]:
         sampling_rate = 1
 
         for receiver, data in mic_data.items():
@@ -28,7 +29,8 @@ class MethodClass(MethodBaseClass):
             self.settings[setting] = value
 
 
-def calculate_amplitudes(self, receivers: dict[cf.Receiver, list[float]], sampling_rate: int = 1) -> list[cf.Receiver]:
+def calculate_amplitudes(self, receivers: dict[Receiver, list[float]],
+                         sampling_rate: int = 1) -> list[Receiver]:
     lst = []
     for receiver, samples in receivers.items():
         data = np.sort(np.abs(samples))
