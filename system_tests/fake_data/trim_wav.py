@@ -61,6 +61,6 @@ if __name__ == "__main__":
             os.makedirs(folder, exist_ok=True)
             trim_and_save_audio(test_audio,
                                 trim_total_seconds,
-                                trim_seconds,
+                                trim_total_seconds - trim_seconds,
                                 folder,
                                 file_name)

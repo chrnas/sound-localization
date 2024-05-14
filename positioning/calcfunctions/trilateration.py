@@ -1,63 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
 from scipy.optimize import minimize
 from typing import Union
 import sympy as sp
 import time
 import os
-from . symbolic_helpers import load_expression
-
-
-class Microphone:
-    """
-    Represents a microphone with a position and time difference attribute.
-    This time differents will represent the time between the first microphone to detect a sound and this microphone.
-    As such the time difference of the first microphone will be 0 seconds.
-    """
-
-    def __init__(self, position: Union[list, np.ndarray]):
-        """
-        Initialize a Microphone instance with a position.
-
-        Args:
-            position (Union[list, np.ndarray]): The position of the microphone,
-                                                either as a list or np.ndarray.
-        Raises:
-            TypeError: If the position is not a list or np.ndarray.
-        """
-        if isinstance(position, (list, np.ndarray)):
-            self.position = np.array(position)
-        else:
-            raise TypeError("Position must be a list or numpy ndarray.")
-
-        self.time_difference = 0.0  # Initial time difference, set later.
-
-    def set_time_difference(self, time_diff: float) -> None:
-        """
-        Set the time difference for this microphone.
-
-        Args:
-            time_diff (float): The time difference to be set.
-        """
-        self.time_difference = time_diff
-
-    def get_position(self) -> np.ndarray:
-        """
-        Retrieve the position of the microphone.
-
-        Returns:
-            np.ndarray: The position of the microphone.
-        """
-        return self.position
-
-    def get_time_difference(self) -> float:
-        """
-        Retrieve the time difference associated with this microphone.
-
-        Returns:
-            float: The time difference.
-        """
-        return self.time_difference
+from .symbolic_helpers import load_expression
+from .receiver import Receiver
 
 
 class MicrophoneArray:
@@ -66,14 +16,22 @@ class MicrophoneArray:
     estimate source positions, and evaluate cost functions.
     """
 
-    def __init__(self, positions: list[np.ndarray]):
+    def __init__(self, items: list[Union[np.ndarray, list, Receiver]]):
         """
         Initialize a MicrophoneArray with a list of positions.
 
         Args:
             positions (list[np.ndarray]): Positions of microphones in the array.
         """
-        self.microphones = [Microphone(pos) for pos in positions]
+        if all(isinstance(item, np.ndarray) or isinstance(item, list) for item in items):
+            # If items are arrays or lists, create new Receiver objects
+            self.microphones = [Receiver(pos) for pos in items]
+        elif all(isinstance(item, Receiver) for item in items):
+            # If items are Receiver objects, add them directly
+            self.microphones = items
+        else:
+            raise ValueError(
+                "All items must be either lists, numpy arrays, or Receiver instances.")
         self.cost_function = None
         self.gradient_functions = None
         self.hessian_function = None
@@ -86,8 +44,12 @@ class MicrophoneArray:
             source_pos (Union[list, np.ndarray]): The position of the sound source.
             speed_of_sound (float): The speed of sound used in the calculations (default: 343 m/s).
         """
+
         source_pos = np.array(
             source_pos)  # Ensure source position is an ndarray.
+
+        self.order_microphones_by_distance(source_pos=source_pos)
+
         pairs = self.generate_pairs_with_first()
         # Time difference for the first microphone is always zero.
         self.microphones[0].set_time_difference(0.0)
@@ -98,7 +60,17 @@ class MicrophoneArray:
             time_diff = (distance - reference_distance) / speed_of_sound
             mic.set_time_difference(time_diff)
 
-    def get_microphones(self) -> list[Microphone]:
+    def order_microphones_by_distance(self, source_pos: np.ndarray) -> None:
+        """
+        Orders the microphones in the class based on their distances from the source position.
+
+        Args:
+            source_pos (np.ndarray): The position of the sound source.
+        """
+        self.microphones.sort(key=lambda mic: np.linalg.norm(
+            source_pos - mic.get_position()))
+
+    def get_microphones(self) -> list[Receiver]:
         """
         Retrieve a list of microphones in the array.
 
@@ -114,6 +86,7 @@ class MicrophoneArray:
         Returns:
             int: Number of dimensions.
         """
+
         return len(self.microphones[0].get_position())
 
     def get_num_microphones(self) -> int:
@@ -125,7 +98,7 @@ class MicrophoneArray:
         """
         return len(self.microphones)
 
-    def generate_pairs_with_first(self) -> list[tuple[Microphone, Microphone]]:
+    def generate_pairs_with_first(self) -> list[tuple[Receiver, Receiver]]:
         """
         Generate pairs of the first microphone with each of the other microphones.
 
@@ -135,14 +108,14 @@ class MicrophoneArray:
         first_mic = self.microphones[0]
         return [(first_mic, mic) for mic in self.microphones[1:]]
 
-    def add_microphones(self, mics: Union[Microphone, list[Microphone]]) -> None:
+    def add_microphones(self, mics: Union[Receiver, list[Receiver]]) -> None:
         """
         Adds one or more microphones to the array and sorts all microphones by time difference.
 
         Args:
             mics (Union[Microphone, list[Microphone]]): A single Microphone instance or a list of Microphone instances.
         """
-        if isinstance(mics, Microphone):
+        if isinstance(mics, Receiver):
             self.microphones.append(mics)
         elif isinstance(mics, list):
             self.microphones.extend(mics)
@@ -164,10 +137,10 @@ class MicrophoneArray:
             tuple[np.ndarray, float]: A tuple containing the estimated position of the sound source
                                        and the minimized cost function value.
         """
-        start_time: float = time.time()
         self.create_dynamic_cost_function()
-        print(f"to create all of the functions took about: {
-              time.time() - start_time}")
+        
+        [print(microphone.get_time_difference())
+         for microphone in self.get_microphones()]
 
         initial_guesses = np.mean([mic.get_position()
                                   for mic in self.get_microphones()], axis=0)
@@ -188,29 +161,36 @@ class MicrophoneArray:
             estimated_pos (np.ndarray): The estimated position of the sound source as determined by the optimization.
         """
         x_grid, y_grid = np.meshgrid(
-            np.arange(-200, 200, 5), np.arange(-200, 200, 5))
-        z = np.array([[self.cost(np.array([x, y])) for x, y in zip(
+            np.arange(-50, 50, 2), np.arange(-50, 50, 2))
+        z = np.array([[self.evaluate_cost(np.array([x, y])) for x, y in zip(
             x_row, y_row)] for x_row, y_row in zip(x_grid, y_grid)])
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(x_grid, y_grid, z, cmap='viridis')
 
-        z_max = np.max(z)  # Maximum Z value for plots
+        fig, ax = plt.subplots()
+        # Create a heatmap (or contour map) of the cost function values
+        c = ax.contourf(x_grid, y_grid, z, cmap='viridis', levels=50)
+        fig.colorbar(c, ax=ax, label='Kostnad värde (J)')
 
+        # Flag to add label only once
+        label_added = False
+
+        # Plotting crosses at the microphone positions
         for mic in self.microphones:
             mic_pos = mic.get_position()
-            ax.plot([mic_pos[0], mic_pos[0]], [mic_pos[1], mic_pos[1]], [
-                    0, z_max], 'b-', linewidth=2, label='Microphone Position')
+            if not label_added:
+                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
+                label_added = True
+            else:
+                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
 
-        ax.plot([actual_pos[0], actual_pos[0]], [actual_pos[1], actual_pos[1]], [
-                np.min(z), np.max(z)], color='k', linewidth=2)
-        ax.plot([estimated_pos[0], estimated_pos[0]], [estimated_pos[1], estimated_pos[1]], [
-                np.min(z), np.max(z)], color='r', linewidth=2, linestyle='--')
+        # Plotting and labeling the actual position cross
+        # ax.plot(actual_pos[0], actual_pos[1], 'rx', markersize=12, label='Actual Position')
+
+        # Plotting and labeling the estimated position cross
+        ax.plot(estimated_pos[0], estimated_pos[1], 'gx', markersize=12,)
 
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        ax.set_zlabel('Cost Function Value (J)')
-        ax.set_title('3D Surface Plot of the Cost Function')
+        ax.set_title('2D Heatmap of the Cost Function')
         plt.legend()
         plt.show()
 
@@ -258,8 +238,6 @@ class MicrophoneArray:
             all_params, gradients_expr, modules=modules)
         self.hessian_function = sp.lambdify(
             all_params, hessian_expr, modules=modules)
-
-        print("Dynamic cost functions loaded and ready for use.")
 
     def create_dynamic_cost_function_old(self):
         """

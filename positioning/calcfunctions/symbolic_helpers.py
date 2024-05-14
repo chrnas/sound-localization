@@ -62,9 +62,7 @@ def load_expression(filename):
         FileNotFoundError: If the expression file cannot be found.
     """
 
-    base_dir = os.getcwd()
-    base_dir = os.path.join(base_dir, "positioning")
-
+    base_dir = os.path.dirname(__file__)
     full_path = os.path.join(base_dir, filename)
 
     # Check if the file exists at the full path.
