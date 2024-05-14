@@ -11,6 +11,7 @@ class GridTravelSettings():
     def __init__(self, dimensions, step):
         self.set_dimension(dimension=dimensions) 
         self.step = step  # How far to travel between each search point
+        self.amp_error = False
 
     def set_dimension(self, dimension: int) -> None:
         self.dimensions = dimension  # Number of dimensions the settings
@@ -53,7 +54,24 @@ def get_error(coords, mics):
     return error
 
 
-def travel_grid(mics, smallest, biggest, step):
+def get_amp_error(coords, mics):
+    previous_mic = mics[-1]
+    error = 0
+    for mic in mics:
+        current_eqv = 0
+        previous_eqv = 0
+        for i in range(len(coords)):
+            current_eqv += (coords[i] - mic.coords[i])**2
+            previous_eqv += (coords[i] - previous_mic.coords[i])**2
+       
+        numerator = math.sqrt(previous_eqv)/math.sqrt(current_eqv)
+        relation = previous_mic.get_distance_difference()/mic.get_distance_difference()
+        error += abs(relation-numerator)
+
+    return error
+
+
+def travel_grid(mics, smallest, biggest, step, amp_error):
     """
     Scan the grid and return the best position of the sound source
     Gets called on by find_sound_source
@@ -73,7 +91,12 @@ def travel_grid(mics, smallest, biggest, step):
     last_changed = False
 
     while True:
-        current_error = get_error(positions, mics)
+        current_error = 0
+        if amp_error:
+            current_error = get_amp_error(positions, mics)
+        else:
+            current_error = get_error(positions, mics)
+
         if best_error > current_error:
             best_pos = positions.copy()
             best_error = current_error
@@ -116,7 +139,7 @@ def trilaterate_grid(mics, settings):
         smallest[i] -= settings.smallest_expansion[i]
         biggest[i] += settings.biggest_expansion[i]
 
-    best_pos = travel_grid(mics, smallest, biggest, settings.step)
+    best_pos = travel_grid(mics, smallest, biggest, settings.step, settings.amp_error)
 
     return best_pos
 
