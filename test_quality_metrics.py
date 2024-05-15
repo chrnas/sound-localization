@@ -7,11 +7,11 @@ import pytest
 from math import sqrt, pow
 from datetime import datetime, timedelta
 import os
-from fake_data.generate_differences import (
+from system_tests.fake_data.generate_differences import (
     Point,
     Scenario
 )
-from fake_data.scenarios import (
+from system_tests.fake_data.scenarios import (
     SCENARIOS_2D,
     SCENARIOS_3D,
     SCENARIOS
@@ -70,13 +70,20 @@ def test_delay():
 
 # Helper functions
 
-def coords_from_point(point: Point):
+def get_abs_path(relative_path):
+    return os.path.normpath(os.path.join(os.path.dirname(__file__), relative_path))
+
+def point_to_2d(point: Point):
+    return [point.x, point.y]
+
+def point_to_3d(point: Point):
     return [point.x, point.y, point.z]
 
 def data_from_scenario(scenario: Scenario, folder: str):
     audio_files = os.listdir(folder)
-    return {Receiver(coords_from_point(receiver)): audio_files[i] for
-            i, receiver in enumerate(scenario.receivers)}
+    return {Receiver(point_to_2d(receiver)): 
+            get_abs_path(f"{folder}/{audio_file}") for
+            receiver, audio_file in zip(scenario.receivers, audio_files)}
 
 def distance(source: tuple[float, float, float],
              guess: tuple[float, float, float]):
@@ -129,17 +136,21 @@ def within_allowed_time(scenario: Scenario, folder: str):
     # TODO: guess_pos(data) # perform guess
     return datetime.now() - start <= timedelta(seconds=0.5)
 
-
 if __name__ == "__main__":
     os.listdir(os.path.dirname(__file__))
     # When collecting metrics this is run instead of the pytest tests.
-    folders_2d = os.path.join(os.path.dirname(__file__), "fake_data/audio_2d")
-    folders_3d = os.path.join(os.path.dirname(__file__), "fake_data/audio_3d")
+    path_2d = "system_tests/fake_data/audio_2d/"
+    path_3d = "system_tests/fake_data/audio_3d/"
+    folders_2d = os.listdir(get_abs_path("system_tests/fake_data/audio_2d/"))
+    folders_2d.sort(key=lambda x: float(x.strip('scenario_')))
+    folders_3d = os.listdir(get_abs_path("system_tests/fake_data/audio_3d/"))
+    folders_3d.sort(key=lambda x: float(x.strip('scenario_')))
     folders = folders_2d + folders_3d
 
     pass_2d_percentage = len(
-        [0 for scenario, folder in zip(SCENARIOS_2D, folders_2d) if
-         within_2d_error(scenario, folder)]) / len(folders_2d) * 100
+        [0 for scenario, folder in zip(SCENARIOS_2D,  folders_2d) if
+         within_2d_error(scenario, 
+                         get_abs_path(path_2d + folder))]) / len(folders_2d) * 100
     pass_3d_percentage = len(
         [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
          within_3d_error(scenario, folder)]) / len(folders_3d) * 100
