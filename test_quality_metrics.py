@@ -19,6 +19,7 @@ from system_tests.fake_data.scenarios import (
 import positioning.tdoa as tdoa
 from positioning.calcfunctions.receiver import Receiver
 
+
 @pytest.mark.skip  # Not implemented
 def test_2d_error():
     """
@@ -70,20 +71,32 @@ def test_delay():
 
 # Helper functions
 
+
 def get_abs_path(relative_path):
     return os.path.normpath(os.path.join(os.path.dirname(__file__), relative_path))
+
 
 def point_to_2d(point: Point):
     return [point.x, point.y]
 
+
 def point_to_3d(point: Point):
     return [point.x, point.y, point.z]
 
-def data_from_scenario(scenario: Scenario, folder: str):
+
+def data2d_from_scenario(scenario: Scenario, folder: str):
     audio_files = os.listdir(folder)
-    return {Receiver(point_to_2d(receiver)): 
+    return {Receiver(point_to_2d(receiver)):
             get_abs_path(f"{folder}/{audio_file}") for
             receiver, audio_file in zip(scenario.receivers, audio_files)}
+
+
+def data3d_from_scenario(scenario: Scenario, folder: str):
+    audio_files = os.listdir(folder)
+    return {Receiver(point_to_3d(receiver)):
+            get_abs_path(f"{folder}/{audio_file}") for
+            receiver, audio_file in zip(scenario.receivers, audio_files)}
+
 
 def distance(source: tuple[float, float, float],
              guess: tuple[float, float, float]):
@@ -105,7 +118,7 @@ def within_2d_error(scenario: Scenario, folder: str):
     method = tdoa.MethodClass()
     method.set_setting("algorithm", "gradient")
     source = scenario.sender
-    data = data_from_scenario(scenario, folder)
+    data = data2d_from_scenario(scenario, folder)
     guess = method.find_source(data)
     microphone_distance = scenario.receivers[0].distance(scenario.receivers[1])
     source_no_z = (source.x, source.y, 0)
@@ -119,10 +132,13 @@ def within_3d_error(scenario: Scenario, folder: str):
     Verifies that a guessed postion is within the allowed margin of error for
     three dimensions.
     """
-    source = (scenario.sender.x, scenario.sender.y, scenario.sender.z)
-    # audio_files = os.listdir(folder)
-    # TODO: guess = guess_pos(data)
-    guess = (0, 0, 0)  # TODO: temp replace with actual guess above.
+    method = tdoa.MethodClass()
+    method.set_setting("algorithm", "gradient")
+    _source = scenario.sender
+    data = data3d_from_scenario(scenario, folder)
+    _guess = method.find_source(data)
+    source = (_source.x, _source.y, _source.z)
+    guess = (_guess[0], _guess[1], _guess[2])
     return distance(source, guess) <= 5
 
 
@@ -136,6 +152,7 @@ def within_allowed_time(scenario: Scenario, folder: str):
     # TODO: guess_pos(data) # perform guess
     return datetime.now() - start <= timedelta(seconds=0.5)
 
+
 if __name__ == "__main__":
     os.listdir(os.path.dirname(__file__))
     # When collecting metrics this is run instead of the pytest tests.
@@ -147,13 +164,19 @@ if __name__ == "__main__":
     folders_3d.sort(key=lambda x: float(x.strip('scenario_')))
     folders = folders_2d + folders_3d
 
+    res_2d = [within_2d_error(scenario, get_abs_path(path_2d + folder)) 
+              for scenario, folder in zip(SCENARIOS_2D,  folders_2d)]
+    res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder)) 
+              for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
+
     pass_2d_percentage = len(
         [0 for scenario, folder in zip(SCENARIOS_2D,  folders_2d) if
-         within_2d_error(scenario, 
+         within_2d_error(scenario,
                          get_abs_path(path_2d + folder))]) / len(folders_2d) * 100
     pass_3d_percentage = len(
         [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
-         within_3d_error(scenario, folder)]) / len(folders_3d) * 100
+         within_3d_error(scenario,
+                         get_abs_path(path_3d + folder))]) / len(folders_3d) * 100
     pass_delay_percentage = (len(
         [0 for scenario, folder in zip(SCENARIOS, folders)
          if within_allowed_time(scenario, folder)]) / len(folders) * 100)
