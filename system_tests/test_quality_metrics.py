@@ -3,10 +3,16 @@ This file contains the data collection for quality metrics related to the
 system.
 """
 
+# Needed to be able to import from parent directory
+import sys
+import os
+dirname = os.path.dirname(__file__)
+root_path = os.path.join(dirname, "../")
+sys.path.append(root_path)
+
 import pytest
 from math import sqrt, pow
 from datetime import datetime, timedelta
-import os
 from system_tests.fake_data.generate_differences import (
     Point,
     Scenario
@@ -14,7 +20,6 @@ from system_tests.fake_data.generate_differences import (
 from system_tests.fake_data.scenarios import (
     SCENARIOS_2D,
     SCENARIOS_3D,
-    SCENARIOS
 )
 import positioning.tdoa as tdoa
 from positioning.calcfunctions.receiver import Receiver
@@ -162,11 +167,11 @@ def within_allowed_time(scenario: Scenario, folder: str):
 if __name__ == "__main__":
     os.listdir(os.path.dirname(__file__))
     # When collecting metrics this is run instead of the pytest tests.
-    path_2d = "system_tests/fake_data/audio_2d/"
-    path_3d = "system_tests/fake_data/audio_3d/"
-    folders_2d = os.listdir(get_abs_path("system_tests/fake_data/audio_2d/"))
+    path_2d = "fake_data/audio_2d/"
+    path_3d = "fake_data/audio_3d/"
+    folders_2d = os.listdir(get_abs_path(path_2d))
     folders_2d.sort(key=lambda x: float(x.strip('scenario_')))
-    folders_3d = os.listdir(get_abs_path("system_tests/fake_data/audio_3d/"))
+    folders_3d = os.listdir(get_abs_path(path_3d))
     folders_3d.sort(key=lambda x: float(x.strip('scenario_')))
     folders = folders_2d + folders_3d
 
