@@ -119,11 +119,14 @@ def within_2d_error(scenario: Scenario, folder: str):
     method.set_setting("algorithm", "gradient")
     source = scenario.sender
     data = data2d_from_scenario(scenario, folder)
+    start_time = datetime.now()
     guess = method.find_source(data)
+    end_time = datetime.now()
     microphone_distance = scenario.receivers[0].distance(scenario.receivers[1])
     source_no_z = (source.x, source.y, 0)
     guess_no_z = (guess[0], guess[1], 0)
-    return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
+    accepted = distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
+    return accepted, end_time - start_time
 
 
 def within_3d_error(scenario: Scenario, folder: str):
@@ -136,10 +139,13 @@ def within_3d_error(scenario: Scenario, folder: str):
     method.set_setting("algorithm", "gradient")
     _source = scenario.sender
     data = data3d_from_scenario(scenario, folder)
+    start_time = datetime.now()
     _guess = method.find_source(data)
+    end_time = datetime.now()
     source = (_source.x, _source.y, _source.z)
     guess = (_guess[0], _guess[1], _guess[2])
-    return distance(source, guess) <= 5
+    accepted = distance(source, guess) <= 5
+    return accepted, end_time - start_time
 
 
 def within_allowed_time(scenario: Scenario, folder: str):
@@ -168,18 +174,14 @@ if __name__ == "__main__":
               for scenario, folder in zip(SCENARIOS_2D,  folders_2d)]
     res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder)) 
               for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
+    res_delay = [0 for _, delay in res_2d +
+                 res_3d if delay <= timedelta(seconds=0.5)]
 
-    pass_2d_percentage = len(
-        [0 for scenario, folder in zip(SCENARIOS_2D,  folders_2d) if
-         within_2d_error(scenario,
-                         get_abs_path(path_2d + folder))]) / len(folders_2d) * 100
-    pass_3d_percentage = len(
-        [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
-         within_3d_error(scenario,
-                         get_abs_path(path_3d + folder))]) / len(folders_3d) * 100
-    pass_delay_percentage = (len(
-        [0 for scenario, folder in zip(SCENARIOS, folders)
-         if within_allowed_time(scenario, folder)]) / len(folders) * 100)
+    pass_2d_percentage = len([0 for x in res_2d if x[0]]
+                             ) / len(folders_2d) * 100
+    pass_3d_percentage = len([0 for x in res_2d if x[0]]
+                             ) / len(folders_3d) * 100
+    pass_delay_percentage = len(res_delay) / len(folders) * 100
 
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")
