@@ -1,8 +1,14 @@
 import argparse
+import os
+from typing import Any, Dict
 from prompt_toolkit import prompt
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import NestedCompleter
 from prompt_toolkit.history import InMemoryHistory
-from .commands import pos_list, pos_set_setting, calculate_position, mic_list, mic_add, mic_remove, mic_add_soundfile
+from .commands import pos_list, pos_set_setting, calculate_position, mic_list, mic_add, mic_remove, mic_add_soundfile, read_mics
+
+# Define base path and directory name
+base_path = os.path.abspath(os.path.dirname(__file__))
+dirname = os.path.abspath(os.path.join(base_path, '..'))
 
 
 def print_startup():
@@ -67,7 +73,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def handle_command(args, positioning_methods):
+def handle_command(args, positioning_methods) -> bool:
     match args.command:
         case "test":
             print("Args are:")
@@ -86,44 +92,68 @@ def handle_command(args, positioning_methods):
             mic_list()
         case "MicAdd":
             mic_add(args.mic, args.soundfile)
+            return True  # Indicate that the completer should be updated
         case "MicRemove":
             mic_remove(args.mic)
+            return True  # Indicate that the completer should be updated
         case "MicAddSoundFile":
             mic_add_soundfile(args.mic, args.soundfile)
+            return False
         case "exit":
             print("Exiting CLI.")
             exit(0)
         case _:
             print("Unknown command")
+    return False
 
 
-command_list = [
-    "test", "PosList", "PosSetSetting", "CalculatePosition",
-    "MicList", "MicAdd", "MicRemove", "MicAddSoundFile", "exit"
-]
+def create_completer(positioning_methods: Dict[str, Any]) -> NestedCompleter:
+    # Read microphones from file
+    mics_data = read_mics()
+    mic_names = [mic['name'] for mic in mics_data]
+
+    # Extract method names and their possible settings
+    completer_dict = {
+        'test': None,
+        'PosList': None,
+        'PosSetSetting': {},
+        'CalculatePosition': {},
+        'MicList': None,
+        'MicAdd': None,
+        'MicRemove': {mic: None for mic in mic_names + ['all']},
+        'MicAddSoundFile': {mic: None for mic in mic_names},
+        'exit': None
+    }
+
+    for method_name, method_instance in positioning_methods.items():
+        settings_completions = {
+            setting: None for setting in method_instance.method.all_possible_settings.keys()}
+        completer_dict['PosSetSetting'][method_name] = settings_completions
+        completer_dict['CalculatePosition'][method_name] = None
+
+    return NestedCompleter.from_nested_dict(completer_dict)
 
 
 def run_cli(positioning_data):
     parser = create_parser()
-    completer = WordCompleter(command_list, ignore_case=True)
     history = InMemoryHistory()
 
     while True:
+        # Create the completer based on the positioning data
+        completer = create_completer(positioning_data)
+
         try:
             input_str = prompt("> ", completer=completer, history=history)
             if input_str.strip().lower() == 'exit':
                 print("Exiting CLI.")
                 break
             args = parser.parse_args(input_str.split())
-            handle_command(args, positioning_data)
+            update_completer = handle_command(args, positioning_data)
+            if update_completer:
+                # Recreate completer if a microphone was added or removed
+                completer = create_completer(positioning_data)
         except SystemExit:
             # argparse throws a SystemExit exception if parsing fails, we'll catch it to keep the loop running
             continue
         except Exception as e:
             print(f"Error: {e}")
-
-
-if __name__ == "__main__":
-    print_startup()
-    positioning_data = {}  # Replace with actual initialization
-    run_cli(positioning_data)
