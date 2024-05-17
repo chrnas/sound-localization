@@ -176,7 +176,7 @@ if __name__ == "__main__":
     folders = folders_2d + folders_3d
 
     res_2d = [within_2d_error(scenario, get_abs_path(path_2d + folder))
-              for scenario, folder in zip(SCENARIOS_2D,  folders_2d)]
+              for scenario, folder in zip(SCENARIOS_2D, folders_2d)]
     res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder))
               for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
     res_delay = [0 for _, delay in res_2d + res_3d
