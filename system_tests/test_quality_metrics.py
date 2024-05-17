@@ -77,6 +77,7 @@ def test_delay():
 # Helper functions
 
 
+
 def get_abs_path(relative_path):
     return os.path.normpath(os.path.join(os.path.dirname(__file__), relative_path))
 
@@ -101,6 +102,7 @@ def data3d_from_scenario(scenario: Scenario, folder: str):
     return {Receiver(point_to_3d(receiver)):
             get_abs_path(f"{folder}/{audio_file}") for
             receiver, audio_file in zip(scenario.receivers, audio_files)}
+
 
 
 def distance(source: tuple[float, float, float],
