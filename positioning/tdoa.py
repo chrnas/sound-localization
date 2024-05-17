@@ -62,26 +62,29 @@ class TDOAMethod(MethodBaseClass):
                     try:
                         value = expected_type(value)
                     except (ValueError, TypeError):
-                        raise ValueError(f"Invalid type for setting {setting}. Expected {expected_type.__name__}, but got {type(value).__name__}")
+                        raise ValueError(f"Invalid type for setting {setting}. Expected {
+                                         expected_type.__name__}, but got {type(value).__name__}")
                 setattr(self.settings['grid settings'], grid_setting, value)
             else:
-                raise ValueError(f"No grid setting by the name of {grid_setting}")
+                raise ValueError(
+                    f"No grid setting by the name of {grid_setting}")
         elif setting in self.all_possible_settings:
             expected_values = self.all_possible_settings[setting]
             if expected_values and not isinstance(expected_values[0], type):
                 if value not in expected_values:
-                    raise ValueError(f"Invalid value for setting {setting}. Expected one of {expected_values}, but got {value}")
+                    raise ValueError(f"Invalid value for setting {setting}. Expected one of {
+                                     expected_values}, but got {value}")
             else:
                 expected_type = expected_values[0]
                 if not isinstance(value, expected_type):
                     try:
                         value = expected_type(value)
                     except (ValueError, TypeError):
-                        raise ValueError(f"Invalid type for setting {setting}. Expected {expected_type.__name__}, but got {type(value).__name__}")
+                        raise ValueError(f"Invalid type for setting {setting}. Expected {
+                                         expected_type.__name__}, but got {type(value).__name__}")
             self.settings[setting] = value
         else:
             raise ValueError(f"No setting by the name of {setting}")
-
 
 
 def calculate_time_differences(receivers: dict[Receiver, list[float]], sampling_rate: int = 1) -> list[Receiver]:
