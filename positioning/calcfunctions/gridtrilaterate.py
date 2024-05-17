@@ -9,7 +9,7 @@ from typing import Sequence
 class GridTravelSettings():
 
     def __init__(self, dimensions, step):
-        self.set_dimension(dimension=dimensions) 
+        self.set_dimension(dimension=dimensions)
         self.step = step  # How far to travel between each search point
         self.amp_error = False
 
