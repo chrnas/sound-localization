@@ -1,9 +1,6 @@
 import numpy as np
-import warnings
 import pytest
-from scipy.io import wavfile
-from .TidsförskjutningBeräkning import create_wav_object, calc_shifted_samples_fft, calc_offset_wav
-import os
+from .TidsförskjutningBeräkning import create_wav_object, calc_shifted_samples_fft
 
 
 @pytest.fixture

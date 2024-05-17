@@ -1,8 +1,6 @@
 from .calcfunctions import constants
 from .calcfunctions.receiver import Receiver
-from .methodclass import MethodBaseClass
 from .tdoa import MethodClass, calculate_time_differences
-from .calcfunctions.receiver import Receiver
 import numpy as np
 from .TidsförskjutningBeräkning import calc_offset_from_samples
 
@@ -129,7 +127,6 @@ def identify_first_sound(sounds):
 
     # Choose one sound as a reference, compare it against all others
     reference_sound = sounds[0]
-
 
     for i in range(1, len(sounds)):
         time_difference = calc_offset_from_samples(

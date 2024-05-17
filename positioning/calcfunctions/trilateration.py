@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from scipy.optimize import minimize
 from typing import Union
 import sympy as sp
-import time
 import os
 from .symbolic_helpers import load_expression
 from .receiver import Receiver
@@ -138,7 +136,7 @@ class MicrophoneArray:
                                        and the minimized cost function value.
         """
         self.create_dynamic_cost_function()
-        
+
         [print(microphone.get_time_difference())
          for microphone in self.get_microphones()]
 
