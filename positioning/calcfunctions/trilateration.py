@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from scipy.optimize import minimize
 from typing import Union
 import sympy as sp
-import time
 import os
 from .symbolic_helpers import load_expression
 from .receiver import Receiver
@@ -166,19 +164,23 @@ class MicrophoneArray:
         ax = fig.add_subplot(111, projection='3d')
 
         # Plot the surface
-        surf = ax.plot_surface(x_grid, y_grid, z, cmap='viridis', edgecolor='none')
+        surf = ax.plot_surface(
+            x_grid, y_grid, z, cmap='viridis', edgecolor='none')
         fig.colorbar(surf, ax=ax, label='Cost value (J)')
 
         # Plotting crosses at the microphone positions
         for mic in self.microphones:
             mic_pos = mic.get_position()
-            ax.plot(mic_pos[0], mic_pos[1], self.evaluate_cost(mic_pos), 'bx', markersize=10, label='Microphones' if mic == self.microphones[0] else "", zorder=4)
+            ax.plot(mic_pos[0], mic_pos[1], self.evaluate_cost(mic_pos), 'bx', markersize=10,
+                    label='Microphones' if mic == self.microphones[0] else "", zorder=4)
 
         # Plotting the actual position
-        ax.plot(actual_pos[0], actual_pos[1], self.evaluate_cost(actual_pos), 'rx', markersize=12, label='Actual Position', zorder=20)
+        ax.plot(actual_pos[0], actual_pos[1], self.evaluate_cost(
+            actual_pos), 'rx', markersize=12, label='Actual Position', zorder=20)
 
         # Plotting the estimated position
-        ax.plot(estimated_pos[0], estimated_pos[1], self.evaluate_cost(estimated_pos), 'gx', markersize=12, label='Estimated Position', zorder=20)
+        ax.plot(estimated_pos[0], estimated_pos[1], self.evaluate_cost(
+            estimated_pos), 'gx', markersize=12, label='Estimated Position', zorder=20)
 
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
