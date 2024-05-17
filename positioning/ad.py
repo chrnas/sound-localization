@@ -3,6 +3,7 @@ from typing import Any
 from . import calcfunctions
 from .TidsförskjutningBeräkning import read_wav_file
 import numpy as np
+from typing import Union
 
 
 class MethodClass(MethodBaseClass):
@@ -23,7 +24,8 @@ class MethodClass(MethodBaseClass):
 
         recievers = calculate_amplitudes(mic_data, sampling_rate)
 
-        position = calcfunctions.trilaterate_grid(recievers, self.settings["grid settings"])
+        position = calcfunctions.trilaterate_grid(
+            recievers, self.settings["grid settings"])
 
         return position
 

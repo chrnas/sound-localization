@@ -1,7 +1,6 @@
 import librosa
 import librosa.display
 import matplotlib.pyplot as plt
-from scipy.io import wavfile
 import numpy as np
 
 

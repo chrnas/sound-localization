@@ -59,7 +59,6 @@ def assert_positioning(test_id, mic_positions, true_source, algorithm='gradient'
         estimated_source, true_source) < ERROR_MARGIN, "Estimated source too far from true source"
 
 
-
 def test_positioning_gradient_id_1():
     assert_positioning(test_id=1, mic_positions=[
                        [0, 0], [0, 15], [13, 7.5]], true_source=[0, 0], algorithm='gradient')
@@ -128,7 +127,6 @@ def test_positioning_gradient_id_27():
 def test_positioning_grid_id_27():
     assert_positioning(test_id=27, mic_positions=[
                        [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[10, 0, 0], algorithm='grid')
-
 
 
 def test_positioning_gradient_id_35():
