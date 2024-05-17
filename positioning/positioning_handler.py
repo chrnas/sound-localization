@@ -1,5 +1,3 @@
-from . import methodclass
-from . import calcfunctions
 import json
 import os
 
@@ -18,9 +16,10 @@ class PosMethodData:
         self.active = active
         self.weight = weight
 
+
 pos_methods_data = {}
 
-#for method_data in methods_data:
+# for method_data in methods_data:
 #    method_file = open(os.path.join(dirname, method_data["filename"]), "r")
 #    exec(method_file.read())
 #    print(method_data["name"])
