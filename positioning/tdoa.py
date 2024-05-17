@@ -9,11 +9,20 @@ from itertools import combinations
 from typing import Union
 
 
-class MethodClass(MethodBaseClass):
+class TDOAMethod(MethodBaseClass):
     def __init__(self) -> None:
         self.settings: dict[str, Any] = {"algorithm": "grid"}
         self.settings["grid settings"] = GridTravelSettings(
             dimensions=2, step=0.1)
+        self.all_possible_settings = {
+            "algorithm": ["grid", "gradient"],
+            "grid_settings.dimensions": [float],
+            "grid_settings.step": [float],
+            "grid_settings.smallest_start": [float],
+            "grid_settings.biggest_start": [float],
+            "grid_settings.smallest_expansion": [float],
+            "grid_settings.biggest_expansion": [float]
+        }
 
     def find_source(self, mic_data: dict[Receiver, Union[list[float], str]]) -> list[float]:
 
@@ -44,9 +53,38 @@ class MethodClass(MethodBaseClass):
     def get_settings(self):
         return self.settings
 
-    def set_setting(self, setting, value):
-        if setting in self.settings:
+    def set_setting(self, setting: str, value: Union[str, int, float, list[int]]) -> None:
+        if setting.startswith('grid_settings.'):
+            grid_setting = setting.split('.', 1)[1]
+            if hasattr(self.settings['grid settings'], grid_setting):
+                expected_type = self.all_possible_settings[setting][0]
+                if not isinstance(value, expected_type):
+                    try:
+                        value = expected_type(value)
+                    except (ValueError, TypeError):
+                        raise ValueError(f"Invalid type for setting {setting}. Expected {
+                                         expected_type.__name__}, but got {type(value).__name__}")
+                setattr(self.settings['grid settings'], grid_setting, value)
+            else:
+                raise ValueError(
+                    f"No grid setting by the name of {grid_setting}")
+        elif setting in self.all_possible_settings:
+            expected_values = self.all_possible_settings[setting]
+            if expected_values and not isinstance(expected_values[0], type):
+                if value not in expected_values:
+                    raise ValueError(f"Invalid value for setting {setting}. Expected one of {
+                                     expected_values}, but got {value}")
+            else:
+                expected_type = expected_values[0]
+                if not isinstance(value, expected_type):
+                    try:
+                        value = expected_type(value)
+                    except (ValueError, TypeError):
+                        raise ValueError(f"Invalid type for setting {setting}. Expected {
+                                         expected_type.__name__}, but got {type(value).__name__}")
             self.settings[setting] = value
+        else:
+            raise ValueError(f"No setting by the name of {setting}")
 
 
 def calculate_time_differences(receivers: dict[Receiver, list[float]], sampling_rate: int = 1) -> list[Receiver]:

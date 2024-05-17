@@ -1,11 +1,8 @@
 [
     {
-      "name": "test",
-      "filename": "test_method.py"
-    },
-    {
-      "name": "test2",
-      "filename": "test_method.py"
+      "name": "tdoa",
+      "filename": "tdoa.py",
+      "method": "TDOAMethod()"
     }
   ]
   
