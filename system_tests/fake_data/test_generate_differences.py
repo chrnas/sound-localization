@@ -1,3 +1,10 @@
+# Needed to be able to import from parent directory
+import sys
+import os
+dirname = os.path.dirname(__file__)
+root_path = os.path.join(dirname, "../../")
+sys.path.append(root_path)
+
 import pytest
 from math import sqrt, tan, pi
 from scenarios import (

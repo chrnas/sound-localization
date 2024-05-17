@@ -119,5 +119,5 @@ def print_relative_arrivals(receivers: tuple[Point, ...],
 
 if __name__ == "__main__":
     import scenarios
-    print(scenarios.MICROPHONE_PLACEMENTS[0],
-          scenarios.SCENARIOS_2D)
+    print(print_relative_arrivals(scenarios.MICROPHONE_PLACEMENTS[0],
+          scenarios.SCENARIOS_3D))

@@ -47,6 +47,8 @@ class TDOAMethod(MethodBaseClass):
             array: MicrophoneArray = MicrophoneArray(receivers)
             position, _ = array.estimate_position()
             return position.tolist()
+        else:
+            return [404, 404, 404]
 
     def get_settings(self):
         return self.settings
