@@ -76,8 +76,6 @@ def test_delay():
 
 # Helper functions
 
-
-
 def get_abs_path(relative_path):
     return os.path.normpath(os.path.join(os.path.dirname(__file__), relative_path))
 
@@ -102,7 +100,6 @@ def data3d_from_scenario(scenario: Scenario, folder: str):
     return {Receiver(point_to_3d(receiver)):
             get_abs_path(f"{folder}/{audio_file}") for
             receiver, audio_file in zip(scenario.receivers, audio_files)}
-
 
 
 def distance(source: tuple[float, float, float],
@@ -184,7 +181,15 @@ if __name__ == "__main__":
     res_delay = [0 for _, delay in res_2d +
                  res_3d if delay <= timedelta(seconds=0.5)]
     delays = [delay for _, delay in res_2d + res_3d]
-    
+
+    res_2d = [within_2d_error(scenario, get_abs_path(path_2d + folder))
+              for scenario, folder in zip(SCENARIOS_2D, folders_2d)]
+    res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder))
+              for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
+    res_delay = [0 for _, delay in res_2d + res_3d
+                 if delay <= timedelta(seconds=0.5)]
+    delays = [delay for _, delay in res_2d + res_3d]
+
     # print(delays)
 
     pass_2d_percentage = len([0 for x in res_2d if x[0]]

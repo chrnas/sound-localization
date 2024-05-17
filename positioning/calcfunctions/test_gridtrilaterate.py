@@ -72,6 +72,7 @@ def create_mics(actual_pos, mic_positions):
     return mics
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("mic_positions, actual_pos", test_cases)
 def test_positioning_accuracy(mic_positions, actual_pos):
     settings = GridTravelSettings(len(mic_positions[0]), STEP)

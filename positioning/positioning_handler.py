@@ -17,8 +17,8 @@ class PosMethodData:
         self.settings = {}
 
 
-pos_methods_data = {}
 
+pos_methods_data = {}
 for method_data in methods_data:
     method_file = open(os.path.join(dirname, method_data["filename"]), "r")
     exec(method_file.read())
@@ -26,3 +26,10 @@ for method_data in methods_data:
     exec('method_object = ' + method_data['method'])
     pos_methods_data[method_data["name"]] = PosMethodData(
         method_data["filename"], method_object)
+
+# for method_data in methods_data:
+#    method_file = open(os.path.join(dirname, method_data["filename"]), "r")
+#    exec(method_file.read())
+#    print(method_data["name"])
+#    pos_methods_data[method_data["name"]] = PosMethodData(
+#        method_data["filename"], MethodClass(), False, 1)

@@ -1,6 +1,6 @@
 from .calcfunctions import constants
 from .calcfunctions.receiver import Receiver
-from .tdoa import TDOAMethod, calculate_time_differences
+from .tdoa import TDOAMethod, calculate_time_differences, MethodClass
 import numpy as np
 from .TidsförskjutningBeräkning import calc_offset_from_samples
 
