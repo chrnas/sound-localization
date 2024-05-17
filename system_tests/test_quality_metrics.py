@@ -19,6 +19,7 @@ from fake_data.scenarios import (
 import positioning.tdoa as tdoa
 from positioning.calcfunctions.receiver import Receiver
 
+
 @pytest.mark.skip  # Not implemented
 def test_2d_error():
     """
@@ -70,13 +71,16 @@ def test_delay():
 
 # Helper functions
 
+
 def coords_from_point(point: Point):
     return [point.x, point.y, point.z]
+
 
 def data_from_scenario(scenario: Scenario, folder: str):
     audio_files = os.listdir(folder)
     return {Receiver(coords_from_point(receiver)): audio_files[i] for
             i, receiver in enumerate(scenario.receivers)}
+
 
 def distance(source: tuple[float, float, float],
              guess: tuple[float, float, float]):
