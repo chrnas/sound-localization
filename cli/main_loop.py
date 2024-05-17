@@ -1,7 +1,5 @@
 import argparse
 import readline
-import json
-from typing import Union
 from .commands import pos_list, pos_set_setting, calculate_position, mic_list, mic_add, mic_remove, mic_add_soundfile
 
 
@@ -68,33 +66,33 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def handle_command(args, positioning_methods):
-    command = args.command
-    if command == "test":
-        print("Args are:")
-        for arg in vars(args):
-            if arg != 'command':
-                print(f"{arg}: {getattr(args, arg)}")
-        print("test command executed")
-    elif command == "PosList":
-        pos_list(positioning_methods)
-    elif command == "PosSetSetting":
-        pos_set_setting(positioning_methods, args.position,
-                        args.setting_name, args.setting_value)
-    elif command == "CalculatePosition":
-        calculate_position(positioning_methods, args.method)
-    elif command == "MicList":
-        mic_list()
-    elif command == "MicAdd":
-        mic_add(args.mic, args.soundfile)
-    elif command == "MicRemove":
-        mic_remove(args.mic)
-    elif command == "MicAddSoundFile":
-        mic_add_soundfile(args.mic, args.soundfile)
-    elif command == "exit":
-        print("Exiting CLI.")
-        exit(0)
-    else:
-        print("Unknown command")
+    match args.command:
+        case "test":
+            print("Args are:")
+            for arg in vars(args):
+                if arg != 'command':
+                    print(f"{arg}: {getattr(args, arg)}")
+            print("test command executed")
+        case "PosList":
+            pos_list(positioning_methods)
+        case "PosSetSetting":
+            pos_set_setting(positioning_methods, args.position,
+                            args.setting_name, args.setting_value)
+        case "CalculatePosition":
+            calculate_position(positioning_methods, args.method)
+        case "MicList":
+            mic_list()
+        case "MicAdd":
+            mic_add(args.mic, args.soundfile)
+        case "MicRemove":
+            mic_remove(args.mic)
+        case "MicAddSoundFile":
+            mic_add_soundfile(args.mic, args.soundfile)
+        case "exit":
+            print("Exiting CLI.")
+            exit(0)
+        case _:
+            print("Unknown command")
 
 
 def completer(text, state):
