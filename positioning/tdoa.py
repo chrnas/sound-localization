@@ -11,7 +11,7 @@ from typing import Union
 
 class TDOAMethod(MethodBaseClass):
     def __init__(self) -> None:
-        self.settings: dict[str, Any] = {"algorithm": "grid"}
+        self.settings: dict[str, Any] = {"algorithm": "gradient"}
         self.settings["grid settings"] = GridTravelSettings(
             dimensions=2, step=0.1)
         self.all_possible_settings = {
