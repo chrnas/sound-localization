@@ -58,6 +58,7 @@ test_cases = [
 
 # test_cases = [([[0, 0, 0], [0, 30, 5.5], [30, 30, 0], [30, 0, 5.5]], [35, 35, 0])]
 
+
 @pytest.mark.slow
 @pytest.mark.parametrize("mic_positions, actual_position", test_cases)
 def test_positioning_accuracy(mic_positions, actual_position):

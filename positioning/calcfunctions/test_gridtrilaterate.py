@@ -71,6 +71,7 @@ def create_mics(actual_pos, mic_positions):
         mic.set_distance_difference(distances[i])
     return mics
 
+
 @pytest.mark.slow
 @pytest.mark.parametrize("mic_positions, actual_pos", test_cases)
 def test_positioning_accuracy(mic_positions, actual_pos):

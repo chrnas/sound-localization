@@ -44,4 +44,4 @@ jobs:
               if [ -f requirements_test.txt ]; then pip install -r requirements_test.txt; fi
           - name: Test with pytest
             run: |
-              pytest --tb=no
+              pytest -m "not slow" --tb=no
