@@ -137,9 +137,6 @@ class MicrophoneArray:
         """
         self.create_dynamic_cost_function()
 
-        [print(microphone.get_time_difference())
-         for microphone in self.get_microphones()]
-
         initial_guesses = np.mean([mic.get_position()
                                   for mic in self.get_microphones()], axis=0)
         result = minimize(

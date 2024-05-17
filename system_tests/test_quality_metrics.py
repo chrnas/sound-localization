@@ -3,18 +3,23 @@ This file contains the data collection for quality metrics related to the
 system.
 """
 
+# Needed to be able to import from parent directory
+import sys
+import os
+dirname = os.path.dirname(__file__)
+root_path = os.path.join(dirname, "../")
+sys.path.append(root_path)
+
 import pytest
 from math import sqrt, pow
 from datetime import datetime, timedelta
-import os
-from fake_data.generate_differences import (
+from system_tests.fake_data.generate_differences import (
     Point,
     Scenario
 )
-from fake_data.scenarios import (
+from system_tests.fake_data.scenarios import (
     SCENARIOS_2D,
     SCENARIOS_3D,
-    SCENARIOS
 )
 import positioning.tdoa as tdoa
 from positioning.calcfunctions.receiver import Receiver
@@ -72,14 +77,30 @@ def test_delay():
 # Helper functions
 
 
-def coords_from_point(point: Point):
+def get_abs_path(relative_path):
+    return os.path.normpath(os.path.join(os.path.dirname(__file__), relative_path))
+
+
+def point_to_2d(point: Point):
+    return [point.x, point.y]
+
+
+def point_to_3d(point: Point):
     return [point.x, point.y, point.z]
 
 
-def data_from_scenario(scenario: Scenario, folder: str):
+def data2d_from_scenario(scenario: Scenario, folder: str):
     audio_files = os.listdir(folder)
-    return {Receiver(coords_from_point(receiver)): audio_files[i] for
-            i, receiver in enumerate(scenario.receivers)}
+    return {Receiver(point_to_2d(receiver)):
+            get_abs_path(f"{folder}/{audio_file}") for
+            receiver, audio_file in zip(scenario.receivers, audio_files)}
+
+
+def data3d_from_scenario(scenario: Scenario, folder: str):
+    audio_files = os.listdir(folder)
+    return {Receiver(point_to_3d(receiver)):
+            get_abs_path(f"{folder}/{audio_file}") for
+            receiver, audio_file in zip(scenario.receivers, audio_files)}
 
 
 def distance(source: tuple[float, float, float],
@@ -102,12 +123,15 @@ def within_2d_error(scenario: Scenario, folder: str):
     method = tdoa.MethodClass()
     method.set_setting("algorithm", "gradient")
     source = scenario.sender
-    data = data_from_scenario(scenario, folder)
+    data = data2d_from_scenario(scenario, folder)
+    start_time = datetime.now()
     guess = method.find_source(data)
+    end_time = datetime.now()
     microphone_distance = scenario.receivers[0].distance(scenario.receivers[1])
     source_no_z = (source.x, source.y, 0)
     guess_no_z = (guess[0], guess[1], 0)
-    return distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
+    accepted = distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
+    return accepted, end_time - start_time
 
 
 def within_3d_error(scenario: Scenario, folder: str):
@@ -116,11 +140,17 @@ def within_3d_error(scenario: Scenario, folder: str):
     Verifies that a guessed postion is within the allowed margin of error for
     three dimensions.
     """
-    source = (scenario.sender.x, scenario.sender.y, scenario.sender.z)
-    # audio_files = os.listdir(folder)
-    # TODO: guess = guess_pos(data)
-    guess = (0, 0, 0)  # TODO: temp replace with actual guess above.
-    return distance(source, guess) <= 5
+    method = tdoa.MethodClass()
+    method.set_setting("algorithm", "gradient")
+    _source = scenario.sender
+    data = data3d_from_scenario(scenario, folder)
+    start_time = datetime.now()
+    _guess = method.find_source(data)
+    end_time = datetime.now()
+    source = (_source.x, _source.y, _source.z)
+    guess = (_guess[0], _guess[1], _guess[2])
+    accepted = distance(source, guess) <= 5
+    return accepted, end_time - start_time
 
 
 def within_allowed_time(scenario: Scenario, folder: str):
@@ -137,19 +167,29 @@ def within_allowed_time(scenario: Scenario, folder: str):
 if __name__ == "__main__":
     os.listdir(os.path.dirname(__file__))
     # When collecting metrics this is run instead of the pytest tests.
-    folders_2d = os.path.join(os.path.dirname(__file__), "fake_data/audio_2d")
-    folders_3d = os.path.join(os.path.dirname(__file__), "fake_data/audio_3d")
+    path_2d = "fake_data/audio_2d/"
+    path_3d = "fake_data/audio_3d/"
+    folders_2d = os.listdir(get_abs_path(path_2d))
+    folders_2d.sort(key=lambda x: float(x.strip('scenario_')))
+    folders_3d = os.listdir(get_abs_path(path_3d))
+    folders_3d.sort(key=lambda x: float(x.strip('scenario_')))
     folders = folders_2d + folders_3d
 
-    pass_2d_percentage = len(
-        [0 for scenario, folder in zip(SCENARIOS_2D, folders_2d) if
-         within_2d_error(scenario, folder)]) / len(folders_2d) * 100
-    pass_3d_percentage = len(
-        [0 for scenario, folder in zip(SCENARIOS_3D, folders_3d) if
-         within_3d_error(scenario, folder)]) / len(folders_3d) * 100
-    pass_delay_percentage = (len(
-        [0 for scenario, folder in zip(SCENARIOS, folders)
-         if within_allowed_time(scenario, folder)]) / len(folders) * 100)
+    res_2d = [within_2d_error(scenario, get_abs_path(path_2d + folder))
+              for scenario, folder in zip(SCENARIOS_2D, folders_2d)]
+    res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder))
+              for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
+    res_delay = [0 for _, delay in res_2d + res_3d
+                 if delay <= timedelta(seconds=0.5)]
+    delays = [delay for _, delay in res_2d + res_3d]
+
+    # print(delays)
+
+    pass_2d_percentage = len([0 for x in res_2d if x[0]]
+                             ) / len(folders_2d) * 100
+    pass_3d_percentage = len([0 for x in res_3d if x[0]]
+                             ) / len(folders_3d) * 100
+    pass_delay_percentage = len(res_delay) / len(folders) * 100
 
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")

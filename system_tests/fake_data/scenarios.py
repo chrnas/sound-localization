@@ -1,4 +1,11 @@
-from generate_differences import (
+# Needed to be able to import from parent directory
+import sys
+import os
+dirname = os.path.dirname(__file__)
+root_path = os.path.join(dirname, "../../")
+sys.path.append(root_path)
+
+from system_tests.fake_data.generate_differences import (
     Point,
     Scenario,
     equilateral_triangle_center,
