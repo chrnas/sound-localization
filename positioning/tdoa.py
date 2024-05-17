@@ -3,7 +3,7 @@ from typing import Any
 from .calcfunctions.receiver import Receiver
 from .calcfunctions.trilateration import MicrophoneArray
 from .calcfunctions.gridtrilaterate import GridTravelSettings, trilaterate_grid
-from .TidsförskjutningBeräkning import identify_first_sound, calc_offset_from_samples, read_wav_file
+from .cross_correlation import identify_first_sound, calc_offset_from_samples, read_wav_file
 import numpy as np
 from itertools import combinations
 from typing import Union

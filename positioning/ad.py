@@ -1,7 +1,7 @@
 from .methodclass import MethodBaseClass
 from typing import Any
 from . import calcfunctions
-from .TidsförskjutningBeräkning import read_wav_file
+from .cross_correlation import read_wav_file
 import numpy as np
 from typing import Union
 

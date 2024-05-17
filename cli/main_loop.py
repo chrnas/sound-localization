@@ -1,5 +1,7 @@
 import argparse
-import readline
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.history import InMemoryHistory
 from .commands import pos_list, pos_set_setting, calculate_position, mic_list, mic_add, mic_remove, mic_add_soundfile
 
 
@@ -95,13 +97,6 @@ def handle_command(args, positioning_methods):
             print("Unknown command")
 
 
-def completer(text, state):
-    options = [cmd for cmd in command_list if cmd.startswith(text)]
-    if state < len(options):
-        return options[state]
-    return None
-
-
 command_list = [
     "test", "PosList", "PosSetSetting", "CalculatePosition",
     "MicList", "MicAdd", "MicRemove", "MicAddSoundFile", "exit"
@@ -110,13 +105,12 @@ command_list = [
 
 def run_cli(positioning_data):
     parser = create_parser()
-    readline.parse_and_bind('tab: complete')
-    readline.set_completer(completer)
-    readline.set_completer_delims('')
+    completer = WordCompleter(command_list, ignore_case=True)
+    history = InMemoryHistory()
 
     while True:
         try:
-            input_str = input("> ")
+            input_str = prompt("> ", completer=completer, history=history)
             if input_str.strip().lower() == 'exit':
                 print("Exiting CLI.")
                 break
@@ -127,3 +121,9 @@ def run_cli(positioning_data):
             continue
         except Exception as e:
             print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    print_startup()
+    positioning_data = {}  # Replace with actual initialization
+    run_cli(positioning_data)
