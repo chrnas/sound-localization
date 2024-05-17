@@ -11,7 +11,7 @@ if __name__ == "__main__":
     startup_settings = json.loads(startup_file.read())
 
     if startup_settings["UIMode"] == "CLI":
-        cli.run_cli(pos.pos_methods_data, 0)
+        cli.run_cli(pos.pos_methods_data)
     elif startup_settings["UIMode"] == "GUI":
         pass
     else:

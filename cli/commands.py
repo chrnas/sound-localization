@@ -1,71 +1,88 @@
 import json
 import os
+import time
+import threading
+from positioning.calcfunctions import Receiver
+from positioning.positioning_handler import PosMethodData
+import itertools
 
-dirname = os.path.dirname(__file__)
+from typing import Union, Optional
 
-
-def pos_list(pos_data):
-    for method in pos_data:
-        print("Method: " + method + "  Filename: " + pos_data[method].file + "  Active: " + str(
-            pos_data[method].active) + "  Weight: " + str(pos_data[method].weight))
-
-
-def pos_activate(pos_data, method):
-    try:
-        pos_data[method[0]].active = True
-    except Exception as e:
-        print("Invalid input. Exited with error:", e)
-        return
+# Define directories
+dirname = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', 'positioning'))
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-def pos_deactivate(pos_data, method):
-    try:
-        pos_data[method[0]].active = False
-    except Exception as e:
-        print("Invalid input. Exited with error:", e)
-        return
+def pos_list(positioning_methods: dict[str, PosMethodData]) -> None:
+    for method_name, method_data in positioning_methods.items():
+        print(f"Method: {method_name}  Filename: {method_data.file}")
 
 
-def pos_weight(pos_data, args):
+def pos_set_setting(positioning_methods: dict[str, PosMethodData], method_name: str, setting_name: str, setting_value: Union[str, int, float, dict]) -> None:
     """
-    args[0] = method
-    args[1] = weight
+    Apply a specific setting to a specific positioning method.
     """
     try:
-        pos_data[args[0]].weight = float(args[1])
+        positioning_methods[method_name].method.set_setting(
+            setting=setting_name, value=setting_value)
+        print(f"Setting {setting_name} for {
+              method_name} updated to: {setting_value}")
     except Exception as e:
-        print("Invalid input. Exited with error:", e)
+        print(f"Invalid input. Exited with error: {e}")
+
+
+def calculate_position(positioning_methods: dict[str, PosMethodData], method_key: str) -> None:
+    """
+    Calculate the position using the specified positioning method and microphone data.
+    """
+    def spinner():
+        for c in itertools.cycle(['|', '/', '-', '\\']):
+            if done:
+                break
+            print('\rCalculating position ' + c, end='', flush=True)
+            time.sleep(0.1)
+
+    mic_data = read_mics()
+
+    if method_key not in positioning_methods:
+        print(f"Method {method_key} not found in positioning_methods.")
         return
 
+    method = positioning_methods[method_key]
 
-def run_once(pos_data):
-    """
-    EJ FÄRDIG
-    """
-    print("run_once: " + pos_data)
+    mic_data_dict: dict[Receiver, Union[str, list[float]]] = {}
+    for mic in mic_data:
+        receiver = Receiver([mic['latitude'], mic['longitude']])
+        soundfile_path = os.path.join(
+            base_path, mic['soundfile']) if 'soundfile' in mic else []
+        mic_data_dict[receiver] = soundfile_path
+
+    done = False
+    spinner_thread = threading.Thread(target=spinner)
+    spinner_thread.start()
+
+    try:
+        position = method.method.find_source(mic_data_dict)
+        done = True
+        spinner_thread.join()
+        print(f"\nCalculated position using {method_key}: {position}")
+    except Exception as e:
+        done = True
+        spinner_thread.join()
+        print(f"\nError calculating position: {e}")
 
 
-def run_cont(pos_data):
-    """
-    EJ FÄRDIG
-    """
-    print("run_cont: " + pos_data)
-
-
-def stop():
-    """
-    EJ FÄRDIG
-    """
-    print("STOP")
-
-
-def mic_list():
+def mic_list() -> None:
     mics = read_mics()
     for mic in mics:
-        print(mic)
+        soundfile_info = f", Soundfile: {
+            mic['soundfile']}" if 'soundfile' in mic else ""
+        print(f"Name: {mic['name']}, Latitude: {mic['latitude']}, Longitude: {
+              mic['longitude']}{soundfile_info}")
 
 
-def mic_add(mic_data):
+def mic_add(mic_data: list[str], soundfile: Optional[str] = None) -> None:
     mics = read_mics()
     try:
         for mic in mics:
@@ -75,37 +92,52 @@ def mic_add(mic_data):
         new_mic = {
             "name": mic_data[0],
             "latitude": float(mic_data[1]),
-            "longitude": float(mic_data[2])
+            "longitude": float(mic_data[2]),
         }
+        if soundfile:
+            new_mic["soundfile"] = os.path.relpath(soundfile, base_path)
     except Exception as e:
-        print("Invalid input. Exitet with error code:", e)
+        print(f"Invalid input. Exited with error code: {e}")
         return
 
     mics.append(new_mic)
     write_mics(mics)
 
 
-def mic_remove(mic_data):
+def mic_remove(mic_name: str) -> None:
     mics = read_mics()
-
-    if mic_data == "all":
+    if mic_name == "all":
         mics = []
     else:
         for mic in mics:
-            if mic["name"] == mic_data:
+            if mic["name"] == mic_name:
                 mics.remove(mic)
-
     write_mics(mics)
 
 
-def read_mics():
-    with open(os.path.join(dirname, "../positioning/microphones.json"),
-              "r") as file:
+def mic_add_soundfile(mic_name: str, soundfile: str) -> None:
+    mics = read_mics()
+    for mic in mics:
+        if mic["name"] == mic_name:
+            mic["soundfile"] = os.path.relpath(soundfile, base_path)
+            write_mics(mics)
+            print(f"Soundfile {soundfile} added to microphone {mic_name}.")
+            return
+    print(f"Microphone {mic_name} not found.")
+
+
+def read_mics() -> list[dict[str, Union[str, float]]]:
+    with open(os.path.join(dirname, "microphones.json"), "r") as file:
         mics = json.load(file)
+    for mic in mics:
+        if 'soundfile' in mic:
+            mic['soundfile'] = os.path.join(base_path, mic['soundfile'])
     return mics
 
 
-def write_mics(mics):
-    with open(os.path.join(dirname, "../positioning/microphones.json"),
-              "w") as file:
-        file.write(json.dumps(mics))
+def write_mics(mics: list[dict[str, Union[str, float]]]) -> None:
+    for mic in mics:
+        if 'soundfile' in mic:
+            mic['soundfile'] = os.path.relpath(mic['soundfile'], base_path)
+    with open(os.path.join(dirname, "microphones.json"), "w") as file:
+        file.write(json.dumps(mics, indent=4))

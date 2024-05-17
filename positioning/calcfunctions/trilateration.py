@@ -165,33 +165,29 @@ class MicrophoneArray:
         z = np.array([[self.evaluate_cost(np.array([x, y])) for x, y in zip(
             x_row, y_row)] for x_row, y_row in zip(x_grid, y_grid)])
 
-        fig, ax = plt.subplots()
-        # Create a heatmap (or contour map) of the cost function values
-        c = ax.contourf(x_grid, y_grid, z, cmap='viridis', levels=50)
-        fig.colorbar(c, ax=ax, label='Kostnad värde (J)')
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
 
-        # Flag to add label only once
-        label_added = False
+        # Plot the surface
+        surf = ax.plot_surface(x_grid, y_grid, z, cmap='viridis', edgecolor='none')
+        fig.colorbar(surf, ax=ax, label='Cost value (J)')
 
         # Plotting crosses at the microphone positions
         for mic in self.microphones:
             mic_pos = mic.get_position()
-            if not label_added:
-                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
-                label_added = True
-            else:
-                ax.plot(mic_pos[0], mic_pos[1], 'bx', markersize=10)
+            ax.plot(mic_pos[0], mic_pos[1], self.evaluate_cost(mic_pos), 'bx', markersize=10, label='Microphones' if mic == self.microphones[0] else "", zorder=4)
 
-        # Plotting and labeling the actual position cross
-        # ax.plot(actual_pos[0], actual_pos[1], 'rx', markersize=12, label='Actual Position')
+        # Plotting the actual position
+        ax.plot(actual_pos[0], actual_pos[1], self.evaluate_cost(actual_pos), 'rx', markersize=12, label='Actual Position', zorder=20)
 
-        # Plotting and labeling the estimated position cross
-        ax.plot(estimated_pos[0], estimated_pos[1], 'gx', markersize=12,)
+        # Plotting the estimated position
+        ax.plot(estimated_pos[0], estimated_pos[1], self.evaluate_cost(estimated_pos), 'gx', markersize=12, label='Estimated Position', zorder=20)
 
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        ax.set_title('2D Heatmap of the Cost Function')
-        plt.legend()
+        ax.set_zlabel('Cost Value (J)')
+        ax.set_title('3D Surface of the Cost Function')
+        ax.legend()
         plt.show()
 
     def create_dynamic_cost_function(self):

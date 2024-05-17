@@ -1,7 +1,7 @@
 from .calcfunctions import constants
 from .calcfunctions.receiver import Receiver
 from .methodclass import MethodBaseClass
-from .tdoa import MethodClass, calculate_time_differences
+from .tdoa import TDOAMethod, calculate_time_differences
 from .calcfunctions.receiver import Receiver
 import numpy as np
 from .TidsförskjutningBeräkning import calc_offset_from_samples
@@ -78,7 +78,7 @@ def test_method_class():
     }
 
     # Create MethodClass instance
-    method = MethodClass()
+    method = TDOAMethod()
 
     source_position: np.ndarray = np.array([0, 0])
 

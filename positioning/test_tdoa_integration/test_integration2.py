@@ -1,4 +1,4 @@
-from positioning.tdoa import MethodClass
+from positioning.tdoa import TDOAMethod
 from positioning.calcfunctions.receiver import Receiver
 import numpy as np
 
@@ -39,7 +39,7 @@ def assert_positioning(test_id, mic_positions, true_source, algorithm='gradient'
     Raises:
         AssertionError: If the estimated source position is not within the acceptable range of the true source.
     """
-    method = MethodClass()
+    method = TDOAMethod()
     # Set the algorithm to use for the method
     method.set_setting("algorithm", algorithm)
 
@@ -51,13 +51,12 @@ def assert_positioning(test_id, mic_positions, true_source, algorithm='gradient'
 
     # Find source using the method's implementation
     estimated_source = method.find_source(microphones_data)
-    # print(f"Estimated Source for Test ID {test_id} using '{
-    #      algorithm}': {estimated_source}")
+    print(f"Estimated Source for Test ID {test_id} using '{
+          algorithm}': {estimated_source}")
 
     # Calculate the Euclidean distance to assert proximity to true source
     assert calculate_distance(
         estimated_source, true_source) < ERROR_MARGIN, "Estimated source too far from true source"
-
 
 
 def test_positioning_gradient_id_1():
@@ -128,7 +127,6 @@ def test_positioning_gradient_id_27():
 def test_positioning_grid_id_27():
     assert_positioning(test_id=27, mic_positions=[
                        [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[10, 0, 0], algorithm='grid')
-
 
 
 def test_positioning_gradient_id_35():
