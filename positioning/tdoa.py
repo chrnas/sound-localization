@@ -88,7 +88,6 @@ def calculate_time_differences(receivers: dict[Receiver, list[float]], sampling_
                     [sum(pairwise_time_diffs[step] for step in path) for path in all_paths])
                 receiver.set_time_difference(average_time_diff)
 
-
     ordered_microphones = list(receivers.keys())
     ordered_microphones.sort(
         key=lambda mic: mic.get_time_difference())
