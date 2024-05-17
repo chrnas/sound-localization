@@ -1,4 +1,4 @@
-from fake_data.generate_differences import (
+from generate_differences import (
     Point,
     Scenario,
     equilateral_triangle_center,

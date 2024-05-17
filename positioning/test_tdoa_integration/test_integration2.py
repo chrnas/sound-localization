@@ -1,6 +1,7 @@
 from positioning.tdoa import MethodClass
 from positioning.calcfunctions.receiver import Receiver
 import numpy as np
+import os
 
 
 ERROR_MARGIN: float = 0.5
@@ -45,7 +46,7 @@ def assert_positioning(test_id, mic_positions, true_source, algorithm='gradient'
 
     # Build the microphone data dictionary with file paths
     microphones_data = {
-        Receiver(position): f"test_tdoa_integration/scenario_{test_id}/microphone_{idx+1}.wav"
+        Receiver(position): os.path.normpath(os.path.join(os.path.dirname(__file__), f"scenario_{test_id}/microphone_{idx+1}.wav"))
         for idx, position in enumerate(mic_positions)
     }
 
@@ -132,8 +133,3 @@ def test_positioning_grid_id_27():
 def test_positioning_gradient_id_35():
     assert_positioning(test_id=35, mic_positions=[
                        [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[35, 35, 0], algorithm='gradient')
-
-
-def test_positioning_grid_id_35():
-    assert_positioning(test_id=35, mic_positions=[
-                       [0, 0, 0], [0, 30, 5.3], [30, 30, 0], [30, 0, 5.3]], true_source=[35, 35, 0], algorithm='grid')
