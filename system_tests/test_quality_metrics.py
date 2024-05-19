@@ -150,7 +150,7 @@ def within_3d_error(scenario: Scenario, folder: str):
     source = (_source.x, _source.y, _source.z)
     guess = (_guess[0], _guess[1], _guess[2])
     accepted = distance(source, guess) <= 5
-    return accepted, end_time - start_time, distance
+    return accepted, end_time - start_time, distance(source, guess)
 
 
 def within_allowed_time(scenario: Scenario, folder: str):
@@ -190,8 +190,8 @@ if __name__ == "__main__":
 
     average_error_2d = sum([error for _, _, error in res_2d]) / len(res_2d)
     average_error_3d = sum([error for _, _, error in res_3d]) / len(res_3d)
-    average_delay_2d = sum([delay for _, delay, _ in res_2d]) / len(res_2d)
-    average_delay_3d = sum([delay for _, delay, _ in res_3d]) / len(res_3d)
+    average_delay_2d = sum([delay for _, delay, _ in res_2d], timedelta()) / len(res_2d)
+    average_delay_3d = sum([delay for _, delay, _ in res_3d], timedelta()) / len(res_3d)
 
     print("Quality metrics:")
     print(f"Within 20% of the distance between microphones in a 2d plane, {
