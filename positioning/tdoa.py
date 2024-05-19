@@ -3,7 +3,7 @@ from typing import Any
 from .calcfunctions.receiver import Receiver
 from .calcfunctions.trilateration import MicrophoneArray
 from .calcfunctions.gridtrilaterate import GridTravelSettings, trilaterate_grid
-from .TidsförskjutningBeräkning import identify_first_sound, calc_offset_from_samples, read_wav_file
+from .cross_correlation import identify_first_sound, calc_offset_from_samples, read_wav_file
 import numpy as np
 from itertools import combinations
 from typing import Union
@@ -11,7 +11,7 @@ from typing import Union
 
 class TDOAMethod(MethodBaseClass):
     def __init__(self) -> None:
-        self.settings: dict[str, Any] = {"algorithm": "grid"}
+        self.settings: dict[str, Any] = {"algorithm": "gradient"}
         self.settings["grid settings"] = GridTravelSettings(
             dimensions=2, step=0.1)
         self.all_possible_settings = {

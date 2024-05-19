@@ -2,7 +2,7 @@ from .calcfunctions import constants
 from .calcfunctions.receiver import Receiver
 from .tdoa import TDOAMethod, calculate_time_differences
 import numpy as np
-from .TidsförskjutningBeräkning import calc_offset_from_samples
+from .cross_correlation import calc_offset_from_samples
 
 
 def setup_time_differences(mics, first_detected_index, source_pos):

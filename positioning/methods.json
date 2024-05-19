@@ -3,6 +3,12 @@
       "name": "tdoa",
       "filename": "tdoa.py",
       "method": "TDOAMethod()"
+    },
+    {
+      "name": "ad",
+      "filename": "ad.py",
+      "method": "ADMethod()"
     }
+
   ]
   

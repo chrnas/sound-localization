@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from .TidsförskjutningBeräkning import create_wav_object, calc_shifted_samples_fft
+from .cross_correlation import create_wav_object, calc_shifted_samples_fft
 
 
 @pytest.fixture

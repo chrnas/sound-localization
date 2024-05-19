@@ -1,5 +1,5 @@
 
-from positioning.TidsförskjutningBeräkning import calc_offset_wav
+from positioning.cross_correlation import calc_offset_wav
 from scipy.io import wavfile
 import os
 import warnings
