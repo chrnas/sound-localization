@@ -131,7 +131,7 @@ def within_2d_error(scenario: Scenario, folder: str):
     source_no_z = (source.x, source.y, 0)
     guess_no_z = (guess[0], guess[1], 0)
     accepted = distance(source_no_z, guess_no_z) <= microphone_distance * 0.2
-    return accepted, end_time - start_time
+    return accepted, end_time - start_time, distance(source_no_z, guess_no_z)
 
 
 def within_3d_error(scenario: Scenario, folder: str):
@@ -150,7 +150,7 @@ def within_3d_error(scenario: Scenario, folder: str):
     source = (_source.x, _source.y, _source.z)
     guess = (_guess[0], _guess[1], _guess[2])
     accepted = distance(source, guess) <= 5
-    return accepted, end_time - start_time
+    return accepted, end_time - start_time, distance
 
 
 def within_allowed_time(scenario: Scenario, folder: str):
@@ -179,7 +179,7 @@ if __name__ == "__main__":
               for scenario, folder in zip(SCENARIOS_2D, folders_2d)]
     res_3d = [within_3d_error(scenario, get_abs_path(path_3d + folder))
               for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
-    res_delay = [0 for _, delay in res_2d + res_3d
+    res_delay = [0 for _, delay, _ in res_2d + res_3d
                  if delay <= timedelta(seconds=0.5)]
     delays = [delay for _, delay in res_2d + res_3d]
 
@@ -191,8 +191,20 @@ if __name__ == "__main__":
                              ) / len(folders_3d) * 100
     pass_delay_percentage = len(res_delay) / len(folders) * 100
 
+    average_error_2d = sum([error for _, _, error in res_2d]) / len(res_2d)
+    average_error_3d = sum([error for _, _, error in res_3d]) / len(res_3d)
+    average_delay_2d = sum([delay for _, delay, _ in res_2d]) / len(res_2d)
+    average_delay_3d = sum([delay for _, delay, _ in res_3d]) / len(res_3d)
+
+    print("Quality metrics:")
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")
     print(f"Within 5 meters in a 3d space, {pass_3d_percentage}% of the time.")
     print(f"Gives a postion withing 0.5s, {
           pass_delay_percentage}% of the time.")
+    print("")
+    print("Metrics:")
+    print(f"Average 2d error: {average_error_2d}m")
+    print(f"Average 3d error: {average_error_3d}m")
+    print(f"Average 2d delay: {average_delay_2d}m")
+    print(f"Average 3d delay: {average_delay_3d}m")
