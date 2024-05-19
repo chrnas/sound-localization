@@ -203,5 +203,5 @@ if __name__ == "__main__":
     print("Metrics:")
     print(f"Average 2d error: {average_error_2d}m")
     print(f"Average 3d error: {average_error_3d}m")
-    print(f"Average 2d delay: {average_delay_2d}m")
-    print(f"Average 3d delay: {average_delay_3d}m")
+    print(f"Average 2d delay: {average_delay_2d}s")
+    print(f"Average 3d delay: {average_delay_3d}s")
