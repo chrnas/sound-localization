@@ -120,7 +120,7 @@ def within_2d_error(scenario: Scenario, folder: str):
     Verifies that a guessed postion is within the allowed margin of error for
     the 2d plane.
     """
-    method = tdoa.MethodClass()
+    method = tdoa.TDOAMethod()
     method.set_setting("algorithm", "gradient")
     source = scenario.sender
     data = data2d_from_scenario(scenario, folder)
@@ -140,7 +140,7 @@ def within_3d_error(scenario: Scenario, folder: str):
     Verifies that a guessed postion is within the allowed margin of error for
     three dimensions.
     """
-    method = tdoa.MethodClass()
+    method = tdoa.TDOAMethod()
     method.set_setting("algorithm", "gradient")
     _source = scenario.sender
     data = data3d_from_scenario(scenario, folder)
