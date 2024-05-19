@@ -181,9 +181,6 @@ if __name__ == "__main__":
               for scenario, folder in zip(SCENARIOS_3D, folders_3d)]
     res_delay = [0 for _, delay, _ in res_2d + res_3d
                  if delay <= timedelta(seconds=0.5)]
-    delays = [delay for _, delay in res_2d + res_3d]
-
-    # print(delays)
 
     pass_2d_percentage = len([0 for x in res_2d if x[0]]
                              ) / len(folders_2d) * 100
