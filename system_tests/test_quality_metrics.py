@@ -197,7 +197,7 @@ if __name__ == "__main__":
     print(f"Within 20% of the distance between microphones in a 2d plane, {
           pass_2d_percentage}% of the time.")
     print(f"Within 5 meters in a 3d space, {pass_3d_percentage}% of the time.")
-    print(f"Gives a postion withing 0.5s, {
+    print(f"Gives a postion within 0.5s, {
           pass_delay_percentage}% of the time.")
     print("")
     print("Metrics:")
