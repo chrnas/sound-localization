@@ -50,7 +50,6 @@ def record_continuously():
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
             buffer.append(data)
-            
             # Noise level should be calibrated
             noise_level = rms(data)
 
@@ -75,7 +74,6 @@ def handle_start_test(data):
     while True:
         current_time = initial_ntp_time + \
             (time.perf_counter() - initial_perf_time)
-        
         if current_time >= start_time:
             break
 
