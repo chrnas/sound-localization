@@ -299,8 +299,6 @@ def calc_offset_from_samples(
     wav1 = create_wav_object(samples1, rate1)
     wav2 = create_wav_object(samples2, rate2)
 
-    print("Length of wav1:", wav1.audio_data_size)
-    print("Length of wav2:", wav2.audio_data_size)
     # Calculate and return the time offset using the existing functionality
     return calc_offset(wav1, wav2)
 

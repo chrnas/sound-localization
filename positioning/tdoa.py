@@ -24,7 +24,7 @@ class TDOAMethod(MethodBaseClass):
             "grid_settings.biggest_expansion": [float]
         }
 
-    def find_source(self, mic_data: dict[Receiver, Union[list[float], str]], sample_rate = 1) -> list[float]:
+    def find_source(self, mic_data: dict[Receiver, Union[list[float], str]], sample_rate=1) -> list[float]:
 
         sampling_rate = sample_rate
 

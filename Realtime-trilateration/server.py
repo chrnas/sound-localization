@@ -154,11 +154,8 @@ def handle_disconnect():
 def remove_inf_and_nans(data):
     # Check if there are NaNs or Infs before replacing
     if np.isnan(data).any() or np.isinf(data).any():
-        original_shape = data.shape
         data = np.nan_to_num(data, nan=0.0, posinf=0.0, neginf=0.0)
-        num_replacements = np.prod(original_shape) - np.count_nonzero(data)
     return data
-
 
 def triangulate():
     tdoa_method = TDOAMethod()
