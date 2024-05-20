@@ -358,12 +358,12 @@ if __name__ == "__main__":
 
     # Estimate the position of the sound source and compute its cost
     estimated_position, function_value = microphone_array.estimate_position()
-    print(f"Estimated Position: {
-          estimated_position}, Function Value: {function_value}")
-    print(f"Distance from Actual Source: {
-          np.linalg.norm(estimated_position - sound_source)}")
-    print(f"Cost of Estimated Position: {microphone_array.evaluate_cost(
-        estimated_position)}, Cost of Actual Position: {microphone_array.evaluate_cost(sound_source)}")
+    print(
+        f"Estimated Position: {estimated_position}, Function Value: {function_value}")
+    print(
+        f"Distance from Actual Source: {np.linalg.norm(estimated_position - sound_source)}")
+    print(
+        f"Cost of Estimated Position: {microphone_array.evaluate_cost(estimated_position)}, Cost of Actual Position: {microphone_array.evaluate_cost(sound_source)}")
 
     # Plot the cost function with actual and estimated positions
     # microphone_array.plot_cost_function(

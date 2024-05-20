@@ -220,6 +220,7 @@ def identify_first_sound(sounds: list[list[float]]):
     min_time_difference = float("inf")
     first_index = 0
 
+    print("Length of sounds:", len(sounds))
     # Choose one sound as a reference, compare it against all others
     reference_sound = sounds[0]
 
@@ -271,6 +272,7 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
     """
     wav1 = WavFile(wav_file1)
     wav2 = WavFile(wav_file2)
+
     return calc_offset(wav1, wav2)
 
 

@@ -24,9 +24,9 @@ class TDOAMethod(MethodBaseClass):
             "grid_settings.biggest_expansion": [float]
         }
 
-    def find_source(self, mic_data: dict[Receiver, Union[list[float], str]]) -> list[float]:
+    def find_source(self, mic_data: dict[Receiver, Union[list[float], str]], sample_rate=1) -> list[float]:
 
-        sampling_rate = 1
+        sampling_rate = sample_rate
 
         for receiver, data in mic_data.items():
             if isinstance(data, str):
@@ -62,8 +62,8 @@ class TDOAMethod(MethodBaseClass):
                     try:
                         value = expected_type(value)
                     except (ValueError, TypeError):
-                        raise ValueError(f"Invalid type for setting {setting}. Expected {
-                                         expected_type.__name__}, but got {type(value).__name__}")
+                        raise ValueError(print(
+                            f"Invalid type for setting {setting}. Expected {expected_type.__name__}, but got {type(value).__name__}"))
                 setattr(self.settings['grid settings'], grid_setting, value)
             else:
                 raise ValueError(
@@ -72,16 +72,16 @@ class TDOAMethod(MethodBaseClass):
             expected_values = self.all_possible_settings[setting]
             if expected_values and not isinstance(expected_values[0], type):
                 if value not in expected_values:
-                    raise ValueError(f"Invalid value for setting {setting}. Expected one of {
-                                     expected_values}, but got {value}")
+                    raise ValueError(
+                        f"Invalid value for setting {setting}. Expected one of {expected_values}, but got {value}")
             else:
                 expected_type = expected_values[0]
                 if not isinstance(value, expected_type):
                     try:
                         value = expected_type(value)
                     except (ValueError, TypeError):
-                        raise ValueError(f"Invalid type for setting {setting}. Expected {
-                                         expected_type.__name__}, but got {type(value).__name__}")
+                        raise ValueError(
+                            f"Invalid type for setting {setting}. Expected {expected_type.__name__}, but got {type(value).__name__}")
             self.settings[setting] = value
         else:
             raise ValueError(f"No setting by the name of {setting}")

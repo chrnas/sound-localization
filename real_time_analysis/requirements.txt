@@ -1,4 +1,0 @@
-Flask
-Flask-SocketIO
-python-socketio[client]
-PyAudio
