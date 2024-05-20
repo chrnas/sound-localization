@@ -133,7 +133,8 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
 
     # Perform FFT on both audio vectorss
     fft_audio1 = fft(
-        audio1VectorData, n=2 * max(len(audio1VectorData), len(audio2VectorData)) - 1
+        audio1VectorData, n=2 *
+        max(len(audio1VectorData), len(audio2VectorData)) - 1
     )
     fft_audio2 = fft(
         np.flipud(audio2VectorData),
@@ -220,7 +221,6 @@ def identify_first_sound(sounds: list[list[float]]):
     min_time_difference = float("inf")
     first_index = 0
 
-    print("Length of sounds:", len(sounds))
     # Choose one sound as a reference, compare it against all others
     reference_sound = sounds[0]
 
