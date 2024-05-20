@@ -17,10 +17,6 @@ The project is structured into several directories, each with a specific purpose
 - `Realtime-trilateration/`: Contains scripts for real-time trilateration.
 - `system_tests/`: Contains system tests for the project.
 
-### Prerequisites
-
-
-
 #### Features
 - **Multiple Localization Algorithms:** Supports grid-based, gradient-based, and amplitude difference algorithms to cater to various precision and performance needs.
 - **Dynamic Microphone Configuration:** Allows configuration with variable numbers of microphones in different dimensional spaces (2D and 3D).

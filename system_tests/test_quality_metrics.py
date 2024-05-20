@@ -2,27 +2,26 @@
 This file contains the data collection for quality metrics related to the
 system.
 """
-
-# Needed to be able to import from parent directory
-import sys
 import os
+import sys
+
 dirname = os.path.dirname(__file__)
 root_path = os.path.join(dirname, "../")
 sys.path.append(root_path)
-
-import pytest
-from math import sqrt, pow
-from datetime import datetime, timedelta
-from system_tests.fake_data.generate_differences import (
-    Point,
-    Scenario
-)
+# Needed to be able to import from parent directory
+from positioning.calcfunctions.receiver import Receiver
+import positioning.tdoa as tdoa
 from system_tests.fake_data.scenarios import (
     SCENARIOS_2D,
     SCENARIOS_3D,
 )
-import positioning.tdoa as tdoa
-from positioning.calcfunctions.receiver import Receiver
+from system_tests.fake_data.generate_differences import (
+    Point,
+    Scenario
+)
+from datetime import datetime, timedelta
+from math import sqrt, pow
+import pytest
 
 
 @pytest.mark.skip  # Not implemented
@@ -190,15 +189,17 @@ if __name__ == "__main__":
 
     average_error_2d = sum([error for _, _, error in res_2d]) / len(res_2d)
     average_error_3d = sum([error for _, _, error in res_3d]) / len(res_3d)
-    average_delay_2d = sum([delay for _, delay, _ in res_2d], timedelta()) / len(res_2d)
-    average_delay_3d = sum([delay for _, delay, _ in res_3d], timedelta()) / len(res_3d)
+    average_delay_2d = sum(
+        [delay for _, delay, _ in res_2d], timedelta()) / len(res_2d)
+    average_delay_3d = sum(
+        [delay for _, delay, _ in res_3d], timedelta()) / len(res_3d)
 
     print("Quality metrics:")
-    print(f"Within 20% of the distance between microphones in a 2d plane, {
-          pass_2d_percentage}% of the time.")
+    print(
+        f"Within 20% of the distance between microphones in a 2d plane, {pass_2d_percentage}% of the time.")
     print(f"Within 5 meters in a 3d space, {pass_3d_percentage}% of the time.")
-    print(f"Gives a postion within 0.5s, {
-          pass_delay_percentage}% of the time.")
+    print(
+        f"Gives a postion within 0.5s, {pass_delay_percentage}% of the time.")
     print("")
     print("Metrics:")
     print(f"Average 2d error: {average_error_2d}m")

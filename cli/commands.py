@@ -26,8 +26,8 @@ def pos_set_setting(positioning_methods: dict[str, PosMethodData], method_name: 
     try:
         positioning_methods[method_name].method.set_setting(
             setting=setting_name, value=setting_value)
-        print(f"Setting {setting_name} for {
-              method_name} updated to: {setting_value}")
+        print(
+            f"Setting {setting_name} for {method_name} updated to: {setting_value}")
     except Exception as e:
         print(f"Invalid input. Exited with error: {e}")
 
@@ -76,10 +76,9 @@ def calculate_position(positioning_methods: dict[str, PosMethodData], method_key
 def mic_list() -> None:
     mics = read_mics()
     for mic in mics:
-        soundfile_info = f", Soundfile: {
-            mic['soundfile']}" if 'soundfile' in mic else ""
-        print(f"Name: {mic['name']}, Latitude: {mic['latitude']}, Longitude: {
-              mic['longitude']}{soundfile_info}")
+        soundfile_info = ", Soundfile: {mic['soundfile']}" if 'soundfile' in mic else ""
+        print(
+            f"Name: {mic['name']}, Latitude: {mic['latitude']}, Longitude: {mic['longitude']}{soundfile_info}")
 
 
 def mic_add(mic_data: list[str], soundfile: Optional[str] = None) -> None:

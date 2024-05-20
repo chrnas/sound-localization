@@ -1,6 +1,4 @@
 # Adjust the base path and positioning imports
-from positioning.tdoa import TDOAMethod
-from positioning.calcfunctions.receiver import Receiver
 import ntplib
 import zlib
 import pyaudio
@@ -13,6 +11,8 @@ import numpy as np
 import sys
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(base_path)
+from positioning.tdoa import TDOAMethod
+from positioning.calcfunctions.receiver import Receiver
 
 
 # Define directories
