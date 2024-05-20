@@ -12,7 +12,7 @@ import numpy as np
 
 # Configuration and initialization
 ID = "microphone"
-server_url = "http://localhost:5000" 
+server_url = "http://localhost:5000"
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
