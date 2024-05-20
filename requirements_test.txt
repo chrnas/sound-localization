@@ -1,2 +1,0 @@
-# Test dependencies
-pytest==8.0.1
