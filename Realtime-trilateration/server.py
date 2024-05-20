@@ -8,8 +8,7 @@ import wave
 import time
 import os
 from flask_socketio import SocketIO, emit
-from flask import Flask, render_template, request  # jsonify
-from threading import Thread
+from flask import Flask, request  # jsonify
 import numpy as np
 import sys
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
