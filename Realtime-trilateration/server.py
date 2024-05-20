@@ -1,4 +1,6 @@
 # Adjust the base path and positioning imports
+from positioning.tdoa import TDOAMethod
+from positioning.calcfunctions.receiver import Receiver
 import ntplib
 import zlib
 import pyaudio
@@ -12,8 +14,6 @@ import numpy as np
 import sys
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(base_path)
-from positioning.calcfunctions.receiver import Receiver
-from positioning.tdoa import TDOAMethod
 
 
 # Define directories
@@ -85,7 +85,7 @@ def handle_loud_noise():
     ntp_current_time = response.tx_time + (current_time - initial_time)
 
     if ntp_current_time - last_loud_noise_time > loud_noise_cooldown:
-        
+
         for mic in microphones.values():
             mic.current_audio_data = b""
             mic.current_timestamp = 0
@@ -132,8 +132,8 @@ def handle_audio_data(data):
 def save_data(test_id):
     microphone = microphones[request.sid]
     if not microphone.data_submitted:
-        #thread = Thread(target=microphone.save, args=(test_id,))
-        #thread.start()
+        # thread = Thread(target=microphone.save, args=(test_id,))
+        # thread.start()
         microphone.data_submitted = True
         # Check if all microphones have submitted their data
         if all(mic.data_submitted for mic in microphones.values()):
@@ -163,7 +163,7 @@ def remove_inf_and_nans(data):
 def triangulate():
     tdoa_method = TDOAMethod()
     mic_data = {}
-    
+
     # Wait for all audio data to be received
     time.sleep(0.5)
     for mic in microphones.values():
@@ -171,15 +171,15 @@ def triangulate():
         decompressed = zlib.decompress(mic.current_audio_data)
         float_samples = np.frombuffer(
             decompressed, dtype=np.int16).astype(np.float32)
-        
-        float_samples=remove_inf_and_nans(float_samples)
+
+        float_samples = remove_inf_and_nans(float_samples)
 
         receiver = Receiver([mic.latitude, mic.longitude])
 
         mic_data[receiver] = float_samples
 
     if mic_data:
-        source_position = tdoa_method.find_source(mic_data, sample_rate = 44100)
+        source_position = tdoa_method.find_source(mic_data, sample_rate=44100)
         print(f"Estimated source position: {source_position}")
     else:
         print("No valid microphone data available to estimate source position.")
