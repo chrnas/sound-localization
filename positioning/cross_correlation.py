@@ -133,7 +133,8 @@ def calc_shifted_samples_fft(wav1: WavFile, wav2: WavFile) -> int:
 
     # Perform FFT on both audio vectorss
     fft_audio1 = fft(
-        audio1VectorData, n=2 * max(len(audio1VectorData), len(audio2VectorData)) - 1
+        audio1VectorData, n=2 *
+        max(len(audio1VectorData), len(audio2VectorData)) - 1
     )
     fft_audio2 = fft(
         np.flipud(audio2VectorData),
@@ -220,6 +221,7 @@ def identify_first_sound(sounds: list[list[float]]):
     min_time_difference = float("inf")
     first_index = 0
 
+    print("Length of sounds:", len(sounds))
     # Choose one sound as a reference, compare it against all others
     reference_sound = sounds[0]
 
@@ -271,6 +273,7 @@ def calc_offset_wav(wav_file1: str, wav_file2: str) -> float:
     """
     wav1 = WavFile(wav_file1)
     wav2 = WavFile(wav_file2)
+
     return calc_offset(wav1, wav2)
 
 
@@ -296,6 +299,8 @@ def calc_offset_from_samples(
     wav1 = create_wav_object(samples1, rate1)
     wav2 = create_wav_object(samples2, rate2)
 
+    print("Length of wav1:", wav1.audio_data_size)
+    print("Length of wav2:", wav2.audio_data_size)
     # Calculate and return the time offset using the existing functionality
     return calc_offset(wav1, wav2)
 

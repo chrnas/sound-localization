@@ -41,8 +41,8 @@ def calculate_symbolic_expressions(dimensions, num_mics, speed_of_sound_symbol='
     hessian = sp.Matrix([[cost_expr.diff(var1, var2)
                         for var1 in position_symbols] for var2 in position_symbols])
 
-    print(f"Calculation of cost expressions took about {
-          time.time() - start_time} seconds.")
+    print(
+        f"Calculation of cost expressions took about {time.time() - start_time} seconds.")
 
     return cost_expr, gradients, hessian
 
