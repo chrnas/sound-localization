@@ -1,13 +1,12 @@
+"""
+Server for the data collection app
+"""
+
 from threading import Thread
 from flask import Flask, render_template, request  # jsonify
 from flask_socketio import SocketIO, emit
 import os
-# import numpy as np
 import time
-# import numpy as np
-# import sys
-# import os
-# import matplotlib.pyplot as plt
 import wave
 import pyaudio
 import zlib
@@ -72,17 +71,14 @@ socketio = SocketIO(app, max_http_buffer_siz=1e10)
 def index():
     if request.method == 'POST':
         test_id = request.form['test_id']
-        # Do something with the input_text, for example, print it
         print("Input text:", test_id)
         start_test(test_id)
     return render_template('index.html', name='app')
 
 
-# TODO Fix this for NTP
 @app.route('/start_test/<test_id>')
 def start_test(test_id):
     print('Test ID:', test_id)
-    # Get current server time
 
     ntp_client = ntplib.NTPClient()
     response = ntp_client.request('pool.ntp.org', version=3)
@@ -122,10 +118,6 @@ def save_data(test_id):
     print("saving...")
     thread = Thread(target=microphone.save, args=(test_id,))
     thread.start()
-    # microphone.save(test_id)
-
-
-# TODO Old stuff
 
 
 @socketio.on('syncTime')
