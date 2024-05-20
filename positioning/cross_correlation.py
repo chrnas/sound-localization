@@ -220,7 +220,6 @@ def identify_first_sound(sounds: list[list[float]]):
     min_time_difference = float("inf")
     first_index = 0
 
-    print("Length of sounds:", len(sounds))
     # Choose one sound as a reference, compare it against all others
     reference_sound = sounds[0]
 
