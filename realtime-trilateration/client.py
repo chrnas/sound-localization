@@ -12,7 +12,7 @@ import numpy as np
 
 # Configuration and initialization
 ID = "microphone"
-server_url = "http://localhost:5000"
+server_url = "http://localhost:5000" 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
@@ -50,8 +50,10 @@ def record_continuously():
         while True:
             data = stream.read(CHUNK, exception_on_overflow=False)
             buffer.append(data)
+            
+            # Noise level should be calibrated
             noise_level = rms(data)
-            # print(noise_level)
+
             if noise_level > 10000 and len(buffer) == BUFFER_SIZE:
                 print("Loud noise detected!")
                 sio.emit('loudNoise')
@@ -73,8 +75,7 @@ def handle_start_test(data):
     while True:
         current_time = initial_ntp_time + \
             (time.perf_counter() - initial_perf_time)
-        # print(
-        #    f"current_time: {current_time} start time: {start_time}")
+        
         if current_time >= start_time:
             break
 
