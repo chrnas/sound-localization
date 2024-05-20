@@ -156,10 +156,10 @@ def remove_inf_and_nans(data):
         data = np.nan_to_num(data, nan=0.0, posinf=0.0, neginf=0.0)
     return data
 
+
 def triangulate():
     tdoa_method = TDOAMethod()
     mic_data = {}
-
     # Wait for all audio data to be received
     time.sleep(0.5)
     for mic in microphones.values():

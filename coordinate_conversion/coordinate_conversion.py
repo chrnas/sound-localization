@@ -101,9 +101,6 @@ def get_lat_long(mic, x, y):
 
 
 if __name__ == "__main__":
-    
-    # TODO: Implement with JSON file
-
     mics = [
         {"name": "Mic1",
          "latitude": 47.80706954562163,
