@@ -11,7 +11,7 @@ from threading import Thread
 import numpy as np
 
 # Configuration and initialization
-ID = "mathias"
+ID = "microphone"
 server_url = "http://localhost:5000"
 FORMAT = pyaudio.paInt16
 CHANNELS = 1

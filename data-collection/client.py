@@ -10,7 +10,7 @@ from collections import deque
 from threading import Thread
 
 # Configuration and initialization
-ID = "mathias"
+ID = "microphone"
 server_url = "http://localhost:5000"
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
